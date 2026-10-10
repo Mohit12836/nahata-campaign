@@ -17,7 +17,13 @@ interface OfferClaimModalProps {
 }
 
 const CITIES = ['बीकानेर', 'जयपुर', 'जोधपुर', 'उदयपुर', 'अजमेर', 'कोटा', 'श्रीगंगानगर', 'अन्य'];
-const CATEGORIES = ['किराना / जनरल स्टोर', 'होलसेलर', 'रिटेलर', 'घरेलू उपभोक्ता (Consumer)', 'अन्य व्यापार'];
+const CATEGORIES = [
+  'घरेलू उपभोक्ता (Family / Home)',
+  'दुकानदार / रिटेलर',
+  'होलसेलर',
+  'विद्यार्थी / स्कूल वर्ग',
+  'अन्य ग्राहक',
+];
 
 export const OfferClaimModal: React.FC<OfferClaimModalProps> = ({
   campaign,
@@ -28,7 +34,7 @@ export const OfferClaimModal: React.FC<OfferClaimModalProps> = ({
   const [fullName, setFullName] = useState('');
   const [phone, setPhone] = useState('');
   const [city, setCity] = useState('बीकानेर');
-  const [businessCategory, setBusinessCategory] = useState('किराना / जनरल स्टोर');
+  const [businessCategory, setBusinessCategory] = useState('घरेलू उपभोक्ता (Family / Home)');
   const [consent, setConsent] = useState(true);
   const [error, setError] = useState('');
 
@@ -156,7 +162,7 @@ export const OfferClaimModal: React.FC<OfferClaimModalProps> = ({
 
           <div>
             <label className="block text-xs font-bold text-amber-950 mb-1">
-              व्यापार / वर्ग
+              ग्राहक प्रकार (Category)
             </label>
             <div className="relative">
               <select
@@ -183,7 +189,7 @@ export const OfferClaimModal: React.FC<OfferClaimModalProps> = ({
             className="mt-1 w-4 h-4 text-emerald-600 rounded border-amber-300 focus:ring-emerald-500"
           />
           <span className="text-[11px] text-amber-900 font-medium leading-tight">
-            मुझे नाहाटा जनरल स्टोर्स से व्हाट्सएप पर कूपन कोड, स्पेशल डिस्काउंट और ऑफर अपडेट प्राप्त करने की सहमति है।
+            मुझे नाहाटा जनरल स्टोर्स से व्हाट्सएप पर कूपन कोड, प्लास्टिक व घरेलू सामान डिस्काउंट और स्पेशल अपडेट प्राप्त करने की सहमति है।
           </span>
         </label>
 

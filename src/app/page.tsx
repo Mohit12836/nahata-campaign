@@ -1,15 +1,16 @@
 'use client';
 
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useSyncExternalStore } from 'react';
 import Link from 'next/link';
-import { Sparkles, Gift, Disc, UserCheck, Shield, ChevronRight, Lock } from 'lucide-react';
+import { Gift, Disc, Lock } from 'lucide-react';
 import { Campaign, Prize, Coupon } from '@/types';
 import {
   getStoredCampaign,
   getStoredPrizes,
-  executeGamePlay,
-  getStoredCoupons,
+  getSessionTargetPrize,
 } from '@/lib/store';
+import { claimCampaignPrizeAction } from '@/app/actions/campaign';
+import { INITIAL_PRIZES } from '@/lib/mock-data';
 import { FestivalHeader } from '@/components/FestivalHeader';
 import { ScratchCard } from '@/components/ScratchCard';
 import { SpinWheel } from '@/components/SpinWheel';
@@ -17,61 +18,80 @@ import { OfferClaimModal } from '@/components/OfferClaimModal';
 import { CouponCard } from '@/components/CouponCard';
 import { TrustBadges } from '@/components/TrustBadges';
 
+const subscribe = () => () => {};
+
 export default function CustomerCampaignPage() {
-  const [campaign, setCampaign] = useState<Campaign | null>(null);
-  const [prizes, setPrizes] = useState<Prize[]>([]);
+  const isClient = useSyncExternalStore(
+    subscribe,
+    () => true,
+    () => false
+  );
+
+  const targetPrize = useSyncExternalStore(
+    subscribe,
+    getSessionTargetPrize,
+    () => INITIAL_PRIZES[0]
+  );
+
+  const [campaign] = useState<Campaign>(getStoredCampaign);
+  const [prizes] = useState<Prize[]>(getStoredPrizes);
   const [activeTab, setActiveTab] = useState<'scratch' | 'spin'>('scratch');
   const [gameStage, setGameStage] = useState<'GAME' | 'CLAIM' | 'COUPON'>('GAME');
   
-  const [targetPrize, setTargetPrize] = useState<Prize | null>(null);
   const [wonCoupon, setWonCoupon] = useState<Coupon | null>(null);
+  const [alreadyPlayedNotice, setAlreadyPlayedNotice] = useState<string | null>(null);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
-
-  // Initialize campaign & default target prize
-  useEffect(() => {
-    const c = getStoredCampaign();
-    const p = getStoredPrizes();
-    setCampaign(c);
-    setPrizes(p);
-
-    // Pick an initial prize from active pool
-    const active = p.filter((item) => item.is_active);
-    if (active.length > 0) {
-      const randomPrize = active[Math.floor(Math.random() * active.length)];
-      setTargetPrize(randomPrize);
-    }
-  }, []);
 
   const handleGameFinished = () => {
     setGameStage('CLAIM');
   };
 
-  const handleFormSubmit = (formData: {
+  const handleFormSubmit = async (formData: {
     fullName: string;
     phone: string;
     city: string;
     businessCategory: string;
   }) => {
     setIsSubmitting(true);
-    setTimeout(() => {
-      const result = executeGamePlay(
-        formData.phone,
-        formData.fullName,
-        formData.city,
-        formData.businessCategory,
-        activeTab
-      );
+    setErrorMessage(null);
+
+    try {
+      const result = await claimCampaignPrizeAction({
+        campaignId: campaign.id,
+        fullName: formData.fullName,
+        phone: formData.phone,
+        city: formData.city,
+        businessCategory: formData.businessCategory,
+        gameType: activeTab,
+        consent: true,
+        targetPrizeId: targetPrize?.id,
+      });
 
       setIsSubmitting(false);
+
+      if (result.status === 'ERROR') {
+        setErrorMessage(result.message);
+        return;
+      }
+
+      if (result.status === 'ALREADY_PLAYED') {
+        setAlreadyPlayedNotice(result.message);
+      } else {
+        setAlreadyPlayedNotice(null);
+      }
 
       if (result.coupon) {
         setWonCoupon(result.coupon);
         setGameStage('COUPON');
       }
-    }, 400);
+    } catch {
+      setIsSubmitting(false);
+      setErrorMessage('सर्वर से संपर्क करने में समस्या हुई। कृपया पुनः प्रयास करें।');
+    }
   };
 
-  if (!campaign || !targetPrize) {
+  if (!isClient || !campaign || !targetPrize) {
     return (
       <div className="min-h-screen bg-slate-950 flex items-center justify-center text-amber-300 font-bold text-sm">
         लोड हो रहा है...
@@ -155,17 +175,31 @@ export default function CustomerCampaignPage() {
 
         {/* STAGE 2: LEAD CLAIM MODAL FORM */}
         {gameStage === 'CLAIM' && targetPrize && (
-          <OfferClaimModal
-            campaign={campaign}
-            prize={targetPrize}
-            onSubmit={handleFormSubmit}
-            isLoading={isSubmitting}
-          />
+          <div className="space-y-3">
+            {errorMessage && (
+              <div className="p-3 rounded-xl bg-red-500/20 border border-red-400/50 text-red-200 text-xs font-semibold text-center animate-in fade-in">
+                ⚠️ {errorMessage}
+              </div>
+            )}
+            <OfferClaimModal
+              campaign={campaign}
+              prize={targetPrize}
+              onSubmit={handleFormSubmit}
+              isLoading={isSubmitting}
+            />
+          </div>
         )}
 
         {/* STAGE 3: WON COUPON TICKET VIEW */}
         {gameStage === 'COUPON' && wonCoupon && (
-          <CouponCard coupon={wonCoupon} campaign={campaign} />
+          <div className="space-y-3">
+            {alreadyPlayedNotice && (
+              <div className="p-3 rounded-xl bg-amber-500/20 border border-amber-400/50 text-amber-200 text-xs font-semibold text-center animate-in fade-in">
+                ℹ️ {alreadyPlayedNotice} (आपका पूर्व-सत्यापित कूपन नीचे प्रदर्शित है)
+              </div>
+            )}
+            <CouponCard coupon={wonCoupon} campaign={campaign} />
+          </div>
         )}
 
         {/* Trust Badges & Store Info */}

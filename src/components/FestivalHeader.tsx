@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Sparkles, Store, ShieldCheck, Flame, Clock, Award } from 'lucide-react';
+import { Clock, Award } from 'lucide-react';
 import { Campaign } from '@/types';
 
 interface FestivalHeaderProps {

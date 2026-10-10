@@ -1,25 +1,18 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import Link from 'next/link';
 import {
   Users,
   Gift,
   CheckCircle2,
-  TrendingUp,
   Download,
   Search,
   Settings,
   ArrowLeft,
   Store,
-  Phone,
   MessageSquare,
   ShieldCheck,
-  Percent,
-  Plus,
-  Trash2,
-  RefreshCw,
-  Clock,
   QrCode,
   IndianRupee,
 } from 'lucide-react';
@@ -31,15 +24,24 @@ import {
   saveStoredPrizes,
   getStoredCustomers,
   getStoredCoupons,
-  redeemCoupon,
 } from '@/lib/store';
+import {
+  adminLoginAction,
+  adminLogoutAction,
+  checkAdminAuthAction,
+  redeemCouponAction,
+} from '@/app/actions/admin';
 
 export default function AdminDashboardPage() {
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isCheckingAuth, setIsCheckingAuth] = useState(true);
+  const [pinInput, setPinInput] = useState('');
+  const [pinError, setPinError] = useState('');
   const [activeTab, setActiveTab] = useState<'crm' | 'redemption' | 'settings'>('crm');
-  const [campaign, setCampaign] = useState<Campaign | null>(null);
-  const [prizes, setPrizes] = useState<Prize[]>([]);
-  const [customers, setCustomers] = useState<Customer[]>([]);
-  const [coupons, setCoupons] = useState<Coupon[]>([]);
+  const [campaign, setCampaign] = useState<Campaign>(getStoredCampaign);
+  const [prizes, setPrizes] = useState<Prize[]>(getStoredPrizes);
+  const [customers, setCustomers] = useState<Customer[]>(getStoredCustomers);
+  const [coupons, setCoupons] = useState<Coupon[]>(getStoredCoupons);
 
   // Search & Filter state
   const [searchQuery, setSearchQuery] = useState('');
@@ -49,6 +51,7 @@ export default function AdminDashboardPage() {
   const [redeemCodeInput, setRedeemCodeInput] = useState('');
   const [billNumberInput, setBillNumberInput] = useState('');
   const [billAmountInput, setBillAmountInput] = useState('');
+  const [isRedeeming, setIsRedeeming] = useState(false);
   const [redemptionResult, setRedemptionResult] = useState<{
     success: boolean;
     message: string;
@@ -64,9 +67,38 @@ export default function AdminDashboardPage() {
     setCoupons(getStoredCoupons());
   };
 
-  useEffect(() => {
-    reloadAllData();
+  // Check server session on mount
+  React.useEffect(() => {
+    checkAdminAuthAction().then((res) => {
+      setIsAuthenticated(res.isAuthenticated);
+      setIsCheckingAuth(false);
+    }).catch(() => {
+      setIsCheckingAuth(false);
+    });
   }, []);
+
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setPinError('');
+
+    try {
+      const res = await adminLoginAction(pinInput);
+      if (res.success) {
+        setIsAuthenticated(true);
+        setPinInput('');
+        reloadAllData();
+      } else {
+        setPinError(res.message);
+      }
+    } catch {
+      setPinError('प्रमाणीकरण सर्वर से संपर्क विफल रहा।');
+    }
+  };
+
+  const handleLogout = async () => {
+    await adminLogoutAction();
+    setIsAuthenticated(false);
+  };
 
   // Filtered CRM Customers
   const filteredCustomers = customers.filter((c) => {
@@ -104,24 +136,37 @@ export default function AdminDashboardPage() {
     document.body.removeChild(link);
   };
 
-  // Handle Coupon Redemption Verification
-  const handleRedeemSubmit = (e: React.FormEvent) => {
+  // Handle Coupon Redemption Verification via Server Action
+  const handleRedeemSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!redeemCodeInput.trim()) return;
+    if (!redeemCodeInput.trim() || isRedeeming) return;
 
-    const res = redeemCoupon(
-      redeemCodeInput,
-      billNumberInput,
-      parseFloat(billAmountInput) || 0,
-      'मनोज नाहटा (काउंटर)'
-    );
+    setIsRedeeming(true);
+    setRedemptionResult(null);
 
-    setRedemptionResult(res);
-    reloadAllData();
-    if (res.success) {
-      setRedeemCodeInput('');
-      setBillNumberInput('');
-      setBillAmountInput('');
+    try {
+      const res = await redeemCouponAction({
+        code: redeemCodeInput,
+        billNumber: billNumberInput,
+        billAmount: parseFloat(billAmountInput) || 0,
+        redeemedBy: 'मनोज नाहटा (काउंटर)',
+      });
+
+      setIsRedeeming(false);
+      setRedemptionResult(res);
+      reloadAllData();
+
+      if (res.success) {
+        setRedeemCodeInput('');
+        setBillNumberInput('');
+        setBillAmountInput('');
+      }
+    } catch {
+      setIsRedeeming(false);
+      setRedemptionResult({
+        success: false,
+        message: 'रिडेम्पशन प्रक्रिया में सर्वर त्रुटि हुई।',
+      });
     }
   };
 
@@ -135,7 +180,63 @@ export default function AdminDashboardPage() {
     setTimeout(() => setSaveNotification(''), 3000);
   };
 
-  if (!campaign) return <div className="p-8 text-center text-slate-800">लोड हो रहा है...</div>;
+  if (!campaign || isCheckingAuth) {
+    return (
+      <div className="min-h-screen bg-slate-950 flex items-center justify-center text-amber-300 font-bold text-sm">
+        लोड हो रहा है...
+      </div>
+    );
+  }
+
+  if (!isAuthenticated) {
+    return (
+      <div className="min-h-screen bg-gradient-to-b from-slate-900 via-red-950 to-slate-950 text-white flex flex-col items-center justify-center p-4">
+        <div className="w-full max-w-sm bg-slate-900/90 border border-amber-500/40 rounded-3xl p-6 sm:p-8 shadow-2xl backdrop-blur-md text-center space-y-5">
+          <div className="w-16 h-16 rounded-2xl bg-gradient-to-tr from-amber-500 to-yellow-400 text-slate-950 flex items-center justify-center mx-auto shadow-lg shadow-amber-500/30">
+            <Store className="w-8 h-8" />
+          </div>
+          <div>
+            <h2 className="text-xl font-black text-amber-200">{campaign.store_name}</h2>
+            <p className="text-xs text-slate-400 mt-1">सुरक्षित एडमिन एवं CRM पोर्टल</p>
+          </div>
+
+          <form onSubmit={handleLogin} className="space-y-4 pt-2">
+            <div>
+              <label className="block text-xs font-bold text-amber-300/80 mb-1.5 text-left">
+                सिक्योरिटी पिन दर्ज करें
+              </label>
+              <input
+                type="password"
+                maxLength={8}
+                value={pinInput}
+                onChange={(e) => setPinInput(e.target.value)}
+                placeholder="पिन दर्ज करें (उदा. 9829)"
+                className="w-full px-4 py-3 rounded-xl bg-slate-800 border border-amber-500/30 text-center text-lg font-mono tracking-widest text-amber-100 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-amber-400"
+                autoFocus
+              />
+              {pinError && (
+                <p className="text-xs text-rose-400 font-medium mt-2 text-left">⚠️ {pinError}</p>
+              )}
+            </div>
+
+            <button
+              type="submit"
+              className="w-full py-3 rounded-xl bg-gradient-to-r from-amber-500 via-yellow-500 to-amber-600 hover:from-amber-600 hover:to-yellow-600 text-slate-950 font-black text-sm shadow-lg shadow-amber-500/20 active:scale-[0.98] transition-all"
+            >
+              लॉगिन करें
+            </button>
+
+            <Link
+              href="/"
+              className="inline-block text-xs text-slate-400 hover:text-amber-300 transition-colors pt-2"
+            >
+              ← कस्टमर वेबसाइट पर वापस जाएं
+            </Link>
+          </form>
+        </div>
+      </div>
+    );
+  }
 
   // KPI Calculations
   const totalLeads = customers.length;
@@ -144,6 +245,15 @@ export default function AdminDashboardPage() {
   const totalBillValue = coupons
     .filter((c) => c.status === 'redeemed')
     .reduce((sum, c) => sum + (c.bill_amount || 0), 0);
+
+  // Repeat Customer Calculation
+  const phoneCounts = customers.reduce<Record<string, number>>((acc, c) => {
+    acc[c.phone] = (acc[c.phone] || 0) + 1;
+    return acc;
+  }, {});
+  const repeatCustomerCount = Object.values(phoneCounts).filter((count) => count > 1).length;
+  const averageOrderValue = redeemedCoupons > 0 ? Math.round(totalBillValue / redeemedCoupons) : 0;
+  const estimatedGrossMargin = Math.round(totalBillValue * 0.22); // Estimated ~22% gross margin on general store items
 
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900 pb-16">
@@ -171,17 +281,52 @@ export default function AdminDashboardPage() {
             </div>
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-3">
             <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
               <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
               कैंपेन लाइव है
             </span>
+            <button
+              type="button"
+              onClick={handleLogout}
+              className="px-3 py-1 rounded-lg bg-white/10 hover:bg-white/20 text-xs font-bold text-amber-200 border border-white/10 transition-colors"
+            >
+              लॉगआउट
+            </button>
           </div>
         </div>
       </header>
 
       {/* Main Container */}
       <main className="max-w-6xl mx-auto px-4 sm:px-8 pt-6 space-y-6">
+        {/* PILOT IMPACT & ROI SUMMARY BANNER */}
+        <div className="p-4 sm:p-5 rounded-2xl bg-gradient-to-r from-amber-950 via-slate-900 to-red-950 text-white border border-amber-500/30 shadow-md">
+          <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+            <div>
+              <span className="text-[10px] font-bold uppercase tracking-wider text-amber-400 bg-amber-400/10 px-2.5 py-0.5 rounded-full border border-amber-400/20">
+                📊 पायलट बिजनेस रिपोर्ट (Nahata Pilot ROI)
+              </span>
+              <h3 className="text-base sm:text-lg font-black text-white mt-1">
+                दुकान की अतिरिक्त बिक्री और ग्राहक वापसी का हिसाब
+              </h3>
+            </div>
+            <div className="flex flex-wrap items-center gap-2 sm:gap-4 text-xs font-semibold">
+              <div className="bg-white/10 px-3 py-1.5 rounded-xl border border-white/10">
+                <span className="text-slate-400 block text-[10px]">औसत बिल (AOV)</span>
+                <span className="text-amber-200 font-bold">₹{averageOrderValue.toLocaleString('en-IN')}</span>
+              </div>
+              <div className="bg-white/10 px-3 py-1.5 rounded-xl border border-white/10">
+                <span className="text-slate-400 block text-[10px]">दोबारा ग्राहक (Repeat)</span>
+                <span className="text-emerald-300 font-bold">{repeatCustomerCount} ग्राहक</span>
+              </div>
+              <div className="bg-emerald-950/80 px-3 py-1.5 rounded-xl border border-emerald-500/40">
+                <span className="text-emerald-300 block text-[10px]">अनुमानित सकल मुनाफा (~22%)</span>
+                <span className="text-emerald-400 font-black">₹{estimatedGrossMargin.toLocaleString('en-IN')}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
         {/* KPI METRIC CARDS */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
           <div className="p-4 rounded-2xl bg-white border border-slate-200 shadow-sm">
@@ -340,7 +485,12 @@ export default function AdminDashboardPage() {
                         return (
                           <tr key={cust.id} className="hover:bg-slate-50/80 transition-colors">
                             <td className="px-4 py-3.5 font-bold text-slate-900">
-                              {cust.full_name}
+                              <span>{cust.full_name}</span>
+                              {(phoneCounts[cust.phone] || 0) > 1 && (
+                                <span className="ml-2 px-1.5 py-0.5 rounded text-[10px] font-bold bg-amber-100 text-amber-900 border border-amber-300 inline-block">
+                                  🔁 Repeat
+                                </span>
+                              )}
                             </td>
                             <td className="px-4 py-3.5 font-mono text-slate-700">
                               +91 {cust.phone}
@@ -431,6 +581,53 @@ export default function AdminDashboardPage() {
                   />
                 </div>
 
+                {/* Instant Counter Preview Card */}
+                {redeemCodeInput.trim().length > 3 && (
+                  <div className="p-3 rounded-xl bg-slate-50 border border-slate-200 text-xs space-y-1 animate-in fade-in">
+                    {(() => {
+                      const match = coupons.find(
+                        (c) => c.code.toUpperCase() === redeemCodeInput.trim().toUpperCase()
+                      );
+                      if (!match) {
+                        return (
+                          <div className="text-amber-700 font-medium flex items-center gap-1">
+                            <span>🔍</span> <span>कूपन कोड खोजा जा रहा है... (कोड सही दर्ज करें)</span>
+                          </div>
+                        );
+                      }
+                      const isValid = match.status === 'valid' && new Date(match.expires_at) >= new Date();
+                      return (
+                        <div className="space-y-1.5">
+                          <div className="flex items-center justify-between">
+                            <span className="font-bold text-slate-800">{match.customer?.full_name || 'ग्राहक'} ({match.customer?.phone})</span>
+                            <span
+                              className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
+                                isValid
+                                  ? 'bg-emerald-100 text-emerald-800 border border-emerald-300'
+                                  : match.status === 'redeemed'
+                                  ? 'bg-red-100 text-red-800 border border-red-300'
+                                  : 'bg-slate-200 text-slate-700'
+                              }`}
+                            >
+                              {isValid
+                                ? '✓ मान्य (Valid)'
+                                : match.status === 'redeemed'
+                                ? '✗ रिडीम हो चुका'
+                                : 'समाप्त'}
+                            </span>
+                          </div>
+                          <div className="font-bold text-amber-900 text-xs">
+                            🎁 {match.prize?.title}
+                          </div>
+                          <p className="text-[11px] text-slate-500">
+                            {match.prize?.terms_and_conditions || 'न्यूनतम बिलिंग शर्त लागू'}
+                          </p>
+                        </div>
+                      );
+                    })()}
+                  </div>
+                )}
+
                 <div>
                   <label className="block text-xs font-bold text-slate-700 mb-1">
                     बिल नंबर (वैकल्पिक)
@@ -459,9 +656,10 @@ export default function AdminDashboardPage() {
 
                 <button
                   type="submit"
-                  className="w-full py-2.5 rounded-xl bg-red-900 hover:bg-red-950 text-white font-bold text-sm shadow-md transition-colors"
+                  disabled={isRedeeming}
+                  className="w-full py-2.5 rounded-xl bg-red-900 hover:bg-red-950 text-white font-bold text-sm shadow-md transition-colors disabled:opacity-50"
                 >
-                  कूपन रिडीम करें
+                  {isRedeeming ? 'सत्यापित हो रहा...' : 'कूपन रिडीम करें'}
                 </button>
               </form>
             </div>

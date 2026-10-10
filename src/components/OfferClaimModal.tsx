@@ -1,11 +1,11 @@
 'use client';
 
 import React, { useState } from 'react';
-import { User, Phone, MapPin, Building2, ShieldCheck, Sparkles, CheckCircle2 } from 'lucide-react';
+import { User, ShieldCheck, Sparkles, CheckCircle2 } from 'lucide-react';
 import { Campaign, Prize } from '@/types';
 
 interface OfferClaimModalProps {
-  campaign: Campaign;
+  campaign?: Campaign;
   prize: Prize;
   onSubmit: (formData: {
     fullName: string;
@@ -26,7 +26,6 @@ const CATEGORIES = [
 ];
 
 export const OfferClaimModal: React.FC<OfferClaimModalProps> = ({
-  campaign,
   prize,
   onSubmit,
   isLoading = false,
@@ -35,7 +34,7 @@ export const OfferClaimModal: React.FC<OfferClaimModalProps> = ({
   const [phone, setPhone] = useState('');
   const [city, setCity] = useState('बीकानेर');
   const [businessCategory, setBusinessCategory] = useState('घरेलू उपभोक्ता (Family / Home)');
-  const [consent, setConsent] = useState(true);
+  const [consent, setConsent] = useState(false);
   const [error, setError] = useState('');
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -47,12 +46,12 @@ export const OfferClaimModal: React.FC<OfferClaimModalProps> = ({
       setError('कृपया अपना नाम दर्ज करें');
       return;
     }
-    if (cleanPhone.length !== 10) {
-      setError('कृपया 10 अंकों का वैध व्हाट्सएप मोबाइल नंबर दर्ज करें');
+    if (cleanPhone.length !== 10 || !/^[6-9]\d{9}$/.test(cleanPhone)) {
+      setError('कृपया 10 अंकों का वैध भारतीय मोबाइल नंबर (6, 7, 8 या 9 से शुरू) दर्ज करें');
       return;
     }
     if (!consent) {
-      setError('ऑफर प्राप्त करने के लिए व्हाट्सएप सहमति आवश्यक है');
+      setError('ऑफर प्राप्त करने और व्हाट्सएप पर कूपन कोड पाने के लिए कृपया नीचे सहमति बॉक्स पर टिक करें।');
       return;
     }
 
@@ -138,6 +137,9 @@ export const OfferClaimModal: React.FC<OfferClaimModalProps> = ({
               className="w-full pl-12 pr-3 py-2.5 rounded-xl border border-amber-300 bg-white text-sm text-slate-900 focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none font-medium"
             />
           </div>
+          <p className="text-[10px] text-amber-900/80 font-medium mt-1">
+            🔒 आपका नंबर केवल आपके कूपन को सुरक्षित रखने और दुकान पर सत्यापन के लिए है।
+          </p>
         </div>
 
         <div className="grid grid-cols-2 gap-3">
@@ -181,15 +183,15 @@ export const OfferClaimModal: React.FC<OfferClaimModalProps> = ({
         </div>
 
         {/* WhatsApp Consent Checkbox */}
-        <label className="flex items-start gap-2 pt-1 cursor-pointer select-none">
+        <label className="flex items-start gap-2 pt-1 cursor-pointer select-none bg-amber-500/10 p-2.5 rounded-xl border border-amber-300/60">
           <input
             type="checkbox"
             checked={consent}
             onChange={(e) => setConsent(e.target.checked)}
-            className="mt-1 w-4 h-4 text-emerald-600 rounded border-amber-300 focus:ring-emerald-500"
+            className="mt-0.5 w-4 h-4 text-emerald-600 rounded border-amber-300 focus:ring-emerald-500 shrink-0"
           />
-          <span className="text-[11px] text-amber-900 font-medium leading-tight">
-            मुझे नाहाटा जनरल स्टोर्स से व्हाट्सएप पर कूपन कोड, प्लास्टिक व घरेलू सामान डिस्काउंट और स्पेशल अपडेट प्राप्त करने की सहमति है।
+          <span className="text-[11px] text-amber-950 font-medium leading-tight">
+            मुझे नाहाटा जनरल स्टोर्स से इस कूपन की जानकारी एवं विशेष ऑफर पाने की सहमति है। <span className="text-emerald-800 font-bold">(कोई स्पैम नहीं)</span>
           </span>
         </label>
 

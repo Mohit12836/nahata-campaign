@@ -9,59 +9,116 @@ const STORAGE_KEYS = {
   USER_PLAYED: 'nahata_user_played_phone',
 };
 
+let memCampaign: Campaign = INITIAL_CAMPAIGN;
+let memPrizes: Prize[] = INITIAL_PRIZES;
+let memCustomers: Customer[] = INITIAL_CUSTOMERS;
+let memCoupons: Coupon[] = INITIAL_COUPONS;
+
 export const getStoredCampaign = (): Campaign => {
-  if (typeof window === 'undefined') return INITIAL_CAMPAIGN;
+  if (typeof window === 'undefined') return memCampaign;
   try {
     const data = localStorage.getItem(STORAGE_KEYS.CAMPAIGN);
-    return data ? JSON.parse(data) : INITIAL_CAMPAIGN;
+    return data ? JSON.parse(data) : memCampaign;
   } catch {
-    return INITIAL_CAMPAIGN;
+    return memCampaign;
   }
 };
 
 export const saveStoredCampaign = (campaign: Campaign): void => {
+  memCampaign = campaign;
   if (typeof window === 'undefined') return;
-  localStorage.setItem(STORAGE_KEYS.CAMPAIGN, JSON.stringify(campaign));
+  try {
+    localStorage.setItem(STORAGE_KEYS.CAMPAIGN, JSON.stringify(campaign));
+  } catch {}
 };
 
 export const getStoredPrizes = (): Prize[] => {
-  if (typeof window === 'undefined') return INITIAL_PRIZES;
+  if (typeof window === 'undefined') return memPrizes;
   try {
     const data = localStorage.getItem(STORAGE_KEYS.PRIZES);
-    return data ? JSON.parse(data) : INITIAL_PRIZES;
+    return data ? JSON.parse(data) : memPrizes;
   } catch {
-    return INITIAL_PRIZES;
+    return memPrizes;
   }
 };
 
 export const saveStoredPrizes = (prizes: Prize[]): void => {
+  memPrizes = prizes;
   if (typeof window === 'undefined') return;
-  localStorage.setItem(STORAGE_KEYS.PRIZES, JSON.stringify(prizes));
+  try {
+    localStorage.setItem(STORAGE_KEYS.PRIZES, JSON.stringify(prizes));
+  } catch {}
 };
 
 export const getStoredCustomers = (): Customer[] => {
-  if (typeof window === 'undefined') return INITIAL_CUSTOMERS;
+  if (typeof window === 'undefined') return memCustomers;
   try {
     const data = localStorage.getItem(STORAGE_KEYS.CUSTOMERS);
-    return data ? JSON.parse(data) : INITIAL_CUSTOMERS;
+    return data ? JSON.parse(data) : memCustomers;
   } catch {
-    return INITIAL_CUSTOMERS;
+    return memCustomers;
   }
 };
 
+export const saveStoredCustomers = (customers: Customer[]): void => {
+  memCustomers = customers;
+  if (typeof window === 'undefined') return;
+  try {
+    localStorage.setItem(STORAGE_KEYS.CUSTOMERS, JSON.stringify(customers));
+  } catch {}
+};
+
 export const getStoredCoupons = (): Coupon[] => {
-  if (typeof window === 'undefined') return INITIAL_COUPONS;
+  if (typeof window === 'undefined') return memCoupons;
   try {
     const data = localStorage.getItem(STORAGE_KEYS.COUPONS);
-    return data ? JSON.parse(data) : INITIAL_COUPONS;
+    return data ? JSON.parse(data) : memCoupons;
   } catch {
-    return INITIAL_COUPONS;
+    return memCoupons;
   }
 };
 
 export const saveStoredCoupons = (coupons: Coupon[]): void => {
+  memCoupons = coupons;
   if (typeof window === 'undefined') return;
-  localStorage.setItem(STORAGE_KEYS.COUPONS, JSON.stringify(coupons));
+  try {
+    localStorage.setItem(STORAGE_KEYS.COUPONS, JSON.stringify(coupons));
+  } catch {}
+};
+
+export const selectWinningPrize = (prizesList: Prize[]): Prize => {
+  const activePrizes = prizesList.filter((p) => p.is_active && p.claimed_quantity < p.total_quantity);
+  const pool = activePrizes.length > 0 ? activePrizes : prizesList.filter((p) => p.is_active);
+  const safePool = pool.length > 0 ? pool : prizesList;
+
+  if (safePool.length === 0) {
+    return INITIAL_PRIZES[0];
+  }
+
+  const totalWeight = safePool.reduce((acc, p) => acc + (p.probability_weight || 1), 0);
+  let randomVal = Math.floor(Math.random() * (totalWeight || 1));
+  let selected = safePool[0];
+
+  for (const prize of safePool) {
+    if (randomVal < (prize.probability_weight || 1)) {
+      selected = prize;
+      break;
+    }
+    randomVal -= (prize.probability_weight || 1);
+  }
+
+  return selected;
+};
+
+let sessionTargetPrize: Prize | null = null;
+export const getSessionTargetPrize = (): Prize => {
+  if (typeof window === 'undefined') {
+    return INITIAL_PRIZES[0];
+  }
+  if (!sessionTargetPrize) {
+    sessionTargetPrize = selectWinningPrize(getStoredPrizes());
+  }
+  return sessionTargetPrize;
 };
 
 export const executeGamePlay = (
@@ -69,7 +126,8 @@ export const executeGamePlay = (
   fullName: string,
   city: string,
   businessCategory: string,
-  gameType: 'scratch' | 'spin'
+  gameType: 'scratch' | 'spin',
+  targetPrizeId?: string
 ): PlayResultResponse => {
   const cleanPhone = phone.replace(/\D/g, '').slice(-10);
   const customers = getStoredCustomers();
@@ -85,26 +143,23 @@ export const executeGamePlay = (
   if (existingCoupon) {
     return {
       status: 'ALREADY_PLAYED',
-      message: 'आप इस मोबाइल नंबर से पहले ही ऑफर जीत चुके हैं!',
+      message: 'आप इस मोबाइल नंबर से पहले ही ऑफर प्राप्त कर चुके हैं!',
       coupon: existingCoupon,
       prize: existingCoupon.prize,
       customer: existingCoupon.customer,
     };
   }
 
-  // 2. Select prize by weighted probability
-  const activePrizes = prizes.filter((p) => p.is_active && p.claimed_quantity < p.total_quantity);
-  const pool = activePrizes.length > 0 ? activePrizes : prizes;
-  const totalWeight = pool.reduce((acc, p) => acc + p.probability_weight, 0);
-  let randomVal = Math.floor(Math.random() * (totalWeight || 1));
-  let selectedPrize = pool[0];
+  // 2. Select prize: either target prize (if active & available) or weighted random
+  let selectedPrize: Prize | undefined;
+  if (targetPrizeId) {
+    selectedPrize = prizes.find(
+      (p) => p.id === targetPrizeId && p.is_active && p.claimed_quantity < p.total_quantity
+    );
+  }
 
-  for (const prize of pool) {
-    if (randomVal < prize.probability_weight) {
-      selectedPrize = prize;
-      break;
-    }
-    randomVal -= prize.probability_weight;
+  if (!selectedPrize) {
+    selectedPrize = selectWinningPrize(prizes);
   }
 
   // 3. Register or find customer
@@ -114,15 +169,15 @@ export const executeGamePlay = (
       id: `c-${Date.now()}`,
       phone: cleanPhone,
       full_name: fullName,
-      city: city || 'राजस्थान',
-      business_category: businessCategory || 'उपभोक्ता',
+      city: city || 'बीकानेर',
+      business_category: businessCategory || 'घरेलू उपभोक्ता (Family / Home)',
       lead_source: `${gameType.toUpperCase()}_CAMPAIGN`,
       whatsapp_consent: true,
       consent_timestamp: new Date().toISOString(),
       created_at: new Date().toISOString(),
     };
     customers.unshift(customer);
-    localStorage.setItem(STORAGE_KEYS.CUSTOMERS, JSON.stringify(customers));
+    saveStoredCustomers(customers);
   }
 
   // 4. Generate Unique Coupon Code
@@ -148,13 +203,13 @@ export const executeGamePlay = (
 
   // 5. Update Prize Claim Count
   const updatedPrizes = prizes.map((p) =>
-    p.id === selectedPrize.id ? { ...p, claimed_quantity: p.claimed_quantity + 1 } : p
+    p.id === selectedPrize!.id ? { ...p, claimed_quantity: p.claimed_quantity + 1 } : p
   );
   saveStoredPrizes(updatedPrizes);
 
   return {
     status: 'SUCCESS',
-    message: 'बधाई हो! आपने शानदार ऑफर जीता है।',
+    message: 'बधाई हो! आपका डिस्काउंट कूपन सफलतापूर्वक जनरेट हो गया है।',
     prize: selectedPrize,
     coupon: newCoupon,
     customer: customer,

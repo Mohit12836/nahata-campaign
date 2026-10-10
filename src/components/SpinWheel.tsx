@@ -1,8 +1,8 @@
 'use client';
 
-import React, { useState, useRef } from 'react';
+import React, { useState } from 'react';
 import confetti from 'canvas-confetti';
-import { Sparkles, ArrowDown, Play } from 'lucide-react';
+import { Sparkles, Play } from 'lucide-react';
 import { Prize } from '@/types';
 
 interface SpinWheelProps {
@@ -46,13 +46,12 @@ export const SpinWheel: React.FC<SpinWheelProps> = ({
     setIsSpinning(true);
 
     // Calculate rotation:
-    // Standard pointer is at top (270 deg or 90 deg depending on orientation).
-    // Let's place pointer at 0 deg (top).
-    // Target sector angle center: safeTargetIndex * segmentAngle + segmentAngle / 2
+    // Top needle is at 12 o'clock (270 deg in SVG coordinates)
     const targetOffset = safeTargetIndex * segmentAngle + segmentAngle / 2;
-    // We want this target sector to end up directly under the top pointer (360 - targetOffset)
-    const baseSpins = 360 * 5; // 5 full rotations
-    const finalAngle = rotation + baseSpins + (360 - (targetOffset % 360));
+    const targetNormalized = ((270 - targetOffset) % 360 + 360) % 360;
+    const currentNormalized = rotation % 360;
+    const delta = ((targetNormalized - currentNormalized) % 360 + 360) % 360;
+    const finalAngle = rotation + 360 * 5 + delta;
 
     setRotation(finalAngle);
 

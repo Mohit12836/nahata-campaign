@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Copy, Check, MessageSquare, Share2, Users, Calendar, MapPin, Sparkles, Store } from 'lucide-react';
+import { Copy, Check, MessageSquare, Share2, Users, Store } from 'lucide-react';
 import { Coupon, Campaign } from '@/types';
 import { getNahataWhatsAppClaimUrl, getNahataShareUrl } from '@/lib/whatsapp';
 
@@ -151,10 +151,15 @@ export const CouponCard: React.FC<CouponCardProps> = ({ coupon, campaign }) => {
       </div>
 
       {/* Store instructions */}
-      <div className="p-3 rounded-xl bg-amber-50/80 border border-amber-200 text-center text-xs text-amber-900">
-        <p className="font-semibold">
-          📍 नाहटा जनरल स्टोर्स पर खरीदारी के समय यह कूपन कोड बिल काउंटर पर दिखाकर तुरंत छूट प्राप्त करें।
+      <div className="p-3.5 rounded-2xl bg-amber-50/90 border border-amber-300 text-xs text-amber-950 space-y-1.5 shadow-sm">
+        <p className="font-bold text-amber-900 flex items-center gap-1.5">
+          <span>🏪</span> <span>दुकान पर कूपन भुनाने के 3 आसान नियम:</span>
         </p>
+        <ul className="list-disc list-inside text-[11px] text-amber-900/90 space-y-1 pl-1">
+          <li>बिल बनने से पहले काउंटर पर यह कूपन कोड दिखाएं।</li>
+          <li>यह कूपन 1 ग्राहक व 1 खरीदारी पर ही मान्य है।</li>
+          <li>{coupon.prize?.terms_and_conditions || 'ऑफर की न्यूनतम खरीद शर्त लागू रहेगी।'}</li>
+        </ul>
       </div>
     </div>
   );

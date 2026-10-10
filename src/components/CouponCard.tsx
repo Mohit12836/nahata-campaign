@@ -212,7 +212,7 @@ export const CouponCard: React.FC<CouponCardProps> = ({ coupon, campaign }) => {
           </div>
           <div className="space-y-1">
             <h4 className="text-sm font-black text-white flex items-center gap-1.5">
-              <span>दुकान दूर है या बीकानेर से बाहर रहते हैं?</span>
+              <span>दुकान दूर है या कुशलगढ़ से बाहर रहते हैं?</span>
             </h4>
             <p className="text-[11px] text-amber-200/90 leading-relaxed">
               चिंता न करें! नाहाटा जनरल स्टोर्स के <strong>VIP WhatsApp ग्रुप</strong> से जुड़ें और घर बैठे ऑर्डर करें।
@@ -232,7 +232,7 @@ export const CouponCard: React.FC<CouponCardProps> = ({ coupon, campaign }) => {
           </div>
           <div className="flex items-center gap-1.5">
             <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 flex-shrink-0" />
-            <span>🚚 <strong>बीकानेर व नजदीकी गांवों/कस्बों में</strong> सुरक्षित होम डिलीवरी</span>
+            <span>🚚 <strong>कुशलगढ़, बांसवाड़ा व नजदीकी गांवों में</strong> सुरक्षित डिलीवरी</span>
           </div>
         </div>
 

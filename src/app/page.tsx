@@ -106,8 +106,8 @@ export default function CustomerCampaignPage() {
 
       {/* Top Bar with Admin Link */}
       <div className="w-full max-w-md mx-auto px-4 pt-3 flex items-center justify-between z-20 text-xs">
-        <span className="text-[11px] font-bold text-amber-400/80 bg-amber-950/60 px-3 py-1 rounded-full border border-amber-500/30">
-          📍 {campaign.location}
+        <span className="text-[11px] font-bold text-amber-400/90 bg-amber-950/80 px-3 py-1 rounded-full border border-amber-500/40 truncate max-w-[200px]">
+          📍 कुशलगढ़, राजस्थान
         </span>
         <Link
           href="/admin"

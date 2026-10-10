@@ -45,7 +45,7 @@ export const getNahataShareUrl = (
   const url = campaignUrl || (typeof window !== 'undefined' ? window.location.origin : 'https://nahata-campaign.vercel.app');
   const wonText = prizeWonTitle ? `मुझे अभी *${prizeWonTitle}* मिला है! 🎁` : `मुझे अभी शानदार डिस्काउंट कूपन मिला है! 🎁`;
   
-  const text = `🪔 *नाहाटा जनरल स्टोर्स (बीकानेर) — महा बचत धमाका!* 🛍️
+  const text = `🪔 *नाहाटा जनरल स्टोर्स (कुशलगढ़) — महा बचत धमाका!* 🛍️
 
 भाई, नाहाटा स्टोर्स पर लकी स्क्रैच कार्ड और स्पिन व्हील चल रहा है! 
 ${wonText}

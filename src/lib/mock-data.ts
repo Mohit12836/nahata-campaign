@@ -3,10 +3,10 @@ import { Campaign, Prize, Customer, Coupon } from '@/types';
 export const INITIAL_CAMPAIGN: Campaign = {
   id: 'nahata-fest-2026',
   slug: 'festival-dhamaka',
-  title: 'नाहाटा जनरल स्टोर्स — महा बचत उत्सव 2026',
-  store_name: 'Nahata General Stores',
-  headline: 'स्क्रैच करें या व्हील घुमाएं — प्लास्टिक, घरेलू सामान, होजियारी व स्टेशनरी पर पक्का इनाम!',
-  subheadline: 'घर-गृहस्थी के उपयोगी सामान, प्लास्टिक कंटेनर, स्टेशनरी और गिफ्ट्स पर विशेष फेस्टिव छूट।',
+  title: 'नाहाटा जनरल स्टोर्स — कुशलगढ़ महा बचत उत्सव',
+  store_name: 'नाहाटा जनरल स्टोर्स (Nahata General Stores)',
+  headline: 'स्क्रैच करें या व्हील घुमाएं — किराना, प्लास्टिक, घरेलू सामान, स्टेशनरी व उपहारों पर पक्का इनाम!',
+  subheadline: 'कुशलगढ़ का सबसे भरोसेमंद सुपरस्टोर • घर-गृहस्थी व रोजमर्रा के सामान पर विशेष छूट।',
   whatsapp_number: '919829012345',
   whatsapp_community_link: 'https://chat.whatsapp.com/invite/nahatageneralstores',
   is_scratch_enabled: true,
@@ -15,7 +15,7 @@ export const INITIAL_CAMPAIGN: Campaign = {
   start_date: new Date().toISOString(),
   end_date: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
   is_active: true,
-  location: 'मेन मार्केट, नाहटा चौक, राजस्थान',
+  location: 'मेन मार्केट, कुशलगढ़, जिला बांसवाड़ा (राजस्थान)',
   contact_person: 'श्री मनोज नाहटा',
 };
 

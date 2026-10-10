@@ -32,22 +32,29 @@ export const getNahataWhatsAppClaimUrl = ({
 📞 *मोबाइल:* ${customerPhone}
 ${terms ? `📌 *नियम:* ${terms}` : ''}
 ━━━━━━━━━━━━━━━━━━
-कृपया मेरा कूपन कन्फर्म करें ताकि मैं खरीदारी पर इसे रिडीम कर सकूँ। धन्यवाद!`;
+कृपया मेरा कूपन कन्फर्म करें ताकि मैं खरीदारी / होम डिलीवरी पर इसे रिडीम कर सकूँ। धन्यवाद!`;
 
   return `https://wa.me/${cleanNumber}?text=${encodeURIComponent(text)}`;
 };
 
 export const getNahataShareUrl = (
   campaignTitle: string,
+  prizeWonTitle?: string,
   campaignUrl?: string
 ): string => {
-  const url = campaignUrl || (typeof window !== 'undefined' ? window.location.origin : '');
-  const text = `🪔 *नाहाटा जनरल स्टोर्स — महा बचत धमाका!* 🎁
+  const url = campaignUrl || (typeof window !== 'undefined' ? window.location.origin : 'https://nahata-campaign.vercel.app');
+  const wonText = prizeWonTitle ? `मुझे अभी *${prizeWonTitle}* मिला है! 🎁` : `मुझे अभी शानदार डिस्काउंट कूपन मिला है! 🎁`;
+  
+  const text = `🪔 *नाहाटा जनरल स्टोर्स (बीकानेर) — महा बचत धमाका!* 🛍️
 
-मैंने अभी लकी स्क्रैच कार्ड में शानदार डिस्काउंट कूपन जीता है! 
-आप भी अपनी किस्मत आजमाएं और फ्री गिफ्ट व महा छूट पाएं! 👇
+भाई, नाहाटा स्टोर्स पर लकी स्क्रैच कार्ड और स्पिन व्हील चल रहा है! 
+${wonText}
 
-👉 अभी खेलें और जीतें: ${url}`;
+आप भी 1 सेकंड में अपनी किस्मत आजमाएं और फ्री गिफ्ट व महा छूट पाएं! 👇
+👉 *यहाँ क्लिक करके अपना इनाम निकालें:* ${url}
+
+(नोट: यह ऑफर केवल सीमित समय और पहले 500 ग्राहकों के लिए है)`;
 
   return `https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`;
 };
+

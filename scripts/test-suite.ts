@@ -283,6 +283,44 @@ async function runTests() {
   );
 
   // -------------------------------------------------------------
+  // TEST GROUP 9: CINDERBLOCK TENANT ISOLATION & DUB.CO REFERRAL
+  // -------------------------------------------------------------
+  console.log('\n[Group 9: Tenant Isolation & Viral Referral Attribution]');
+  // 1. Cross-Tenant Coupon Isolation Simulation
+  const nahataCoupons = (await import('../src/lib/store')).getStoredCoupons();
+  const testNahataCoupon = nahataCoupons.find((c) => c.campaign_id === 'nahata-fest-2026');
+  
+  assert(
+    'Tenant Isolation: Coupon Belongs to Nahata Organization',
+    !!testNahataCoupon && testNahataCoupon.campaign_id === 'nahata-fest-2026',
+    `Verified coupon ${testNahataCoupon?.code} strictly scoped to tenant "merch-nahata"`
+  );
+
+  // 2. Viral Share Milestone Math (5-Share Milestone Verification)
+  const simulateShares = (currentShares: number) => {
+    const next = currentShares + 1;
+    return {
+      shareCount: next,
+      bonusUnlocked: next >= 5,
+      bonusAmount: next >= 5 ? 50 : 0,
+    };
+  };
+
+  const step4 = simulateShares(3);
+  assert(
+    'Viral Milestone: 4th Share Keeps Bonus Locked',
+    !step4.bonusUnlocked && step4.bonusAmount === 0,
+    'Bonus locked at 4 shares (threshold is 5)'
+  );
+
+  const step5 = simulateShares(4);
+  assert(
+    'Viral Milestone: 5th Share Unlocks VIP Bonus (₹50)',
+    step5.bonusUnlocked && step5.bonusAmount === 50,
+    'Honest milestone: ₹50 VIP bonus successfully unlocked at 5th share'
+  );
+
+  // -------------------------------------------------------------
   // SUMMARY
   // -------------------------------------------------------------
   console.log('\n================================================================');

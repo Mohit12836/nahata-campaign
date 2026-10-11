@@ -13,6 +13,7 @@ const eslintConfig = defineConfig([
     "build/**",
     "next-env.d.ts",
     "transport-management-system/**",
+    "google-apps-script.js",
   ]),
 ]);
 

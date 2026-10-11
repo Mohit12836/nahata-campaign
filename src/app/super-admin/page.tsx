@@ -47,16 +47,6 @@ export default function SuperAdminPage() {
   const [redeemedCount, setRedeemedCount] = useState(0);
   const [totalCustomersCount, setTotalCustomersCount] = useState(0);
 
-  // Check auth on mount
-  useEffect(() => {
-    checkAdminAuthAction().then((res) => {
-      setIsAuthenticated(res.isAuthenticated);
-      if (res.isAuthenticated) {
-        loadData();
-      }
-    });
-  }, []);
-
   const loadData = () => {
     const storedMerchants = getStoredMerchants();
     const storedCoupons = getStoredCoupons();
@@ -67,6 +57,16 @@ export default function SuperAdminPage() {
     setRedeemedCount(storedCoupons.filter((c) => c.status === 'redeemed').length);
     setTotalCustomersCount(storedCustomers.length);
   };
+
+  // Check auth on mount
+  useEffect(() => {
+    checkAdminAuthAction().then((res) => {
+      setIsAuthenticated(res.isAuthenticated);
+      if (res.isAuthenticated) {
+        loadData();
+      }
+    });
+  }, []);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -355,7 +355,7 @@ export default function SuperAdminPage() {
 
               <select
                 value={filterStatus}
-                onChange={(e) => setFilterStatus(e.target.value as any)}
+                onChange={(e) => setFilterStatus(e.target.value as 'all' | 'active' | 'pending' | 'suspended')}
                 className="bg-slate-900 border border-slate-800 rounded-xl px-3 py-1.5 text-xs text-white focus:outline-none focus:border-indigo-500"
               >
                 <option value="all">सभी स्थिति</option>
@@ -423,7 +423,7 @@ export default function SuperAdminPage() {
                         <span className="text-slate-500">प्लान:</span>
                         <select
                           value={merchant.plan}
-                          onChange={(e) => handlePlanChange(merchant.id, e.target.value as any)}
+                          onChange={(e) => handlePlanChange(merchant.id, e.target.value as 'starter' | 'growth' | 'enterprise')}
                           className="bg-slate-900 border border-slate-700 rounded px-2 py-0.5 text-[11px] text-amber-300 font-bold focus:outline-none"
                         >
                           <option value="starter">Starter (1K)</option>

@@ -1,8 +1,6 @@
 'use client';
 
 import React, { use, useState, useSyncExternalStore } from 'react';
-import Link from 'next/link';
-import { Lock, MapPin, Info } from 'lucide-react';
 import { Campaign, Prize } from '@/types';
 import {
   getStoredPrizes,
@@ -59,30 +57,7 @@ export default function StoreCampaignClient({
 
   return (
     <div className="min-h-[100dvh] bg-[#120104] text-[#FFF4D8] flex flex-col justify-between selection:bg-[#FFC857] selection:text-[#26030A]">
-      {/* Top Floating Admin & Rules Bar */}
-      <div className="w-full max-w-md mx-auto px-3 pt-1.5 pb-0.5 flex items-center justify-between z-20 shrink-0 text-xs">
-        <span className="text-[10px] font-bold text-[#FFC857] bg-black/60 px-2.5 py-0.5 rounded-full border border-[#FFC857]/30 flex items-center gap-1">
-          <MapPin className="w-3 h-3 text-rose-400" />
-          <span>बस स्टैंड रोड, कुशलगढ़</span>
-        </span>
-        <div className="flex items-center gap-1.5">
-          <button
-            type="button"
-            onClick={() => setIsRulesOpen(true)}
-            className="text-[10px] font-bold text-[#FFC857] hover:text-white bg-black/50 px-2 py-0.5 rounded-full border border-[#FFC857]/30 transition-colors flex items-center gap-0.5"
-          >
-            <Info className="w-2.5 h-2.5 text-[#FFC857]" />
-            <span>नियम</span>
-          </button>
-          <Link
-            href={`/admin?store=${merchant.slug}`}
-            className="text-[10px] font-bold text-[#FFC857] hover:text-white bg-black/50 px-2 py-0.5 rounded-full border border-[#FFC857]/30 transition-colors flex items-center gap-0.5"
-          >
-            <Lock className="w-2.5 h-2.5" />
-            <span>एडमिन</span>
-          </Link>
-        </div>
-      </div>
+      {/* Main Campaign Funnel Experience */}
 
       {/* Main Campaign Funnel Experience */}
       <FestivalOfferFunnel

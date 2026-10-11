@@ -98,9 +98,33 @@ export async function bulkSyncToGoogleSheetsAction(
           .order('created_at', { ascending: false })
           .limit(1000);
 
+        interface DbCouponItem {
+          code: string;
+          created_at: string;
+          status: string;
+          expires_at: string;
+          redeemed_at?: string;
+          redeemed_by?: string;
+          bill_number?: string;
+          bill_amount?: number;
+          customer_phone?: string;
+          customer?: {
+            id?: string;
+            phone?: string;
+            full_name?: string;
+            city?: string;
+            business_category?: string;
+            lead_source?: string;
+          };
+          prize?: {
+            title?: string;
+          };
+        }
+
         if (!error && dbCoupons && dbCoupons.length > 0) {
           loadedFromDatabase = true;
-          leads = dbCoupons.map((c: any) => {
+          const typedCoupons = dbCoupons as unknown as DbCouponItem[];
+          leads = typedCoupons.map((c: DbCouponItem) => {
             const cust = c.customer;
             const phone = cust?.phone || c.customer_phone || '';
             return {
@@ -121,9 +145,9 @@ export async function bulkSyncToGoogleSheetsAction(
             };
           });
 
-          redemptions = dbCoupons
-            .filter((c: any) => c.status === 'redeemed')
-            .map((c: any) => ({
+          redemptions = typedCoupons
+            .filter((c: DbCouponItem) => c.status === 'redeemed')
+            .map((c: DbCouponItem) => ({
               timestamp: c.redeemed_at ? new Date(c.redeemed_at).toLocaleString('hi-IN') : '',
               storeName,
               couponCode: c.code,

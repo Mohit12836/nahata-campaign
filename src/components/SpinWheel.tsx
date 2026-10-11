@@ -13,15 +13,15 @@ interface SpinWheelProps {
   disabled?: boolean;
 }
 
-const COLORS = [
-  '#E11D48', // Rose
-  '#F59E0B', // Amber
-  '#10B981', // Emerald
-  '#6366F1', // Indigo
-  '#D97706', // Gold-amber
-  '#8B5CF6', // Purple
-  '#06B6D4', // Cyan
-  '#EC4899', // Pink
+const FESTIVE_WHEEL_COLORS = [
+  '#86152B', // Royal Maroon
+  '#D97706', // Amber Gold
+  '#5B0716', // Deep Crimson
+  '#17864B', // Success Green
+  '#B45309', // Warm Bronze
+  '#9333EA', // Purple
+  '#0284C7', // Sky Blue
+  '#E11D48', // Crimson Rose
 ];
 
 export const SpinWheel: React.FC<SpinWheelProps> = ({
@@ -46,8 +46,7 @@ export const SpinWheel: React.FC<SpinWheelProps> = ({
 
     setIsSpinning(true);
 
-    // Calculate rotation:
-    // Top needle is at 12 o'clock (270 deg in SVG coordinates)
+    // Needle is at top 12 o'clock (270 deg in SVG)
     const targetOffset = safeTargetIndex * segmentAngle + segmentAngle / 2;
     const targetNormalized = ((270 - targetOffset) % 360 + 360) % 360;
     const currentNormalized = rotation % 360;
@@ -68,35 +67,37 @@ export const SpinWheel: React.FC<SpinWheelProps> = ({
       try {
         soundEngine.playCelebrationChime();
         confetti({
-          particleCount: 90,
-          spread: 80,
+          particleCount: 80,
+          spread: 75,
           origin: { y: 0.6 },
-          colors: ['#E11D48', '#F59E0B', '#10B981', '#6366F1'],
+          colors: ['#FFC857', '#FFB020', '#5B0716', '#17864B', '#FFF4D8'],
         });
       } catch {}
-      onSpinComplete();
-    }, 4000);
+      setTimeout(() => {
+        onSpinComplete();
+      }, 700);
+    }, 3800);
   };
 
   return (
-    <div className="relative w-full max-w-[340px] mx-auto flex flex-col items-center select-none">
+    <div className="relative w-full max-w-[280px] mx-auto flex flex-col items-center select-none py-0.5">
       {/* Top Pointer Needle */}
-      <div className="relative z-20 -mb-5 flex flex-col items-center animate-bounce">
-        <div className="w-8 h-8 rounded-full bg-gradient-to-b from-amber-200 to-yellow-500 shadow-xl border-2 border-white flex items-center justify-center text-amber-950 font-black text-xs">
+      <div className="relative z-20 -mb-3.5 flex flex-col items-center animate-bounce">
+        <div className="w-6 h-6 rounded-full bg-gradient-to-b from-[#FFF4D8] to-[#FFC857] shadow-lg border-2 border-white flex items-center justify-center text-[#26030A] font-black text-[10px]">
           ▼
         </div>
       </div>
 
       {/* Wheel Outer Festive Frame */}
-      <div className="relative p-3 rounded-full bg-gradient-to-tr from-amber-400 via-yellow-200 to-amber-600 shadow-2xl border-4 border-yellow-300">
-        <div className="relative w-[280px] h-[280px] sm:w-[300px] sm:h-[300px] rounded-full overflow-hidden bg-slate-900 shadow-inner">
+      <div className="relative p-2 rounded-full bg-gradient-to-tr from-[#FFC857] via-[#FFB020] to-[#B8860B] shadow-xl border-2 border-[#FFE89B]">
+        <div className="relative w-[190px] h-[190px] sm:w-[210px] sm:h-[210px] rounded-full overflow-hidden bg-[#26030A] shadow-inner">
           
           {/* Rotating SVG Wheel */}
           <div
             className="w-full h-full rounded-full transition-transform"
             style={{
               transform: `rotate(${rotation}deg)`,
-              transitionDuration: isSpinning ? '4000ms' : '0ms',
+              transitionDuration: isSpinning ? '3800ms' : '0ms',
               transitionTimingFunction: 'cubic-bezier(0.15, 0.9, 0.25, 1)',
             }}
           >
@@ -111,7 +112,6 @@ export const SpinWheel: React.FC<SpinWheelProps> = ({
                 const x2 = 150 + 150 * Math.cos(endAngle);
                 const y2 = 150 + 150 * Math.sin(endAngle);
 
-                // Text placement vector
                 const textX = 150 + 95 * Math.cos(midAngle);
                 const textY = 150 + 95 * Math.sin(midAngle);
                 const textRotation = (i + 0.5) * segmentAngle + 90;
@@ -122,7 +122,7 @@ export const SpinWheel: React.FC<SpinWheelProps> = ({
                   <g key={prize.id}>
                     <path
                       d={pathData}
-                      fill={COLORS[i % COLORS.length]}
+                      fill={FESTIVE_WHEEL_COLORS[i % FESTIVE_WHEEL_COLORS.length]}
                       stroke="#FFFFFF"
                       strokeWidth="2"
                     />
@@ -135,9 +135,9 @@ export const SpinWheel: React.FC<SpinWheelProps> = ({
                       textAnchor="middle"
                       dominantBaseline="middle"
                       transform={`rotate(${textRotation}, ${textX}, ${textY})`}
-                      className="drop-shadow"
+                      className="drop-shadow-sm"
                     >
-                      {prize.title.length > 14 ? `${prize.title.substring(0, 13)}…` : prize.title}
+                      {prize.title.length > 12 ? `${prize.title.substring(0, 11)}…` : prize.title}
                     </text>
                   </g>
                 );
@@ -150,19 +150,19 @@ export const SpinWheel: React.FC<SpinWheelProps> = ({
             type="button"
             onClick={handleSpin}
             disabled={isSpinning || hasSpun || disabled}
-            className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-16 h-16 rounded-full shadow-2xl border-4 border-yellow-200 flex flex-col items-center justify-center font-extrabold text-xs transition-transform active:scale-95 z-10 ${
+            className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-13 h-13 rounded-full shadow-xl border-2 border-[#FFE89B] flex flex-col items-center justify-center font-black text-[10px] transition-transform active:scale-95 z-10 ${
               isSpinning || hasSpun
-                ? 'bg-slate-800 text-slate-400 cursor-not-allowed'
-                : 'bg-gradient-to-br from-yellow-300 via-amber-500 to-amber-700 text-amber-950 hover:scale-105 animate-pulse'
+                ? 'bg-stone-800 text-stone-400 cursor-not-allowed'
+                : 'bg-gradient-to-br from-[#FFE89B] via-[#FFC857] to-[#FFB020] text-[#26030A] hover:scale-105'
             }`}
           >
             {isSpinning ? (
-              <span className="text-[10px]">घूम रहा...</span>
+              <span className="text-[9px]">घूम रहा...</span>
             ) : hasSpun ? (
-              <Sparkles className="w-5 h-5 text-yellow-300" />
+              <Sparkles className="w-4 h-4 text-[#FFC857]" />
             ) : (
               <>
-                <Play className="w-4 h-4 fill-current mb-0.5" />
+                <Play className="w-3.5 h-3.5 fill-current mb-0.5" />
                 <span>SPIN</span>
               </>
             )}
@@ -171,13 +171,13 @@ export const SpinWheel: React.FC<SpinWheelProps> = ({
       </div>
 
       {/* Helper instruction */}
-      <p className="mt-3 text-xs text-amber-900 font-semibold flex items-center gap-1.5">
-        <Sparkles className="w-3.5 h-3.5 text-amber-600" />
+      <p className="mt-1 text-[10px] text-[#FFC857] font-semibold flex items-center gap-1">
+        <Sparkles className="w-3 h-3 text-[#FFB020]" />
         {hasSpun
-          ? '🎉 बधाई हो! आपका ऑफर अनलॉक हो चुका है।'
+          ? '🎉 ऑफर अनलॉक हो चुका है!'
           : isSpinning
           ? '🎰 लकी व्हील घूम रहा है...'
-          : 'बीच के बटन पर क्लिक करके व्हील घुमाएं'}
+          : 'बीच के बटन पर टैप करके व्हील घुमाएं'}
       </p>
     </div>
   );

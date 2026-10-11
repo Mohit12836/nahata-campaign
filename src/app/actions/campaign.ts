@@ -83,7 +83,7 @@ export async function claimCampaignPrizeAction(input: ClaimPrizeInput): Promise<
           p_campaign_id: input.campaignId,
           p_phone: cleanPhone,
           p_name: input.fullName.trim(),
-          p_city: input.city || 'बीकानेर',
+          p_city: input.city || 'कुशलगढ़',
           p_category: input.businessCategory || 'घरेलू उपभोक्ता (Family / Home)',
           p_game_type: input.gameType,
           p_consent: true,

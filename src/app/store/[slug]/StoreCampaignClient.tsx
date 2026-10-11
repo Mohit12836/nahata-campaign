@@ -2,23 +2,16 @@
 
 import React, { use, useState, useSyncExternalStore } from 'react';
 import Link from 'next/link';
-import { Gift, Disc, Lock, ArrowLeft, Store } from 'lucide-react';
-import { Campaign, Prize, Coupon } from '@/types';
+import { Lock, MapPin, Info } from 'lucide-react';
+import { Campaign, Prize } from '@/types';
 import {
   getStoredPrizes,
   getSessionTargetPrize,
   getMerchantBySlug,
 } from '@/lib/store';
-import { claimCampaignPrizeAction } from '@/app/actions/campaign';
 import { INITIAL_PRIZES, INITIAL_CAMPAIGN, INITIAL_MERCHANTS } from '@/lib/mock-data';
-import { FestivalHeader } from '@/components/FestivalHeader';
-import { ScratchCard } from '@/components/ScratchCard';
-import { SpinWheel } from '@/components/SpinWheel';
-import { OfferClaimModal } from '@/components/OfferClaimModal';
-import { CouponCard } from '@/components/CouponCard';
-import { TrustBadges } from '@/components/TrustBadges';
-import { ManojTrustCard } from '@/components/ManojTrustCard';
-import { ProcessTimeline } from '@/components/ProcessTimeline';
+import FestivalOfferFunnel from '@/components/FestivalOfferFunnel';
+import { OfferRulesSheet } from '@/components/OfferRulesSheet';
 
 const subscribe = () => () => {};
 
@@ -48,242 +41,62 @@ export default function StoreCampaignClient({
     ...INITIAL_CAMPAIGN,
     id: merchant.id,
     merchant_id: merchant.id,
-    store_name: merchant.name,
-    title: `${merchant.name} — महा बचत उत्सव`,
-    headline: `स्क्रैच करें या व्हील घुमाएं — ${merchant.category} पर पक्का इनाम!`,
-    subheadline: `${merchant.location} • 100% भरोसेमंद विशेष छूट व उपहार।`,
-    location: merchant.location,
-    shop_number: merchant.shop_number,
-    contact_person: merchant.owner_name,
-    owner_photo_url: merchant.owner_photo_url || '/manoj-nahata.jpg',
-    owner_quote:
-      merchant.slug === 'nahata'
-        ? 'कुशलगढ़ का अपना परिवार • 30+ वर्षों का अटूट विश्वास और गारंटी!'
-        : `${merchant.name} की ओर से सभी ग्राहकों का हार्दिक आभार!`,
-    whatsapp_number: merchant.whatsapp_number,
+    store_name: 'नाहाटा जनरल स्टोर्स',
+    title: 'नाहाटा जनरल स्टोर्स — शुभ नवरात्रि महोत्सव',
+    headline: 'शुभ नवरात्रि महोत्सव — मेगा लकी ड्रॉ ऑफर',
+    subheadline: 'नाहाटा जनरल स्टोर्स की ओर से आपके लिए खास उत्सवी ऑफर',
+    location: 'बस स्टैंड रोड, कुशलगढ़, जिला बांसवाड़ा (राजस्थान)',
+    shop_number: 'दुकान नं. 14, मेन बस स्टैंड रोड',
+    contact_person: 'श्री मनोज नाहाटा',
+    owner_photo_url: '/manoj-nahata.jpg',
+    owner_quote: 'कुशलगढ़ का अपना परिवार • 30+ वर्षों का अटूट विश्वास और गारंटी!',
+    whatsapp_number: merchant.whatsapp_number || '919829012345',
     whatsapp_community_link: merchant.whatsapp_community_link,
   };
 
   const [prizes] = useState<Prize[]>(getStoredPrizes);
-  const [activeTab, setActiveTab] = useState<'scratch' | 'spin'>('scratch');
-  const [gameStage, setGameStage] = useState<'GAME' | 'CLAIM' | 'COUPON'>('GAME');
-
-  const [wonCoupon, setWonCoupon] = useState<Coupon | null>(null);
-  const [alreadyPlayedNotice, setAlreadyPlayedNotice] = useState<string | null>(null);
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-
-  const handleGameFinished = () => {
-    setGameStage('CLAIM');
-  };
-
-  const handleFormSubmit = async (formData: {
-    fullName: string;
-    phone: string;
-    city: string;
-    businessCategory: string;
-  }) => {
-    setIsSubmitting(true);
-    setErrorMessage(null);
-
-    try {
-      const result = await claimCampaignPrizeAction({
-        campaignId: currentCampaign.id,
-        fullName: formData.fullName,
-        phone: formData.phone,
-        city: formData.city,
-        businessCategory: formData.businessCategory,
-        gameType: activeTab,
-        consent: true,
-        targetPrizeId: targetPrize?.id,
-      });
-
-      setIsSubmitting(false);
-
-      if (result.status === 'ERROR') {
-        setErrorMessage(result.message);
-        return;
-      }
-
-      if (result.status === 'ALREADY_PLAYED') {
-        setAlreadyPlayedNotice(result.message);
-      } else {
-        setAlreadyPlayedNotice(null);
-      }
-
-      if (result.coupon) {
-        setWonCoupon(result.coupon);
-        setGameStage('COUPON');
-      }
-    } catch {
-      setIsSubmitting(false);
-      setErrorMessage('सर्वर से संपर्क करने में समस्या हुई। कृपया पुनः प्रयास करें।');
-    }
-  };
-
-  const currentPrize = targetPrize || INITIAL_PRIZES[0];
-
-  const [showDetailsDrawer, setShowDetailsDrawer] = useState(false);
+  const [isRulesOpen, setIsRulesOpen] = useState(false);
 
   return (
-    <main className="min-h-screen bg-gradient-to-b from-red-950 via-[#2a0808] to-slate-950 text-slate-100 flex flex-col items-center justify-between pb-8 relative overflow-x-hidden selection:bg-amber-500 selection:text-amber-950">
-      {/* Ambient background glow */}
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-lg h-96 bg-gradient-to-b from-amber-500/20 via-rose-500/10 to-transparent blur-3xl pointer-events-none" />
-
-      {/* Top Bar with Navigation */}
-      <div className="w-full max-w-md mx-auto px-3 pt-2 flex items-center justify-between z-20 text-xs">
-        <span className="text-[11px] font-bold text-amber-300 bg-amber-950/90 px-2.5 py-1 rounded-full border border-amber-500/40 truncate max-w-[190px] flex items-center gap-1">
-          <span>📍</span> <span>बस स्टैंड रोड, कुशलगढ़</span>
+    <div className="min-h-[100dvh] bg-[#120104] text-[#FFF4D8] flex flex-col justify-between selection:bg-[#FFC857] selection:text-[#26030A]">
+      {/* Top Floating Admin & Rules Bar */}
+      <div className="w-full max-w-md mx-auto px-3 pt-1.5 pb-0.5 flex items-center justify-between z-20 shrink-0 text-xs">
+        <span className="text-[10px] font-bold text-[#FFC857] bg-black/60 px-2.5 py-0.5 rounded-full border border-[#FFC857]/30 flex items-center gap-1">
+          <MapPin className="w-3 h-3 text-rose-400" />
+          <span>बस स्टैंड रोड, कुशलगढ़</span>
         </span>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1.5">
+          <button
+            type="button"
+            onClick={() => setIsRulesOpen(true)}
+            className="text-[10px] font-bold text-[#FFC857] hover:text-white bg-black/50 px-2 py-0.5 rounded-full border border-[#FFC857]/30 transition-colors flex items-center gap-0.5"
+          >
+            <Info className="w-2.5 h-2.5 text-[#FFC857]" />
+            <span>नियम</span>
+          </button>
           <Link
             href={`/admin?store=${merchant.slug}`}
-            className="inline-flex items-center gap-1 font-bold text-amber-300 hover:text-amber-200 bg-amber-900/40 hover:bg-amber-900/60 px-2.5 py-1 rounded-full border border-amber-500/40 transition-colors text-[11px]"
+            className="text-[10px] font-bold text-[#FFC857] hover:text-white bg-black/50 px-2 py-0.5 rounded-full border border-[#FFC857]/30 transition-colors flex items-center gap-0.5"
           >
-            <Lock className="w-3 h-3" />
+            <Lock className="w-2.5 h-2.5" />
             <span>एडमिन</span>
           </Link>
         </div>
       </div>
 
-      {/* Main Single-Screen Content Container */}
-      <div className="w-full max-w-md mx-auto px-3 z-10 space-y-3 mt-1 flex-1 flex flex-col justify-center">
-        {/* Compact Festival Header with Bouncing Logo & Store Address */}
-        <FestivalHeader campaign={currentCampaign} />
+      {/* Main Campaign Funnel Experience */}
+      <FestivalOfferFunnel
+        campaign={currentCampaign}
+        prizes={prizes}
+        targetPrize={isClient ? targetPrize : INITIAL_PRIZES[0]}
+      />
 
-        {/* ============================================================ */}
-        {/* STAGE 1: THE GAME (Scratch Card or Spin Wheel)                */}
-        {/* ============================================================ */}
-        {gameStage === 'GAME' && (
-          <div className="space-y-2.5 animate-in fade-in duration-300">
-            {/* Game Selector Tabs */}
-            <div className="p-1 rounded-2xl bg-black/60 border border-amber-500/40 backdrop-blur-md grid grid-cols-2 gap-1 shadow-md">
-              <button
-                type="button"
-                onClick={() => setActiveTab('scratch')}
-                className={`py-2 px-3 rounded-xl font-bold text-xs sm:text-sm flex items-center justify-center gap-1.5 transition-all ${
-                  activeTab === 'scratch'
-                    ? 'bg-gradient-to-r from-amber-500 via-yellow-400 to-amber-500 text-amber-950 shadow-md font-black scale-[1.02]'
-                    : 'text-amber-200/80 hover:text-white'
-                }`}
-              >
-                <Gift className="w-4 h-4" />
-                <span>लकी स्क्रैच कार्ड</span>
-              </button>
-
-              <button
-                type="button"
-                onClick={() => setActiveTab('spin')}
-                className={`py-2 px-3 rounded-xl font-bold text-xs sm:text-sm flex items-center justify-center gap-1.5 transition-all ${
-                  activeTab === 'spin'
-                    ? 'bg-gradient-to-r from-amber-500 via-yellow-400 to-amber-500 text-amber-950 shadow-md font-black scale-[1.02]'
-                    : 'text-amber-200/80 hover:text-white'
-                }`}
-              >
-                <Disc className="w-4 h-4" />
-                <span>लकी स्पिन व्हील</span>
-              </button>
-            </div>
-
-            {/* Interactive Game View */}
-            <div className="py-1">
-              {!isClient ? (
-                <div className="w-full aspect-square max-w-[280px] mx-auto rounded-3xl bg-amber-950/40 border border-amber-500/30 flex items-center justify-center text-amber-300 text-xs font-bold animate-pulse">
-                  लकी कार्ड लोड हो रहा है...
-                </div>
-              ) : activeTab === 'scratch' ? (
-                <ScratchCard
-                  prize={currentPrize}
-                  onScratchComplete={handleGameFinished}
-                />
-              ) : (
-                <SpinWheel
-                  prizes={prizes}
-                  targetPrize={currentPrize}
-                  onSpinComplete={handleGameFinished}
-                />
-              )}
-            </div>
-
-            {/* Compact Trust Strip & Collapsible Details Drawer */}
-            <div className="pt-0.5 text-center space-y-1.5">
-              <div className="flex items-center justify-center gap-2 text-[10px] sm:text-[11px] text-amber-200/90 font-bold bg-black/50 py-1.5 px-3 rounded-full border border-amber-500/30">
-                <span>🔒 100% मुफ़्त</span>
-                <span>•</span>
-                <span>दुकान पर तुरंत छूट</span>
-                <span>•</span>
-                <span>कोई छुपे नियम नहीं</span>
-              </div>
-
-              <button
-                type="button"
-                onClick={() => setShowDetailsDrawer(!showDetailsDrawer)}
-                className="inline-flex items-center gap-1 text-[11px] text-amber-300 hover:text-white underline font-semibold transition-colors py-0.5"
-              >
-                <span>{showDetailsDrawer ? '▲ कम जानकारी दिखाएं' : '▼ 📋 दुकान का पता, समय व नियम (विस्तार से देखें)'}</span>
-              </button>
-
-              {/* Expandable Full Trust & Timeline Section */}
-              {showDetailsDrawer && (
-                <div className="pt-2 space-y-4 animate-in fade-in duration-200 text-left">
-                  {currentCampaign.show_owner_card !== false && (
-                    <ManojTrustCard campaign={currentCampaign} />
-                  )}
-                  <ProcessTimeline />
-                  <TrustBadges campaign={currentCampaign} />
-                </div>
-              )}
-            </div>
-          </div>
-        )}
-
-        {/* ============================================================ */}
-        {/* STAGE 2: LEAD CLAIM MODAL FORM (Distraction-Free)             */}
-        {/* ============================================================ */}
-        {gameStage === 'CLAIM' && (
-          <div className="space-y-3 animate-in fade-in zoom-in-95 duration-300">
-            {errorMessage && (
-              <div className="p-3 rounded-xl bg-red-500/20 border border-red-400/50 text-red-200 text-xs font-semibold text-center animate-in fade-in">
-                ⚠️ {errorMessage}
-              </div>
-            )}
-            <OfferClaimModal
-              campaign={currentCampaign}
-              prize={currentPrize}
-              onSubmit={handleFormSubmit}
-              isLoading={isSubmitting}
-            />
-          </div>
-        )}
-
-        {/* ============================================================ */}
-        {/* STAGE 3: WON COUPON TICKET VIEW (Viral Share & Store Visit)  */}
-        {/* ============================================================ */}
-        {gameStage === 'COUPON' && wonCoupon && (
-          <div className="space-y-3 animate-in fade-in zoom-in-95 duration-300">
-            {alreadyPlayedNotice && (
-              <div className="p-3 rounded-xl bg-amber-500/20 border border-amber-400/50 text-amber-200 text-xs font-semibold text-center animate-in fade-in">
-                ℹ️ {alreadyPlayedNotice} (आपका पूर्व-सत्यापित कूपन नीचे प्रदर्शित है)
-              </div>
-            )}
-            <CouponCard coupon={wonCoupon} campaign={currentCampaign} />
-          </div>
-        )}
-      </div>
-
-      {/* Footer */}
-      <footer className="w-full max-w-md mx-auto px-4 mt-8 text-center text-xs text-amber-400/60 space-y-2">
-        <p>© 2026 {currentCampaign.store_name} • सर्वाधिकार सुरक्षित</p>
-        <div className="flex items-center justify-center gap-2 pt-1 text-[11px]">
-          <Link href="/" className="hover:text-amber-200 underline">
-            प्लेटफॉर्म होम
-          </Link>
-          <span>•</span>
-          <Link href="/super-admin" className="hover:text-amber-200 underline">
-            सुपर एडमिन
-          </Link>
-        </div>
-      </footer>
-    </main>
+      {/* Direct Global Rules Sheet */}
+      <OfferRulesSheet
+        campaign={currentCampaign}
+        isOpen={isRulesOpen}
+        onClose={() => setIsRulesOpen(false)}
+      />
+    </div>
   );
 }

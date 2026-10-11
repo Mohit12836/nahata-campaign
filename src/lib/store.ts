@@ -238,7 +238,7 @@ export const executeGamePlay = (
       id: `c-${Date.now()}`,
       phone: cleanPhone,
       full_name: fullName,
-      city: city || 'बीकानेर',
+      city: city || 'कुशलगढ़',
       business_category: businessCategory || 'घरेलू उपभोक्ता (Family / Home)',
       lead_source: `${gameType.toUpperCase()}_CAMPAIGN`,
       whatsapp_consent: true,
@@ -249,9 +249,9 @@ export const executeGamePlay = (
     saveStoredCustomers(customers);
   }
 
-  // 4. Generate Unique Coupon Code
+  // 4. Generate Unique Coupon Code (NAHATA-FEST-XXXX)
   const randomSuffix = Math.floor(1000 + Math.random() * 9000);
-  const couponCode = `NAHATA-${Math.random().toString(36).substring(2, 6).toUpperCase()}-${randomSuffix}`;
+  const couponCode = `NAHATA-FEST-${randomSuffix}`;
   const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString();
 
   const newCoupon: Coupon = {

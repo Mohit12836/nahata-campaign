@@ -15,6 +15,11 @@ import {
   ShieldCheck,
   QrCode,
   IndianRupee,
+  FileSpreadsheet,
+  Copy,
+  ExternalLink,
+  RefreshCw,
+  Check,
 } from 'lucide-react';
 import { Campaign, Prize, Customer, Coupon } from '@/types';
 import {
@@ -31,17 +36,32 @@ import {
   checkAdminAuthAction,
   redeemCouponAction,
 } from '@/app/actions/admin';
+import {
+  getStoredGoogleSheetsWebhookUrl,
+  saveStoredGoogleSheetsWebhookUrl,
+} from '@/lib/google-sheets';
+import {
+  testGoogleSheetsWebhookAction,
+  bulkSyncToGoogleSheetsAction,
+} from '@/app/actions/sheets';
 
 export default function AdminDashboardPage() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isCheckingAuth, setIsCheckingAuth] = useState(true);
   const [pinInput, setPinInput] = useState('');
   const [pinError, setPinError] = useState('');
-  const [activeTab, setActiveTab] = useState<'crm' | 'redemption' | 'settings'>('crm');
+  const [activeTab, setActiveTab] = useState<'crm' | 'redemption' | 'settings' | 'sheets'>('crm');
   const [campaign, setCampaign] = useState<Campaign>(getStoredCampaign);
   const [prizes, setPrizes] = useState<Prize[]>(getStoredPrizes);
   const [customers, setCustomers] = useState<Customer[]>(getStoredCustomers);
   const [coupons, setCoupons] = useState<Coupon[]>(getStoredCoupons);
+
+  // Google Sheets Auto-Sync State
+  const [googleSheetWebhook, setGoogleSheetWebhook] = useState('');
+  const [isTestingWebhook, setIsTestingWebhook] = useState(false);
+  const [isSyncingToSheets, setIsSyncingToSheets] = useState(false);
+  const [sheetSyncStatus, setSheetSyncStatus] = useState<{ success: boolean; message: string } | null>(null);
+  const [copiedScript, setCopiedScript] = useState(false);
 
   // Search & Filter state
   const [searchQuery, setSearchQuery] = useState('');
@@ -65,6 +85,7 @@ export default function AdminDashboardPage() {
     setPrizes(getStoredPrizes());
     setCustomers(getStoredCustomers());
     setCoupons(getStoredCoupons());
+    setGoogleSheetWebhook(getStoredGoogleSheetsWebhookUrl());
   };
 
   // Check server session on mount
@@ -72,10 +93,48 @@ export default function AdminDashboardPage() {
     checkAdminAuthAction().then((res) => {
       setIsAuthenticated(res.isAuthenticated);
       setIsCheckingAuth(false);
+      if (res.isAuthenticated) {
+        setGoogleSheetWebhook(getStoredGoogleSheetsWebhookUrl());
+      }
     }).catch(() => {
       setIsCheckingAuth(false);
     });
   }, []);
+
+  const handleSaveWebhook = (e: React.FormEvent) => {
+    e.preventDefault();
+    saveStoredGoogleSheetsWebhookUrl(googleSheetWebhook);
+    setSaveNotification('Google Sheets Webhook URL सफलतापूर्वक सुरक्षित हो गया!');
+    setTimeout(() => setSaveNotification(''), 3500);
+  };
+
+  const handleTestWebhook = async () => {
+    if (!googleSheetWebhook) return;
+    setIsTestingWebhook(true);
+    setSheetSyncStatus(null);
+    try {
+      const res = await testGoogleSheetsWebhookAction(googleSheetWebhook);
+      setSheetSyncStatus(res);
+    } catch {
+      setSheetSyncStatus({ success: false, message: 'परीक्षण अनुरोध विफल रहा।' });
+    }
+    setIsTestingWebhook(false);
+  };
+
+  const handleBulkSync = async () => {
+    setIsSyncingToSheets(true);
+    setSheetSyncStatus(null);
+    try {
+      const res = await bulkSyncToGoogleSheetsAction(googleSheetWebhook);
+      setSheetSyncStatus({
+        success: res.success,
+        message: `${res.count} ग्राहक लीड्स और रिडेम्पशन Google Sheet में सफलतापूर्वक भेज दिए गए!`,
+      });
+    } catch {
+      setSheetSyncStatus({ success: false, message: 'Google Sheets में सिंक करने में त्रुटि हुई।' });
+    }
+    setIsSyncingToSheets(false);
+  };
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -429,6 +488,22 @@ export default function AdminDashboardPage() {
             <Settings className="w-4 h-4" />
             <span>कैंपेन व ऑफर सेटिंग्स</span>
           </button>
+
+          <button
+            type="button"
+            onClick={() => setActiveTab('sheets')}
+            className={`px-4 py-2.5 rounded-xl font-bold text-xs sm:text-sm flex items-center gap-2 transition-all shrink-0 ${
+              activeTab === 'sheets'
+                ? 'bg-emerald-800 text-white shadow-md'
+                : 'bg-white text-slate-700 hover:bg-emerald-50 border border-emerald-200'
+            }`}
+          >
+            <FileSpreadsheet className="w-4 h-4 text-emerald-600" />
+            <span>Google Sheets & Drive सिंक</span>
+            {googleSheetWebhook && (
+              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+            )}
+          </button>
         </div>
 
         {/* TAB 1: CRM LEADS & DIRECTORY */}
@@ -447,7 +522,7 @@ export default function AdminDashboardPage() {
                 />
               </div>
 
-              <div className="flex items-center gap-2 w-full sm:w-auto">
+              <div className="flex items-center gap-2 w-full sm:w-auto flex-wrap">
                 <select
                   value={categoryFilter}
                   onChange={(e) => setCategoryFilter(e.target.value)}
@@ -462,11 +537,22 @@ export default function AdminDashboardPage() {
 
                 <button
                   type="button"
+                  onClick={handleBulkSync}
+                  disabled={isSyncingToSheets}
+                  className="px-3 py-2 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white text-xs sm:text-sm font-bold flex items-center gap-1.5 transition-colors shrink-0 disabled:opacity-50"
+                  title="Google Sheets में सारा डेटा भेजें"
+                >
+                  <FileSpreadsheet className="w-4 h-4" />
+                  <span>{isSyncingToSheets ? 'सिंक हो रहा है...' : 'Google Sheet सिंक'}</span>
+                </button>
+
+                <button
+                  type="button"
                   onClick={exportToCSV}
-                  className="px-3 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs sm:text-sm font-bold flex items-center gap-1.5 transition-colors shrink-0"
+                  className="px-3 py-2 rounded-xl bg-slate-800 hover:bg-slate-900 text-white text-xs sm:text-sm font-bold flex items-center gap-1.5 transition-colors shrink-0"
                 >
                   <Download className="w-4 h-4" />
-                  <span>CSV एक्सपोर्ट</span>
+                  <span>CSV</span>
                 </button>
               </div>
             </div>
@@ -937,6 +1023,187 @@ export default function AdminDashboardPage() {
               सेटिंग्स सुरक्षित करें (Save Changes)
             </button>
           </form>
+        )}
+
+        {/* TAB 4: GOOGLE SHEETS & DRIVE AUTO-SYNC */}
+        {activeTab === 'sheets' && (
+          <div className="space-y-6 animate-in fade-in duration-200">
+            {/* Sync Feedback Alert */}
+            {sheetSyncStatus && (
+              <div
+                className={`p-4 rounded-2xl border text-xs sm:text-sm font-semibold flex items-center justify-between gap-3 ${
+                  sheetSyncStatus.success
+                    ? 'bg-emerald-50 border-emerald-300 text-emerald-800'
+                    : 'bg-rose-50 border-rose-300 text-rose-800'
+                }`}
+              >
+                <span>{sheetSyncStatus.success ? '✅' : '⚠️'} {sheetSyncStatus.message}</span>
+                <button
+                  type="button"
+                  onClick={() => setSheetSyncStatus(null)}
+                  className="text-xs underline opacity-80 hover:opacity-100"
+                >
+                  बंद करें
+                </button>
+              </div>
+            )}
+
+            {/* Top Overview & Status Card */}
+            <div className="p-6 rounded-2xl bg-white border border-slate-200 shadow-sm space-y-4">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-100">
+                <div className="flex items-center gap-3.5">
+                  <div className="w-12 h-12 rounded-2xl bg-emerald-100 border border-emerald-300 flex items-center justify-center text-emerald-700 shrink-0">
+                    <FileSpreadsheet className="w-6 h-6" />
+                  </div>
+                  <div>
+                    <h3 className="text-base sm:text-lg font-black text-slate-900 flex items-center gap-2">
+                      Google Sheets & Drive ऑटो-सिंक
+                      {googleSheetWebhook ? (
+                        <span className="text-[10px] bg-emerald-100 text-emerald-800 border border-emerald-300 px-2 py-0.5 rounded-full font-bold">
+                          🟢 ऑटो-सिंक ऑन
+                        </span>
+                      ) : (
+                        <span className="text-[10px] bg-amber-100 text-amber-800 border border-amber-300 px-2 py-0.5 rounded-full font-bold">
+                          ⚪ सेटअप आवश्यक
+                        </span>
+                      )}
+                    </h3>
+                    <p className="text-xs text-slate-500 mt-0.5">
+                      हर नए ग्राहक का WhatsApp नंबर, कूपन और काउंटर बिलिंग रिकॉर्ड अपने-आप आपकी Google Sheet में सेव होगा।
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={handleBulkSync}
+                    disabled={isSyncingToSheets || !googleSheetWebhook}
+                    className="px-4 py-2.5 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-xs sm:text-sm shadow-md transition-all flex items-center gap-2 disabled:opacity-50"
+                  >
+                    <RefreshCw className={`w-4 h-4 ${isSyncingToSheets ? 'animate-spin' : ''}`} />
+                    <span>{isSyncingToSheets ? 'सिंक हो रहा है...' : 'अभी सारा डेटा सिंक करें'}</span>
+                  </button>
+                </div>
+              </div>
+
+              {/* Webhook Configuration Form */}
+              <form onSubmit={handleSaveWebhook} className="space-y-3 pt-1">
+                <label className="block text-xs font-bold text-slate-700">
+                  Google Apps Script Web App URL (Webhook)
+                </label>
+                <div className="flex flex-col sm:flex-row gap-2">
+                  <input
+                    type="url"
+                    placeholder="https://script.google.com/macros/s/.../exec"
+                    value={googleSheetWebhook}
+                    onChange={(e) => setGoogleSheetWebhook(e.target.value)}
+                    className="flex-1 px-3.5 py-2.5 rounded-xl border border-slate-300 text-xs sm:text-sm font-mono outline-none focus:ring-2 focus:ring-emerald-700"
+                  />
+                  <div className="flex gap-2">
+                    <button
+                      type="submit"
+                      className="px-4 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs sm:text-sm transition-colors whitespace-nowrap"
+                    >
+                      URL सुरक्षित करें
+                    </button>
+                    <button
+                      type="button"
+                      onClick={handleTestWebhook}
+                      disabled={isTestingWebhook || !googleSheetWebhook}
+                      className="px-4 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs sm:text-sm border border-slate-300 transition-colors whitespace-nowrap disabled:opacity-50"
+                    >
+                      {isTestingWebhook ? 'जांच जारी...' : 'कनेक्शन टेस्ट'}
+                    </button>
+                  </div>
+                </div>
+                <p className="text-[11px] text-slate-500">
+                  यह URL आपके Google Sheet के Apps Script डिप्लॉयमेंट से मिलता है। नीचे आसान 4-चरण गाइड देखें।
+                </p>
+              </form>
+            </div>
+
+            {/* How It Works & Auto-Created Folders/Tabs Showcase */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="p-5 rounded-2xl bg-white border border-slate-200 shadow-sm space-y-3">
+                <div className="flex items-center gap-2">
+                  <span className="w-6 h-6 rounded-lg bg-emerald-100 text-emerald-800 font-black text-xs flex items-center justify-center">
+                    📋
+                  </span>
+                  <h4 className="font-bold text-slate-900 text-sm">
+                    शीट में अपने-आप बनने वाले टैब व कॉलम
+                  </h4>
+                </div>
+
+                <div className="space-y-2.5 text-xs text-slate-600">
+                  <div className="p-3 rounded-xl bg-emerald-50/70 border border-emerald-200">
+                    <p className="font-bold text-emerald-900">1. 👥 ग्राहक लीड्स (Customers Tab)</p>
+                    <p className="text-[11px] text-emerald-700 mt-1">
+                      दिनांक, ग्राहक का नाम, मोबाइल नंबर, 💬 डायरेक्ट WhatsApp चैट लिंक, शहर, गेम प्रकार, जीता हुआ इनाम, कूपन कोड, और वैधता।
+                    </p>
+                  </div>
+
+                  <div className="p-3 rounded-xl bg-indigo-50/70 border border-indigo-200">
+                    <p className="font-bold text-indigo-900">2. 💰 काउंटर रिडेम्पशन (Redemptions Tab)</p>
+                    <p className="text-[11px] text-indigo-700 mt-1">
+                      रिडेम्पशन का सही समय, कूपन कोड, बिल नंबर, बिल राशि (₹), सत्यापित कर्ता (मनोज नाहटा), और ग्राहक का नाम।
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* 4-Step Setup Guide */}
+              <div className="p-5 rounded-2xl bg-white border border-slate-200 shadow-sm space-y-3">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <span className="w-6 h-6 rounded-lg bg-amber-100 text-amber-800 font-black text-xs flex items-center justify-center">
+                      ⚙️
+                    </span>
+                    <h4 className="font-bold text-slate-900 text-sm">
+                      1 मिनट में Google Sheet कैसे कनेक्ट करें?
+                    </h4>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      navigator.clipboard.writeText(
+                        `// Bharat Retail Offer Platform - Google Apps Script\\n// Open google-apps-script.js in your project directory to copy full code`
+                      );
+                      setCopiedScript(true);
+                      setTimeout(() => setCopiedScript(false), 3000);
+                    }}
+                    className="text-[11px] font-bold text-emerald-700 hover:text-emerald-800 bg-emerald-50 px-2.5 py-1 rounded-lg border border-emerald-200 flex items-center gap-1"
+                  >
+                    {copiedScript ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />}
+                    <span>{copiedScript ? 'कॉपी हो गया!' : 'स्क्रिप्ट कोड'}</span>
+                  </button>
+                </div>
+
+                <ol className="space-y-2 text-xs text-slate-600 list-decimal list-inside leading-relaxed">
+                  <li>
+                    <strong>
+                      <a
+                        href="https://sheets.new"
+                        target="_blank"
+                        rel="noreferrer"
+                        className="text-emerald-700 underline inline-flex items-center gap-0.5"
+                      >
+                        sheets.new ↗
+                      </a>
+                    </strong> खोलें और नाम रखें <em>&quot;Nahata General Stores Data&quot;</em>।
+                  </li>
+                  <li>मेनू में <strong>Extensions (एक्सटेंशन) ➔ Apps Script</strong> खोलें।</li>
+                  <li>
+                    प्रोजेक्ट में मौजूद <code>google-apps-script.js</code> का कोड पेस्ट करें और Save (Ctrl+S) करें।
+                  </li>
+                  <li>
+                    ऊपर नीले <strong>Deploy ➔ New deployment</strong> पर क्लिक करें, Type में <strong>&quot;Web app&quot;</strong> और Access में <strong>&quot;Anyone&quot;</strong> चुनकर Deploy करें।
+                  </li>
+                  <li>मिला हुआ <strong>Web app URL</strong> ऊपर बॉक्स में डालकर &quot;URL सुरक्षित करें&quot; दबाएं!</li>
+                </ol>
+              </div>
+            </div>
+          </div>
         )}
       </main>
     </div>

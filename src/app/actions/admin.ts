@@ -10,6 +10,7 @@ import {
 import { getSupabaseServerClient, isSupabaseConfigured } from '@/lib/supabase-server';
 import { redeemCoupon } from '@/lib/store';
 import { Coupon } from '@/types';
+import { sendToGoogleSheetsWebhook } from '@/lib/google-sheets';
 
 export async function adminLoginAction(pin: string): Promise<{ success: boolean; message: string }> {
   if (!validateAdminPin(pin)) {
@@ -97,6 +98,23 @@ export async function redeemCouponAction(
     input.billAmount,
     input.redeemedBy || 'मनोज नाहटा (काउंटर)'
   );
+
+  // 4. Automatic Google Sheets Auto-Sync (Non-blocking)
+  if (res.success && res.coupon) {
+    try {
+      const payload = {
+        timestamp: new Date().toLocaleString('hi-IN'),
+        storeName: 'नाहाटा जनरल स्टोर्स',
+        couponCode: res.coupon.code,
+        billNumber: input.billNumber || res.coupon.bill_number || '',
+        billAmount: input.billAmount || res.coupon.bill_amount || 0,
+        redeemedBy: input.redeemedBy || 'मनोज नाहटा (काउंटर)',
+        customerPhone: res.coupon.customer?.phone || res.coupon.customer_phone,
+        customerName: res.coupon.customer?.full_name,
+      };
+      sendToGoogleSheetsWebhook('COUPON_REDEEMED', payload).catch(() => {});
+    } catch {}
+  }
 
   return res;
 }

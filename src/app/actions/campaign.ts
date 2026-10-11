@@ -4,6 +4,7 @@ import { headers } from 'next/headers';
 import { getSupabaseServerClient, isSupabaseConfigured } from '@/lib/supabase-server';
 import { executeGamePlay } from '@/lib/store';
 import { PlayResultResponse } from '@/types';
+import { sendToGoogleSheetsWebhook } from '@/lib/google-sheets';
 
 // In-memory sliding window rate limiter (5 requests per 60s per IP/Phone)
 const rateLimitMap = new Map<string, { count: number; resetAt: number }>();
@@ -113,6 +114,28 @@ export async function claimCampaignPrizeAction(input: ClaimPrizeInput): Promise<
     input.gameType,
     input.targetPrizeId
   );
+
+  // 5. Automatic Real-Time Google Sheets Auto-Sync (Non-blocking)
+  if (result.status === 'SUCCESS' && result.coupon) {
+    try {
+      const payload = {
+        timestamp: new Date().toLocaleString('hi-IN'),
+        storeName: 'नाहाटा जनरल स्टोर्स',
+        customerName: input.fullName.trim(),
+        phone: cleanPhone,
+        whatsappLink: `https://wa.me/91${cleanPhone}`,
+        city: input.city || 'कुशलगढ़',
+        category: input.businessCategory || 'घरेलू उपभोक्ता (Family / Home)',
+        gameType: input.gameType,
+        prizeTitle: result.prize?.title || 'विशेष डिस्काउंट',
+        couponCode: result.coupon.code,
+        couponStatus: 'सक्रिय (VALID)',
+        expiresAt: new Date(result.coupon.expires_at).toLocaleDateString('hi-IN'),
+      };
+      // Fire-and-forget background sync
+      sendToGoogleSheetsWebhook('NEW_LEAD', payload).catch(() => {});
+    } catch {}
+  }
 
   return result;
 }

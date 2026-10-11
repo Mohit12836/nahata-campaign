@@ -19,6 +19,7 @@ import { CouponCard } from '@/components/CouponCard';
 import { TrustBadges } from '@/components/TrustBadges';
 import { ManojTrustCard } from '@/components/ManojTrustCard';
 import { ProcessTimeline } from '@/components/ProcessTimeline';
+import { OfferShowcase } from '@/components/OfferShowcase';
 
 const subscribe = () => () => {};
 
@@ -178,6 +179,9 @@ export default function CustomerCampaignPage() {
             </div>
           </div>
         )}
+
+        {/* FRONT-END OFFER SHOWCASE + MILESTONE TEASERS */}
+        <OfferShowcase prizes={prizes.length ? prizes : INITIAL_PRIZES} />
 
         {/* 3-STEP PROCESS TIMELINE */}
         <ProcessTimeline />

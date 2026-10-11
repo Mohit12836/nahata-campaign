@@ -126,26 +126,9 @@ export default function PlatformLandingPage() {
           <div className="flex items-center gap-2 sm:gap-3">
             <Link
               href="/store/nahata"
-              className="text-xs font-bold text-amber-300 hover:text-white bg-amber-950/60 border border-amber-500/30 px-3 py-1.5 rounded-xl transition-all"
+              className="text-xs font-bold text-amber-950 bg-gradient-to-r from-amber-400 via-yellow-400 to-amber-500 hover:from-amber-300 hover:to-yellow-300 px-3.5 py-1.5 rounded-xl transition-all shadow-md font-black flex items-center gap-1.5"
             >
-              ग्राहक अनुभव देखें
-            </Link>
-
-            <Link
-              href="/admin"
-              className="text-xs font-bold text-slate-300 hover:text-white bg-slate-900 hover:bg-slate-800 border border-slate-700 px-3 py-1.5 rounded-xl transition-all flex items-center gap-1"
-            >
-              <Lock className="w-3 h-3 text-amber-400" />
-              <span className="hidden sm:inline">व्यापारी लॉगिन</span>
-              <span className="sm:hidden">एडमिन</span>
-            </Link>
-
-            <Link
-              href="/super-admin"
-              className="text-xs font-bold text-indigo-300 hover:text-white bg-indigo-950/60 border border-indigo-500/30 px-3 py-1.5 rounded-xl transition-all hidden md:flex items-center gap-1"
-            >
-              <ShieldCheck className="w-3 h-3" />
-              <span>सुपर एडमिन</span>
+              <span>🎉 लकी ड्रॉ खेलें</span>
             </Link>
           </div>
         </div>
@@ -684,20 +667,14 @@ export default function PlatformLandingPage() {
 
           <div className="flex flex-wrap items-center gap-4 text-xs font-medium">
             <Link href="/store/nahata" className="hover:text-amber-300 transition-colors">
-              नाहाटा स्टोर्स
+              नाहाटा स्टोर्स लकी ऑफर
             </Link>
             <span>•</span>
-            <Link href="/admin" className="hover:text-amber-300 transition-colors">
-              दुकानदार एडमिन
-            </Link>
-            <span>•</span>
-            <Link href="/super-admin" className="hover:text-amber-300 transition-colors">
-              सुपर एडमिन कंट्रोल
-            </Link>
+            <span className="text-slate-500">कुशलगढ़, राजस्थान</span>
           </div>
 
           <p className="text-[11px] text-slate-500">
-            © 2026 Bharat Retail Offer Tech • सर्वाधिकार सुरक्षित
+            © 2026 नाहाटा जनरल स्टोर्स • सर्वाधिकार सुरक्षित
           </p>
         </div>
       </footer>

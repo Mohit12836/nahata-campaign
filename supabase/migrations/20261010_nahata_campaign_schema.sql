@@ -1,11 +1,33 @@
 -- ==============================================================================
--- NAHATA GENERAL STORES — PRODUCTION CAMPAIGN & CRM SCHEMA
+-- NAHATA GENERAL STORES & MULTI-TENANT SAAS — PRODUCTION SCHEMA
 -- Migration: 20261010_nahata_campaign_schema.sql
 -- ==============================================================================
+
+-- 0. MERCHANTS TABLE (MULTI-TENANT SAAS)
+create table if not exists public.merchants (
+  id text primary key,
+  slug text unique not null,
+  name text not null,
+  category text not null,
+  owner_name text not null,
+  owner_photo_url text,
+  logo_url text,
+  location text not null,
+  shop_number text,
+  phone text not null,
+  whatsapp_number text not null,
+  whatsapp_community_link text,
+  status text not null check (status in ('active', 'pending', 'suspended')) default 'pending',
+  plan text not null check (plan in ('starter', 'growth', 'enterprise')) default 'starter',
+  quota_coupons_total integer not null default 1000,
+  quota_coupons_used integer not null default 0,
+  created_at timestamptz default now()
+);
 
 -- 1. CAMPAIGNS TABLE
 create table if not exists public.campaigns (
   id text primary key,
+  merchant_id text references public.merchants(id) on delete set null,
   slug text unique not null,
   title text not null,
   store_name text not null,
@@ -20,7 +42,7 @@ create table if not exists public.campaigns (
   start_date timestamptz not null default now(),
   end_date timestamptz not null default (now() + interval '30 days'),
   is_active boolean default true,
-  location text not null default 'मेन मार्केट, नाहटा चौक, राजस्थान',
+  location text not null default 'मेन मार्केट, कुशलगढ़, जिला बांसवाड़ा (राजस्थान)',
   contact_person text not null default 'श्री मनोज नाहटा',
   created_at timestamptz default now(),
   updated_at timestamptz default now()
@@ -94,11 +116,19 @@ create table if not exists public.admin_audit_logs (
 -- ==============================================================================
 -- ROW LEVEL SECURITY (RLS) POLICIES
 -- ==============================================================================
+alter table public.merchants enable row level security;
 alter table public.campaigns enable row level security;
 alter table public.prizes enable row level security;
 alter table public.customers enable row level security;
 alter table public.coupons enable row level security;
 alter table public.admin_audit_logs enable row level security;
+
+-- Merchants: Public can view active merchants; Admin has full access
+create policy "Public can read active merchants" on public.merchants
+  for select using (status = 'active');
+
+create policy "Admin can manage all merchants" on public.merchants
+  for all using (auth.role() = 'authenticated' or auth.role() = 'service_role');
 
 -- Campaigns: Public can read active campaigns; Write is admin only
 create policy "Public can read active campaigns" on public.campaigns
@@ -323,3 +353,43 @@ $$;
 
 revoke all on function public.redeem_campaign_coupon from public;
 grant execute on function public.redeem_campaign_coupon to authenticated, service_role;
+
+-- ==============================================================================
+-- INITIAL SEED DATA (NAHATA FLAGSHIP & MERCHANTS)
+-- ==============================================================================
+insert into public.merchants (id, slug, name, category, owner_name, owner_photo_url, logo_url, location, shop_number, phone, whatsapp_number, whatsapp_community_link, status, plan, quota_coupons_total, quota_coupons_used)
+values
+  ('merch-nahata', 'nahata', 'नाहाटा जनरल स्टोर्स (Nahata General Stores)', 'किराना, घरेलू सामान व प्लास्टिक', 'श्री मनोज नाहटा', '/manoj-nahata.jpg', '/nahata-logo.jpg', 'मेन मार्केट, कुशलगढ़, जिला बांसवाड़ा (राजस्थान)', 'दुकान नं. 14, नाहटा कॉम्प्लेक्स', '9829012345', '919829012345', 'https://chat.whatsapp.com/invite/nahatageneralstores', 'active', 'enterprise', 10000, 104),
+  ('merch-shyam', 'shyam-fashion', 'श्री श्याम फैशन & गारमेंट्स', 'कपड़ा, साड़ी व रेडीमेड', 'श्री महेश शर्मा', null, '/nahata-logo.jpg', 'गांधी चौक, सज्जनगढ़ (बांसवाड़ा)', 'दुकान नं. 08', '9829055443', '919829055443', 'https://chat.whatsapp.com/invite/shyamfashion', 'active', 'growth', 2000, 48),
+  ('merch-mahesh', 'mahesh-electronics', 'महेश इलेक्ट्रॉनिक्स & मोबाइल', 'इलेक्ट्रॉनिक्स, मोबाइल व एसेसरीज', 'श्री राजेश जैन', null, '/nahata-logo.jpg', 'कस्टम चौराहा, बांसवाड़ा', 'शॉप 21', '9829099887', '919829099887', null, 'active', 'starter', 1000, 12)
+on conflict (id) do nothing;
+
+insert into public.campaigns (id, merchant_id, slug, title, store_name, headline, subheadline, whatsapp_number, whatsapp_community_link, is_scratch_enabled, is_spin_enabled, max_plays_per_user, is_active, location, contact_person)
+values (
+  'nahata-fest-2026',
+  'merch-nahata',
+  'festival-dhamaka',
+  'नाहाटा जनरल स्टोर्स — कुशलगढ़ महा बचत उत्सव',
+  'नाहाटा जनरल स्टोर्स (Nahata General Stores)',
+  'स्क्रैच करें या व्हील घुमाएं — किराना, प्लास्टिक, घरेलू सामान, स्टेशनरी व उपहारों पर पक्का इनाम!',
+  'कुशलगढ़ का सबसे भरोसेमंद सुपरस्टोर • घर-गृहस्थी व रोजमर्रा के सामान पर विशेष छूट।',
+  '919829012345',
+  'https://chat.whatsapp.com/invite/nahatageneralstores',
+  true,
+  true,
+  1,
+  true,
+  'मेन मार्केट, कुशलगढ़, जिला बांसवाड़ा (राजस्थान)',
+  'श्री मनोज नाहटा'
+)
+on conflict (id) do nothing;
+
+insert into public.prizes (id, campaign_id, title, discount_type, discount_value, min_order_value, probability_weight, total_quantity, claimed_quantity, is_active, terms_and_conditions, badge_color)
+values
+  ('prz-1', 'nahata-fest-2026', '₹150 फ्लैट डिस्काउंट वाउचर', 'fixed_amount', 150, 1500, 20, 100, 14, true, 'न्यूनतम ₹1500 की घरेलू सामान व जनरल खरीदारी पर तुरंत मान्य।', 'from-amber-500 to-yellow-600'),
+  ('prz-2', 'nahata-fest-2026', '3-पीस स्टोरेज कंटेनर सेट मात्र ₹11 में', 'free_gift', 0, 1200, 25, 150, 38, true, '₹1200 की खरीदारी पर ₹80 वाला 3-पीस एयरटाइट कंटेनर मात्र ₹11 में प्राप्त करें।', 'from-rose-500 to-red-600'),
+  ('prz-3', 'nahata-fest-2026', 'प्रीमियम कॉटन रुमाल / मोजा सेट मुफ्त', 'free_gift', 0, 1000, 25, 200, 52, true, 'न्यूनतम ₹1000 की होजियारी या घरेलू सामान बिलिंग पर हैंड-टू-हैंड गिफ्ट।', 'from-emerald-500 to-teal-600'),
+  ('prz-4', 'nahata-fest-2026', 'वाटर बॉटल / लंच बॉक्स पर 25% छूट', 'percentage', 25, 800, 20, 120, 29, true, '₹800 की स्टेशनरी व प्लास्टिक खरीदारी पर स्कूल बॉटल / टिफिन पर 25% छूट।', 'from-blue-500 to-indigo-600'),
+  ('prz-5', 'nahata-fest-2026', 'दिवाली मेगा बम्पर लकी ड्रॉ टोकन', 'free_gift', 0, 500, 10, 500, 87, true, 'हर ₹500 की खरीद पर 1 लकी कूपन — हॉटपॉट / प्रेस / स्पेशल गिफ्ट जीतने का मौका।', 'from-purple-500 to-pink-600')
+on conflict (id) do nothing;
+

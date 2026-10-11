@@ -17,6 +17,8 @@ import { SpinWheel } from '@/components/SpinWheel';
 import { OfferClaimModal } from '@/components/OfferClaimModal';
 import { CouponCard } from '@/components/CouponCard';
 import { TrustBadges } from '@/components/TrustBadges';
+import { ManojTrustCard } from '@/components/ManojTrustCard';
+import { ProcessTimeline } from '@/components/ProcessTimeline';
 
 const subscribe = () => () => {};
 
@@ -115,8 +117,13 @@ export default function CustomerCampaignPage() {
 
       {/* Main Container */}
       <div className="w-full max-w-md mx-auto px-4 z-10 space-y-6">
-        {/* Festival Header */}
+        {/* Festival Header with Uchalta Bouncing 3D Logo */}
         <FestivalHeader campaign={currentCampaign} />
+
+        {/* MANOJ NAHATA TRUST & AUTHORITY SECTION */}
+        {currentCampaign.show_owner_card !== false && (
+          <ManojTrustCard campaign={currentCampaign} />
+        )}
 
         {/* STAGE 1: THE GAME (Scratch Card or Spin Wheel) */}
         {gameStage === 'GAME' && (
@@ -171,6 +178,9 @@ export default function CustomerCampaignPage() {
             </div>
           </div>
         )}
+
+        {/* 3-STEP PROCESS TIMELINE */}
+        <ProcessTimeline />
 
         {/* STAGE 2: LEAD CLAIM MODAL FORM */}
         {gameStage === 'CLAIM' && (

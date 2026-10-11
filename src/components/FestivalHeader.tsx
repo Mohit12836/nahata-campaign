@@ -2,20 +2,48 @@
 
 import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
-import { Clock, Award, ShieldCheck, Sparkles, MapPin, CheckCircle2 } from 'lucide-react';
+import { Clock, Award, MapPin, CheckCircle2, Volume2, VolumeX } from 'lucide-react';
 import { Campaign } from '@/types';
+import { soundEngine } from '@/lib/audio';
 
 interface FestivalHeaderProps {
   campaign: Campaign;
 }
 
 export const FestivalHeader: React.FC<FestivalHeaderProps> = ({ campaign }) => {
+  const [isMuted, setIsMuted] = useState(false);
+  const [hasBounced, setHasBounced] = useState(false);
   const [timeLeft, setTimeLeft] = useState({
     days: 12,
     hours: 8,
     minutes: 45,
     seconds: 30,
   });
+
+  const toggleSound = () => {
+    const muted = soundEngine.toggleMute();
+    setIsMuted(muted);
+    if (!muted) {
+      soundEngine.playCelebrationChime();
+    }
+  };
+
+  const handleLogoTap = () => {
+    soundEngine.playBounceWhoosh();
+    setHasBounced(false);
+    setTimeout(() => setHasBounced(true), 10);
+  };
+
+  useEffect(() => {
+    // Initial bounce trigger
+    const timer = setTimeout(() => {
+      setHasBounced(true);
+      if (campaign.is_sound_enabled !== false) {
+        soundEngine.playBounceWhoosh();
+      }
+    }, 200);
+    return () => clearTimeout(timer);
+  }, [campaign.is_sound_enabled]);
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -32,6 +60,46 @@ export const FestivalHeader: React.FC<FestivalHeaderProps> = ({ campaign }) => {
 
   return (
     <header className="relative w-full text-center pt-2 pb-2 px-2 sm:px-4 overflow-hidden select-none">
+      {/* Dynamic Keyframe style for Uchalta (Spring Bouncing) Logo */}
+      <style jsx global>{`
+        @keyframes uchaltaBounce {
+          0% {
+            transform: scale(0.3) translateY(-90px);
+            opacity: 0;
+          }
+          50% {
+            transform: scale(1.18) translateY(12px);
+            opacity: 1;
+          }
+          70% {
+            transform: scale(0.92) translateY(-8px);
+          }
+          85% {
+            transform: scale(1.06) translateY(4px);
+          }
+          100% {
+            transform: scale(1) translateY(0);
+            opacity: 1;
+          }
+        }
+        .animate-uchalta-logo {
+          animation: uchaltaBounce 1.1s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+        }
+      `}</style>
+
+      {/* Floating Audio Toggle in Top Right */}
+      <div className="absolute top-2 right-2 z-30">
+        <button
+          type="button"
+          onClick={toggleSound}
+          title={isMuted ? 'साउंड चालू करें' : 'साउंड म्यूट करें'}
+          className="p-1.5 rounded-full bg-black/60 hover:bg-black/80 border border-amber-500/40 text-amber-300 shadow-md backdrop-blur-sm transition-transform active:scale-90 flex items-center gap-1 text-[10px]"
+        >
+          {isMuted ? <VolumeX className="w-3.5 h-3.5 text-rose-400" /> : <Volume2 className="w-3.5 h-3.5 text-yellow-300 animate-pulse" />}
+          <span className="hidden sm:inline font-bold">{isMuted ? 'म्यूट' : 'साउंड चालू'}</span>
+        </button>
+      </div>
+
       {/* 1. Festive Ambient Garland Lights */}
       <div className="flex justify-center items-center gap-3 sm:gap-5 mb-4 opacity-90">
         {['#F59E0B', '#EF4444', '#10B981', '#3B82F6', '#EC4899', '#F59E0B', '#EF4444'].map((col, idx) => (
@@ -45,13 +113,17 @@ export const FestivalHeader: React.FC<FestivalHeaderProps> = ({ campaign }) => {
         ))}
       </div>
 
-      {/* 2. TOP OFFICIAL 3D EMBLEM LOGO SHOWCASE (Customer Trust Anchor) */}
-      <div className="relative inline-block mb-3 group">
+      {/* 2. UCHALTA BRAND LOGO (Customer Trust Anchor) */}
+      <div className="relative inline-block mb-3 group cursor-pointer" onClick={handleLogoTap}>
         {/* Ambient Radial Golden Glow behind Logo */}
         <div className="absolute -inset-4 bg-gradient-to-r from-amber-500/40 via-yellow-400/50 to-orange-500/40 rounded-full blur-2xl opacity-75 animate-pulse" />
         
-        {/* 3D Floating / Breathing Container */}
-        <div className="relative w-36 h-36 sm:w-44 sm:h-44 mx-auto rounded-full p-1.5 bg-gradient-to-tr from-amber-400 via-yellow-200 to-amber-600 shadow-[0_10px_35px_rgba(245,158,11,0.45)] border border-yellow-300/60 transform transition-transform duration-500 hover:scale-105 active:scale-95">
+        {/* 3D Floating / Spring Bouncing Container */}
+        <div
+          className={`relative w-36 h-36 sm:w-44 sm:h-44 mx-auto rounded-full p-1.5 bg-gradient-to-tr from-amber-400 via-yellow-200 to-amber-600 shadow-[0_12px_40px_rgba(245,158,11,0.5)] border border-yellow-300/70 transform transition-transform duration-300 hover:scale-105 active:scale-95 ${
+            hasBounced ? 'animate-uchalta-logo' : 'opacity-0'
+          }`}
+        >
           <div className="w-full h-full rounded-full overflow-hidden bg-[#350707] relative shadow-inner">
             <Image
               src="/nahata-logo.jpg"

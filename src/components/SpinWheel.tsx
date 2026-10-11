@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import confetti from 'canvas-confetti';
 import { Sparkles, Play } from 'lucide-react';
 import { Prize } from '@/types';
+import { soundEngine } from '@/lib/audio';
 
 interface SpinWheelProps {
   prizes: Prize[];
@@ -55,10 +56,17 @@ export const SpinWheel: React.FC<SpinWheelProps> = ({
 
     setRotation(finalAngle);
 
+    // Audio clicks during wheel rotation
+    const clickInterval = setInterval(() => {
+      soundEngine.playTick();
+    }, 180);
+
     setTimeout(() => {
+      clearInterval(clickInterval);
       setIsSpinning(false);
       setHasSpun(true);
       try {
+        soundEngine.playCelebrationChime();
         confetti({
           particleCount: 90,
           spread: 80,

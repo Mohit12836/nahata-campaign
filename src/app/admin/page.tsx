@@ -769,6 +769,37 @@ export default function AdminDashboardPage() {
                 </div>
 
                 <div className="md:col-span-2">
+                  <label className="block font-bold text-slate-700 mb-1">दुकान का पता (Location)</label>
+                  <input
+                    type="text"
+                    value={campaign.location}
+                    onChange={(e) => setCampaign({ ...campaign, location: e.target.value })}
+                    className="w-full px-3 py-2 rounded-xl border border-slate-300 outline-none"
+                  />
+                </div>
+
+                <div>
+                  <label className="block font-bold text-slate-700 mb-1">दुकान नंबर (Shop Number)</label>
+                  <input
+                    type="text"
+                    value={campaign.shop_number || ''}
+                    onChange={(e) => setCampaign({ ...campaign, shop_number: e.target.value })}
+                    placeholder="उदा. दुकान नं. 14, नाहटा कॉम्प्लेक्स"
+                    className="w-full px-3 py-2 rounded-xl border border-slate-300 outline-none"
+                  />
+                </div>
+
+                <div>
+                  <label className="block font-bold text-slate-700 mb-1">मनोज जी का संदेश (Personal Quote)</label>
+                  <input
+                    type="text"
+                    value={campaign.owner_quote || ''}
+                    onChange={(e) => setCampaign({ ...campaign, owner_quote: e.target.value })}
+                    className="w-full px-3 py-2 rounded-xl border border-slate-300 outline-none"
+                  />
+                </div>
+
+                <div className="md:col-span-2">
                   <label className="block font-bold text-slate-700 mb-1">कैंपेन मुख्य शीर्षक (Headline)</label>
                   <input
                     type="text"
@@ -777,6 +808,61 @@ export default function AdminDashboardPage() {
                     className="w-full px-3 py-2 rounded-xl border border-slate-300 outline-none"
                   />
                 </div>
+              </div>
+
+              {/* Interactive Features & Visual Controls */}
+              <div className="pt-3 border-t border-slate-100 grid sm:grid-cols-2 gap-3 text-xs">
+                <label className="flex items-center gap-2 p-3 rounded-xl border border-slate-200 bg-slate-50 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={campaign.show_owner_card !== false}
+                    onChange={(e) => setCampaign({ ...campaign, show_owner_card: e.target.checked })}
+                    className="w-4 h-4 text-emerald-600 rounded"
+                  />
+                  <div>
+                    <span className="font-bold text-slate-800 block">मनोज नाहटा ट्रस्ट कार्ड दिखाएं</span>
+                    <span className="text-[10px] text-slate-500">होमपेज पर फोटो और अधिकार संदेश प्रदर्शित करें</span>
+                  </div>
+                </label>
+
+                <label className="flex items-center gap-2 p-3 rounded-xl border border-slate-200 bg-slate-50 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={campaign.is_sound_enabled !== false}
+                    onChange={(e) => setCampaign({ ...campaign, is_sound_enabled: e.target.checked })}
+                    className="w-4 h-4 text-emerald-600 rounded"
+                  />
+                  <div>
+                    <span className="font-bold text-slate-800 block">साउंड इफेक्ट्स चालू रखें</span>
+                    <span className="text-[10px] text-slate-500">उछलता लोगो, जीत का चाइम और व्हील टिक साउंड</span>
+                  </div>
+                </label>
+
+                <label className="flex items-center gap-2 p-3 rounded-xl border border-slate-200 bg-slate-50 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={campaign.is_scratch_enabled}
+                    onChange={(e) => setCampaign({ ...campaign, is_scratch_enabled: e.target.checked })}
+                    className="w-4 h-4 text-emerald-600 rounded"
+                  />
+                  <div>
+                    <span className="font-bold text-slate-800 block">लकी स्क्रैच कार्ड चालू</span>
+                    <span className="text-[10px] text-slate-500">ग्राहकों को स्क्रैच कार्ड गेम खेलने दें</span>
+                  </div>
+                </label>
+
+                <label className="flex items-center gap-2 p-3 rounded-xl border border-slate-200 bg-slate-50 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={campaign.is_spin_enabled}
+                    onChange={(e) => setCampaign({ ...campaign, is_spin_enabled: e.target.checked })}
+                    className="w-4 h-4 text-emerald-600 rounded"
+                  />
+                  <div>
+                    <span className="font-bold text-slate-800 block">लकी स्पिन व्हील चालू</span>
+                    <span className="text-[10px] text-slate-500">ग्राहकों को स्पिन व्हील गेम खेलने दें</span>
+                  </div>
+                </label>
               </div>
             </div>
 

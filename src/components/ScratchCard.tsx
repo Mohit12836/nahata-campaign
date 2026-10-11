@@ -4,6 +4,7 @@ import React, { useRef, useEffect, useState, useCallback } from 'react';
 import confetti from 'canvas-confetti';
 import { Sparkles, Trophy, Gift, Wand2 } from 'lucide-react';
 import { Prize } from '@/types';
+import { soundEngine } from '@/lib/audio';
 
 interface ScratchCardProps {
   prize: Prize;
@@ -22,9 +23,10 @@ export const ScratchCard: React.FC<ScratchCardProps> = ({
   const [isDrawing, setIsDrawing] = useState(false);
   const [scratchPercent, setScratchPercent] = useState(0);
 
-  // Trigger celebration confetti
+  // Trigger celebration confetti & audio
   const triggerConfetti = useCallback(() => {
     try {
+      soundEngine.playCelebrationChime();
       confetti({
         particleCount: 90,
         spread: 80,

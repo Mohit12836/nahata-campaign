@@ -17,6 +17,11 @@ export const INITIAL_CAMPAIGN: Campaign = {
   is_active: true,
   location: 'मेन मार्केट, कुशलगढ़, जिला बांसवाड़ा (राजस्थान)',
   contact_person: 'श्री मनोज नाहटा',
+  shop_number: 'दुकान नं. 14, नाहटा कॉम्प्लेक्स',
+  show_owner_card: true,
+  is_sound_enabled: true,
+  owner_photo_url: '/manoj-nahata.jpg',
+  owner_quote: 'कुशलगढ़ का अपना परिवार • 30+ वर्षों का अटूट विश्वास और गारंटी!',
 };
 
 export const INITIAL_PRIZES: Prize[] = [

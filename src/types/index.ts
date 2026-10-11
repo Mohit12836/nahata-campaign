@@ -31,6 +31,11 @@ export interface Campaign {
   is_active: boolean;
   location: string;
   contact_person: string;
+  shop_number?: string;
+  show_owner_card?: boolean;
+  is_sound_enabled?: boolean;
+  owner_photo_url?: string;
+  owner_quote?: string;
 }
 
 export interface Customer {

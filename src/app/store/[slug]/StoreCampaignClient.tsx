@@ -131,21 +131,14 @@ export default function StoreCampaignClient({
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-lg h-96 bg-gradient-to-b from-amber-500/20 via-rose-500/10 to-transparent blur-3xl pointer-events-none" />
 
       {/* Top Bar with Navigation */}
-      <div className="w-full max-w-md mx-auto px-3 pt-2.5 flex items-center justify-between z-20 text-xs">
-        <Link
-          href="/"
-          className="inline-flex items-center gap-1 text-[11px] font-bold text-amber-300 hover:text-white bg-black/40 px-2.5 py-1 rounded-full border border-amber-500/30 transition-colors"
-        >
-          <ArrowLeft className="w-3 h-3" />
-          <span>होम</span>
-        </Link>
+      <div className="w-full max-w-md mx-auto px-3 pt-2 flex items-center justify-between z-20 text-xs">
+        <span className="text-[11px] font-bold text-amber-300 bg-amber-950/90 px-2.5 py-1 rounded-full border border-amber-500/40 truncate max-w-[190px] flex items-center gap-1">
+          <span>📍</span> <span>बस स्टैंड रोड, कुशलगढ़</span>
+        </span>
         <div className="flex items-center gap-2">
-          <span className="text-[11px] font-bold text-amber-300 bg-amber-950/90 px-2.5 py-1 rounded-full border border-amber-500/40 truncate max-w-[170px]">
-            📍 बस स्टैंड रोड, कुशलगढ़
-          </span>
           <Link
             href={`/admin?store=${merchant.slug}`}
-            className="inline-flex items-center gap-1 font-bold text-amber-300 hover:text-amber-200 bg-amber-900/40 hover:bg-amber-900/60 px-2.5 py-1 rounded-full border border-amber-500/40 transition-colors"
+            className="inline-flex items-center gap-1 font-bold text-amber-300 hover:text-amber-200 bg-amber-900/40 hover:bg-amber-900/60 px-2.5 py-1 rounded-full border border-amber-500/40 transition-colors text-[11px]"
           >
             <Lock className="w-3 h-3" />
             <span>एडमिन</span>

@@ -1,4 +1,23 @@
 import { createClient } from '@supabase/supabase-js';
+import fs from 'fs';
+import path from 'path';
+
+// Load .env.local if present
+try {
+  if (process.loadEnvFile) {
+    process.loadEnvFile(path.resolve(process.cwd(), '.env.local'));
+  } else if (fs.existsSync('.env.local')) {
+    const envContent = fs.readFileSync('.env.local', 'utf8');
+    envContent.split('\n').forEach((line) => {
+      const match = line.match(/^([^=]+)=(.*)$/);
+      if (match) {
+        const key = match[1].trim();
+        const val = match[2].trim().replace(/^['"]|['"]$/g, '');
+        if (!process.env[key]) process.env[key] = val;
+      }
+    });
+  }
+} catch {}
 
 async function testSupabaseConnection() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;

@@ -15,6 +15,7 @@ export interface Prize {
 
 export interface Campaign {
   id: string;
+  merchant_id?: string;
   slug: string;
   title: string;
   store_name: string;
@@ -38,8 +39,31 @@ export interface Campaign {
   owner_quote?: string;
 }
 
+export interface Merchant {
+  id: string;
+  slug: string;
+  name: string;
+  category: string;
+  owner_name: string;
+  owner_photo_url?: string;
+  logo_url?: string;
+  location: string;
+  shop_number?: string;
+  phone: string;
+  whatsapp_number: string;
+  whatsapp_community_link?: string;
+  status: 'active' | 'pending' | 'suspended';
+  plan: 'starter' | 'growth' | 'enterprise';
+  quota_coupons_total: number;
+  quota_coupons_used: number;
+  created_at: string;
+  campaign?: Campaign;
+  prizes?: Prize[];
+}
+
 export interface Customer {
   id: string;
+  merchant_id?: string;
   phone: string;
   full_name: string;
   city: string;
@@ -52,6 +76,7 @@ export interface Customer {
 
 export interface Coupon {
   id: string;
+  merchant_id?: string;
   code: string;
   campaign_id: string;
   customer_id: string;

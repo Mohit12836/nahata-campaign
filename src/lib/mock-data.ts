@@ -1,7 +1,8 @@
-import { Campaign, Prize, Customer, Coupon } from '@/types';
+import { Campaign, Prize, Customer, Coupon, Merchant } from '@/types';
 
 export const INITIAL_CAMPAIGN: Campaign = {
   id: 'nahata-fest-2026',
+  merchant_id: 'merch-nahata',
   slug: 'festival-dhamaka',
   title: 'नाहाटा जनरल स्टोर्स — कुशलगढ़ महा बचत उत्सव',
   store_name: 'नाहाटा जनरल स्टोर्स (Nahata General Stores)',
@@ -23,6 +24,63 @@ export const INITIAL_CAMPAIGN: Campaign = {
   owner_photo_url: '/manoj-nahata.jpg',
   owner_quote: 'कुशलगढ़ का अपना परिवार • 30+ वर्षों का अटूट विश्वास और गारंटी!',
 };
+
+export const INITIAL_MERCHANTS: Merchant[] = [
+  {
+    id: 'merch-nahata',
+    slug: 'nahata',
+    name: 'नाहाटा जनरल स्टोर्स (Nahata General Stores)',
+    category: 'किराना, घरेलू सामान व प्लास्टिक',
+    owner_name: 'श्री मनोज नाहटा',
+    owner_photo_url: '/manoj-nahata.jpg',
+    logo_url: '/nahata-logo.jpg',
+    location: 'मेन मार्केट, कुशलगढ़, जिला बांसवाड़ा (राजस्थान)',
+    shop_number: 'दुकान नं. 14, नाहटा कॉम्प्लेक्स',
+    phone: '9829012345',
+    whatsapp_number: '919829012345',
+    whatsapp_community_link: 'https://chat.whatsapp.com/invite/nahatageneralstores',
+    status: 'active',
+    plan: 'enterprise',
+    quota_coupons_total: 10000,
+    quota_coupons_used: 104,
+    created_at: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString(),
+  },
+  {
+    id: 'merch-shyam',
+    slug: 'shyam-fashion',
+    name: 'श्री श्याम फैशन & गारमेंट्स',
+    category: 'कपड़ा, साड़ी व रेडीमेड',
+    owner_name: 'श्री महेश शर्मा',
+    logo_url: '/nahata-logo.jpg',
+    location: 'गांधी चौक, सज्जनगढ़ (बांसवाड़ा)',
+    shop_number: 'दुकान नं. 08',
+    phone: '9829055443',
+    whatsapp_number: '919829055443',
+    whatsapp_community_link: 'https://chat.whatsapp.com/invite/shyamfashion',
+    status: 'active',
+    plan: 'growth',
+    quota_coupons_total: 2000,
+    quota_coupons_used: 48,
+    created_at: new Date(Date.now() - 15 * 24 * 60 * 60 * 1000).toISOString(),
+  },
+  {
+    id: 'merch-mahesh',
+    slug: 'mahesh-electronics',
+    name: 'महेश इलेक्ट्रॉनिक्स & मोबाइल',
+    category: 'इलेक्ट्रॉनिक्स, मोबाइल व एसेसरीज',
+    owner_name: 'श्री राजेश जैन',
+    logo_url: '/nahata-logo.jpg',
+    location: 'कस्टम चौराहा, बांसवाड़ा',
+    shop_number: 'शॉप 21',
+    phone: '9829099887',
+    whatsapp_number: '919829099887',
+    status: 'active',
+    plan: 'starter',
+    quota_coupons_total: 1000,
+    quota_coupons_used: 12,
+    created_at: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(),
+  },
+];
 
 export const INITIAL_PRIZES: Prize[] = [
   {

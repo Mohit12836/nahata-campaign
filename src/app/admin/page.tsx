@@ -281,8 +281,21 @@ export default function AdminDashboardPage() {
             </div>
           </div>
 
-          <div className="flex items-center gap-3">
-            <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
+          <div className="flex items-center gap-2">
+            <Link
+              href="/store/nahata"
+              target="_blank"
+              className="px-2.5 py-1 rounded-lg bg-amber-500/20 hover:bg-amber-500/30 text-xs font-bold text-amber-200 border border-amber-500/30 transition-colors"
+            >
+              कस्टमर पेज देखें ↗
+            </Link>
+            <Link
+              href="/super-admin"
+              className="px-2.5 py-1 rounded-lg bg-indigo-500/20 hover:bg-indigo-500/30 text-xs font-bold text-indigo-200 border border-indigo-500/30 transition-colors"
+            >
+              सुपर एडमिन
+            </Link>
+            <span className="hidden md:inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
               <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
               कैंपेन लाइव है
             </span>

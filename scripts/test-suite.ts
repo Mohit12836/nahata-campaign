@@ -203,6 +203,40 @@ async function runTests() {
   }
 
   // -------------------------------------------------------------
+  // TEST GROUP 7: MULTI-TENANT ARCHITECTURE & MERCHANT REGISTRATION
+  // -------------------------------------------------------------
+  console.log('\n[Group 7: Multi-Tenant Architecture & Merchant Isolation]');
+  const { getStoredMerchants, getMerchantBySlug, registerMerchantApplication } = await import('../src/lib/store');
+
+  const merchants = getStoredMerchants();
+  assert(
+    'Initial Merchants Seeded',
+    merchants.length >= 3,
+    `Found ${merchants.length} seeded merchants in multi-tenant registry`
+  );
+
+  const nahataMerchant = getMerchantBySlug('nahata');
+  assert(
+    'Flagship Merchant #1 (Nahata) Accessible',
+    !!nahataMerchant && nahataMerchant.slug === 'nahata' && nahataMerchant.owner_name.includes('मनोज नाहटा'),
+    `Nahata store resolved with owner "${nahataMerchant?.owner_name}"`
+  );
+
+  const newApp = registerMerchantApplication({
+    name: 'सुपर टेस्ट किराना',
+    owner_name: 'अशोक जी',
+    category: 'किराना',
+    phone: '9829099111',
+    location: 'कुशलगढ़, राजस्थान',
+  });
+
+  assert(
+    'New Merchant Registration (Pending Status)',
+    newApp.status === 'pending' && newApp.phone === '9829099111',
+    `New merchant registered with slug "${newApp.slug}" in pending review state`
+  );
+
+  // -------------------------------------------------------------
   // SUMMARY
   // -------------------------------------------------------------
   console.log('\n================================================================');

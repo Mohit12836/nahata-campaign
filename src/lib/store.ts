@@ -1,5 +1,5 @@
-import { Campaign, Prize, Customer, Coupon, PlayResultResponse } from '@/types';
-import { INITIAL_CAMPAIGN, INITIAL_PRIZES, INITIAL_CUSTOMERS, INITIAL_COUPONS } from './mock-data';
+import { Campaign, Prize, Customer, Coupon, PlayResultResponse, Merchant } from '@/types';
+import { INITIAL_CAMPAIGN, INITIAL_PRIZES, INITIAL_CUSTOMERS, INITIAL_COUPONS, INITIAL_MERCHANTS } from './mock-data';
 
 const STORAGE_KEYS = {
   CAMPAIGN: 'nahata_campaign_data',
@@ -7,12 +7,81 @@ const STORAGE_KEYS = {
   CUSTOMERS: 'nahata_customers_data',
   COUPONS: 'nahata_coupons_data',
   USER_PLAYED: 'nahata_user_played_phone',
+  MERCHANTS: 'nahata_merchants_data',
 };
 
 let memCampaign: Campaign = INITIAL_CAMPAIGN;
 let memPrizes: Prize[] = INITIAL_PRIZES;
 let memCustomers: Customer[] = INITIAL_CUSTOMERS;
 let memCoupons: Coupon[] = INITIAL_COUPONS;
+let memMerchants: Merchant[] = INITIAL_MERCHANTS;
+
+export const getStoredMerchants = (): Merchant[] => {
+  if (typeof window === 'undefined') return memMerchants;
+  try {
+    const data = localStorage.getItem(STORAGE_KEYS.MERCHANTS);
+    return data ? JSON.parse(data) : memMerchants;
+  } catch {
+    return memMerchants;
+  }
+};
+
+export const saveStoredMerchants = (merchants: Merchant[]): void => {
+  memMerchants = merchants;
+  if (typeof window === 'undefined') return;
+  try {
+    localStorage.setItem(STORAGE_KEYS.MERCHANTS, JSON.stringify(merchants));
+  } catch {}
+};
+
+export const getMerchantBySlug = (slug: string): Merchant | undefined => {
+  const merchants = getStoredMerchants();
+  return merchants.find((m) => m.slug.toLowerCase() === slug.toLowerCase());
+};
+
+export const saveStoredMerchant = (merchant: Merchant): void => {
+  const merchants = getStoredMerchants();
+  const index = merchants.findIndex((m) => m.id === merchant.id);
+  if (index >= 0) {
+    merchants[index] = merchant;
+  } else {
+    merchants.push(merchant);
+  }
+  saveStoredMerchants(merchants);
+};
+
+export const registerMerchantApplication = (
+  data: Partial<Merchant> & { name: string; phone: string; location: string }
+): Merchant => {
+  const merchants = getStoredMerchants();
+  const slug = (data.slug || data.name)
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/(^-|-$)/g, '') || `shop-${Date.now().toString().slice(-4)}`;
+
+  const newMerchant: Merchant = {
+    id: `merch-${Date.now()}`,
+    slug,
+    name: data.name,
+    category: data.category || 'जनरल स्टोर / खुदरा व्यापार',
+    owner_name: data.owner_name || 'दुकानदार',
+    logo_url: data.logo_url || '/nahata-logo.jpg',
+    location: data.location,
+    shop_number: data.shop_number || '',
+    phone: data.phone,
+    whatsapp_number: data.whatsapp_number || `91${data.phone.slice(-10)}`,
+    whatsapp_community_link: data.whatsapp_community_link,
+    status: 'pending', // Starts in pending until Super Admin approves
+    plan: (data.plan as 'starter' | 'growth' | 'enterprise') || 'starter',
+    quota_coupons_total: 1000,
+    quota_coupons_used: 0,
+    created_at: new Date().toISOString(),
+  };
+
+  merchants.unshift(newMerchant);
+  saveStoredMerchants(merchants);
+  return newMerchant;
+};
 
 export const getStoredCampaign = (): Campaign => {
   if (typeof window === 'undefined') return memCampaign;

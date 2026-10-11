@@ -73,10 +73,10 @@ export function isValidGoogleAppsScriptUrl(url: string): boolean {
  */
 export async function sendToGoogleSheetsWebhook(
   action: 'NEW_LEAD' | 'COUPON_REDEEMED' | 'BULK_SYNC' | 'PING',
-  data: any,
+  data: Record<string, unknown>,
   overrideUrl?: string,
   customSecret?: string
-): Promise<{ success: boolean; message: string; rawResponse?: any }> {
+): Promise<{ success: boolean; message: string; rawResponse?: unknown }> {
   const webhookUrl =
     overrideUrl ||
     process.env.GOOGLE_SHEETS_WEBHOOK_URL ||

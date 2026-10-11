@@ -31,7 +31,7 @@ export const INITIAL_MERCHANTS: Merchant[] = [
     slug: 'nahata',
     name: 'नाहाटा जनरल स्टोर्स (Nahata General Stores)',
     category: 'किराना, घरेलू सामान, प्लास्टिक व गिफ्ट्स',
-    owner_name: 'श्री मनोज भैया',
+    owner_name: 'श्री मनोज नाहाटा',
     owner_photo_url: '/manoj-nahata.jpg',
     logo_url: '/nahata-logo.jpg',
     location: 'बस स्टैंड रोड, कुशलगढ़ (राजस्थान)',

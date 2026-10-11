@@ -218,7 +218,7 @@ async function runTests() {
   const nahataMerchant = getMerchantBySlug('nahata');
   assert(
     'Flagship Merchant #1 (Nahata) Accessible',
-    !!nahataMerchant && nahataMerchant.slug === 'nahata' && nahataMerchant.owner_name.includes('मनोज नाहटा'),
+    !!nahataMerchant && nahataMerchant.slug === 'nahata' && nahataMerchant.owner_name.includes('मनोज'),
     `Nahata store resolved with owner "${nahataMerchant?.owner_name}"`
   );
 

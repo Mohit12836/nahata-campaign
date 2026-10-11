@@ -2,7 +2,14 @@
 
 import { headers } from 'next/headers';
 import { getSupabaseServerClient, isSupabaseConfigured } from '@/lib/supabase-server';
-import { executeGamePlay } from '@/lib/store';
+import {
+  executeGamePlay,
+  getStoredCustomers,
+  saveStoredCustomers,
+  getStoredCoupons,
+  saveStoredCoupons,
+  getStoredCampaign,
+} from '@/lib/store';
 import { PlayResultResponse } from '@/types';
 import { sendToGoogleSheetsWebhook } from '@/lib/google-sheets';
 
@@ -119,13 +126,44 @@ export async function claimCampaignPrizeAction(input: ClaimPrizeInput): Promise<
     );
   }
 
-  // 5. Unified Post-Success Google Sheets Auto-Sync (Runs on BOTH Supabase and Fallback paths)
+  // 5. Dual CRM & Store Persistence Guarantee (Mirrors into Admin CRM immediately)
+  if (result.status === 'SUCCESS' || result.status === 'ALREADY_PLAYED') {
+    try {
+      if (result.customer) {
+        const storedCusts = getStoredCustomers();
+        const existingIdx = storedCusts.findIndex((c) => c.phone === cleanPhone);
+        if (existingIdx === -1) {
+          storedCusts.unshift(result.customer);
+          saveStoredCustomers(storedCusts);
+        }
+      }
+      if (result.coupon) {
+        const storedCoups = getStoredCoupons();
+        const existingCoupIdx = storedCoups.findIndex((c) => c.code === result.coupon!.code);
+        if (existingCoupIdx === -1) {
+          storedCoups.unshift(result.coupon);
+          saveStoredCoupons(storedCoups);
+        }
+      }
+    } catch (crmStoreErr) {
+      console.warn('Admin CRM local mirror warning:', crmStoreErr);
+    }
+  }
+
+  // 6. Unified Post-Success Google Sheets Auto-Sync (Awaited with safe timeout)
   if (result.status === 'SUCCESS' && result.coupon) {
     try {
+      const campaign = getStoredCampaign();
+      const webhookUrl =
+        campaign?.google_sheets_webhook_url ||
+        process.env.GOOGLE_SHEETS_WEBHOOK_URL ||
+        process.env.NEXT_PUBLIC_GOOGLE_SHEETS_WEBHOOK_URL ||
+        undefined;
+
       const payload = {
         leadId: `LEAD-${result.coupon.code.slice(0, 8)}`,
         timestamp: new Date().toLocaleString('hi-IN'),
-        storeName: 'नाहाटा जनरल स्टोर्स',
+        storeName: campaign?.store_name || 'नाहाटा जनरल स्टोर्स',
         customerName: input.fullName.trim(),
         phone: cleanPhone,
         whatsappLink: `https://wa.me/91${cleanPhone}`,
@@ -138,9 +176,17 @@ export async function claimCampaignPrizeAction(input: ClaimPrizeInput): Promise<
         couponStatus: 'सक्रिय (VALID)',
         expiresAt: new Date(result.coupon.expires_at).toLocaleDateString('hi-IN'),
       };
-      // Fire-and-forget background sync
-      sendToGoogleSheetsWebhook('NEW_LEAD', payload).catch(() => {});
-    } catch {}
+
+      // Await sync with 3.5s timeout so Server Action guarantees dispatch before returning
+      await Promise.race([
+        sendToGoogleSheetsWebhook('NEW_LEAD', payload, webhookUrl),
+        new Promise((resolve) => setTimeout(resolve, 3500)),
+      ]).catch((err) => {
+        console.warn('Google Sheets auto-sync background warning:', err);
+      });
+    } catch (sheetErr) {
+      console.warn('Google Sheets lead payload error:', sheetErr);
+    }
   }
 
   return result;

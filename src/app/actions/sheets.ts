@@ -3,12 +3,60 @@
 import {
   sendToGoogleSheetsWebhook,
   isValidGoogleAppsScriptUrl,
+  setServerWebhookUrl,
   GoogleSheetsLeadPayload,
   GoogleSheetsRedeemPayload,
 } from '@/lib/google-sheets';
 import { isServerAdminAuthenticated } from '@/lib/auth-server';
 import { getSupabaseServerClient, isSupabaseConfigured } from '@/lib/supabase-server';
-import { getStoredCustomers, getStoredCoupons, getStoredCampaign } from '@/lib/store';
+import { getStoredCustomers, getStoredCoupons, getStoredCampaign, saveStoredCampaign } from '@/lib/store';
+
+export async function saveGoogleSheetsWebhookAction(
+  webhookUrl: string
+): Promise<{ success: boolean; message: string }> {
+  const isAuth = await isServerAdminAuthenticated();
+  if (!isAuth) {
+    return {
+      success: false,
+      message: 'अनधिकृत कार्रवाई! Webhook सहेजने के लिए व्यवस्थापक लॉगिन आवश्यक है।',
+    };
+  }
+
+  const cleanUrl = (webhookUrl || '').trim();
+  if (cleanUrl && !isValidGoogleAppsScriptUrl(cleanUrl)) {
+    return {
+      success: false,
+      message: 'अमान्य URL! केवल अधिकृत Google Apps Script Web App URL मान्य है।',
+    };
+  }
+
+  setServerWebhookUrl(cleanUrl);
+
+  const campaign = getStoredCampaign();
+  campaign.google_sheets_webhook_url = cleanUrl;
+  saveStoredCampaign(campaign);
+
+  if (isSupabaseConfigured()) {
+    const supabase = getSupabaseServerClient();
+    if (supabase) {
+      try {
+        await supabase
+          .from('campaigns')
+          .update({ google_sheets_webhook_url: cleanUrl })
+          .eq('id', campaign.id);
+      } catch (err) {
+        console.warn('Could not persist webhook to Supabase campaigns table:', err);
+      }
+    }
+  }
+
+  return {
+    success: true,
+    message: cleanUrl
+      ? 'Google Sheets Webhook सर्वर व CRM में सक्रिय हो गया है! अब नए लीड्स सीधे शीट में जाएंगे।'
+      : 'Google Sheets Webhook URL हटा दिया गया है।',
+  };
+}
 
 export async function testGoogleSheetsWebhookAction(
   webhookUrl: string

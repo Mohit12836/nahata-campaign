@@ -34,19 +34,44 @@ export interface GoogleSheetsRedeemPayload {
 
 const STORAGE_KEY_WEBHOOK = 'nahata_google_sheets_webhook_url';
 
+let serverWebhookUrl = '';
+
+export const setServerWebhookUrl = (url: string): void => {
+  serverWebhookUrl = url ? url.trim() : '';
+};
+
+export const getServerWebhookUrl = (): string => {
+  return serverWebhookUrl;
+};
+
 export const getStoredGoogleSheetsWebhookUrl = (): string => {
   if (typeof window === 'undefined') {
-    return process.env.GOOGLE_SHEETS_WEBHOOK_URL || '';
+    return (
+      serverWebhookUrl ||
+      process.env.GOOGLE_SHEETS_WEBHOOK_URL ||
+      process.env.NEXT_PUBLIC_GOOGLE_SHEETS_WEBHOOK_URL ||
+      ''
+    );
   }
   try {
     const local = localStorage.getItem(STORAGE_KEY_WEBHOOK);
-    return local || process.env.NEXT_PUBLIC_GOOGLE_SHEETS_WEBHOOK_URL || '';
+    return (
+      local ||
+      serverWebhookUrl ||
+      process.env.NEXT_PUBLIC_GOOGLE_SHEETS_WEBHOOK_URL ||
+      ''
+    );
   } catch {
-    return process.env.NEXT_PUBLIC_GOOGLE_SHEETS_WEBHOOK_URL || '';
+    return (
+      serverWebhookUrl ||
+      process.env.NEXT_PUBLIC_GOOGLE_SHEETS_WEBHOOK_URL ||
+      ''
+    );
   }
 };
 
 export const saveStoredGoogleSheetsWebhookUrl = (url: string): void => {
+  setServerWebhookUrl(url);
   if (typeof window === 'undefined') return;
   try {
     localStorage.setItem(STORAGE_KEY_WEBHOOK, url.trim());

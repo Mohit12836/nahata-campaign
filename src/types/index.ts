@@ -37,6 +37,7 @@ export interface Campaign {
   is_sound_enabled?: boolean;
   owner_photo_url?: string;
   owner_quote?: string;
+  google_sheets_webhook_url?: string;
 }
 
 export interface Merchant {

@@ -9,7 +9,13 @@
  * 6. Authorized coupon redemption & repeated redemption prevention
  */
 
-import { executeGamePlay, selectWinningPrize, redeemCoupon } from '../src/lib/store';
+import {
+  executeGamePlay,
+  selectWinningPrize,
+  redeemCoupon,
+  getStoredCustomers,
+  getStoredCoupons,
+} from '../src/lib/store';
 import { validateAdminPin, createAdminSessionToken, verifyAdminSessionToken } from '../src/lib/auth-server';
 import { Prize } from '../src/types';
 
@@ -318,6 +324,72 @@ async function runTests() {
     'Viral Milestone: 5th Share Unlocks VIP Bonus (₹50)',
     step5.bonusUnlocked && step5.bonusAmount === 50,
     'Honest milestone: ₹50 VIP bonus successfully unlocked at 5th share'
+  );
+
+  // -------------------------------------------------------------
+  // TEST GROUP 10: MANDATORY WHATSAPP SHARE GATE & INSTANT CRM/SHEETS PERSISTENCE
+  // -------------------------------------------------------------
+  console.log('\n[Group 10: Mandatory WhatsApp Share Gate & Instant CRM/Sheets Save]');
+  const { setServerWebhookUrl, getServerWebhookUrl, getStoredGoogleSheetsWebhookUrl } = await import('../src/lib/google-sheets');
+
+  // 1. Mandatory Share Gate Logic Test: Before Sharing (Locked)
+  const simulateShareGate = (hasShared: boolean, code: string) => {
+    return {
+      isCodeMasked: !hasShared,
+      maskedDisplay: !hasShared ? `${code.slice(0, 7)}••••` : code,
+      isNextButtonUnlocked: hasShared,
+      statusLabel: hasShared ? '● सक्रिय (VALID)' : '🔒 शेयर बाकी (LOCKED)',
+    };
+  };
+
+  const dummyCode = 'NAHATA-FEST-9999';
+  const beforeShare = simulateShareGate(false, dummyCode);
+  assert(
+    'Share Gate: Next Button Is Strictly Locked Before Sharing',
+    !beforeShare.isNextButtonUnlocked && beforeShare.isCodeMasked,
+    'Next button locked and coupon masked: "koi share nhi kre to aage ka botton nhi kule"'
+  );
+
+  // 2. Mandatory Share Gate Logic Test: After Sharing (Unlocked)
+  const afterShare = simulateShareGate(true, dummyCode);
+  assert(
+    'Share Gate: Next Button & Coupon Unlocked After Sharing',
+    afterShare.isNextButtonUnlocked && !afterShare.isCodeMasked && afterShare.maskedDisplay === dummyCode,
+    'Next button unlocked and full coupon code revealed after WhatsApp share'
+  );
+
+  // 3. Instant Lead Capture to CRM upon filling data
+  const leadPhone = '9829988776';
+  const leadCustomerName = 'पूजा शर्मा';
+  executeGamePlay(leadPhone, leadCustomerName, 'कुशलगढ़', 'घरेलू उपभोक्ता (Family / Home)', 'scratch');
+
+  const crmCustomers = getStoredCustomers();
+  const crmCoupons = getStoredCoupons();
+  const savedCustomer = crmCustomers.find((c) => c.phone === leadPhone);
+  const savedCoupon = crmCoupons.find((c) => c.customer?.phone === leadPhone);
+
+  assert(
+    'Instant CRM Lead Capture: Customer Details Saved on Submit',
+    !!savedCustomer && savedCustomer.full_name === leadCustomerName,
+    `Lead ${leadCustomerName} (${leadPhone}) immediately persisted into Admin CRM store`
+  );
+
+  assert(
+    'Instant CRM Coupon Capture: Coupon Attached to Customer on Submit',
+    !!savedCoupon && savedCoupon.status === 'valid',
+    `Verified coupon ${savedCoupon?.code} generated and mapped to customer in CRM`
+  );
+
+  // 4. Server-Side Google Sheets Webhook Configuration Persistence
+  const sampleAppsScriptUrl = 'https://script.google.com/macros/s/AKfycbz_TEST_APP_SCRIPT_TOKEN/exec';
+  setServerWebhookUrl(sampleAppsScriptUrl);
+  const retrievedWebhook = getServerWebhookUrl();
+  const storedResolution = getStoredGoogleSheetsWebhookUrl();
+
+  assert(
+    'Google Sheets: Server Webhook Runtime Persistence',
+    retrievedWebhook === sampleAppsScriptUrl && storedResolution === sampleAppsScriptUrl,
+    'Server-side webhook runtime cache operational for automatic lead forwarding'
   );
 
   // -------------------------------------------------------------

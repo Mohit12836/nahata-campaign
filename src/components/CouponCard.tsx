@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Copy,
   Check,
@@ -14,7 +14,12 @@ import {
   MapPin,
   PhoneCall,
   Navigation,
+  Lock,
+  Unlock,
+  AlertTriangle,
 } from 'lucide-react';
+import confetti from 'canvas-confetti';
+import { soundEngine } from '@/lib/audio';
 import { Coupon, Campaign } from '@/types';
 import { getNahataWhatsAppClaimUrl, getNahataShareUrl } from '@/lib/whatsapp';
 
@@ -26,15 +31,67 @@ interface CouponCardProps {
 export const CouponCard: React.FC<CouponCardProps> = ({ coupon, campaign }) => {
   const [copied, setCopied] = useState(false);
   const [shareCount, setShareCount] = useState<number>(0);
+  const [hasShared, setHasShared] = useState<boolean>(false);
+  const [lockedNotice, setLockedNotice] = useState<string | null>(null);
+  const [isShaking, setIsShaking] = useState<boolean>(false);
+
+  // Restore persistent share status from localStorage on mount
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const isUnlocked = localStorage.getItem(`nahata_share_unlocked_${coupon.code}`) === 'true';
+      if (isUnlocked) {
+        setHasShared(true);
+        setShareCount(1);
+      }
+    }
+  }, [coupon.code]);
+
+  const triggerShake = () => {
+    setIsShaking(true);
+    try {
+      soundEngine.playTick();
+    } catch {}
+    setTimeout(() => setIsShaking(false), 600);
+  };
 
   const handleCopy = () => {
+    if (!hasShared) {
+      setLockedNotice('🔒 कूपन कोड कॉपी करने के लिए पहले 1 WhatsApp शेयर करना अनिवार्य है!');
+      triggerShake();
+      return;
+    }
     navigator.clipboard.writeText(coupon.code);
     setCopied(true);
     setTimeout(() => setCopied(false), 2500);
   };
 
   const handleShareClick = () => {
-    setShareCount((prev) => Math.min(prev + 1, 5));
+    setShareCount((prev) => Math.max(prev + 1, 1));
+    setHasShared(true);
+    setLockedNotice(null);
+
+    if (typeof window !== 'undefined') {
+      try {
+        localStorage.setItem(`nahata_share_unlocked_${coupon.code}`, 'true');
+      } catch {}
+    }
+
+    try {
+      soundEngine.playCelebrationChime();
+      confetti({
+        particleCount: 70,
+        spread: 60,
+        origin: { y: 0.65 },
+        colors: ['#FFC857', '#17864B', '#FFB020', '#FFFFFF', '#86152B'],
+      });
+    } catch {}
+  };
+
+  const handleLockedNextClick = () => {
+    triggerShake();
+    setLockedNotice(
+      '⚠️ अगला बटन अभी लॉक है! कूपन सक्रिय करने और मनोज भैया को भेजने के लिए पहले ऊपर दिए गए "WhatsApp पर शेयर करें" बटन से 1 शेयर अनिवार्य है।'
+    );
   };
 
   const whatsappUrl = getNahataWhatsAppClaimUrl({
@@ -48,7 +105,7 @@ export const CouponCard: React.FC<CouponCardProps> = ({ coupon, campaign }) => {
   });
 
   const shareUrl = getNahataShareUrl(
-    campaign.title,
+    coupon.customer?.full_name || campaign.title,
     coupon.prize?.title,
     typeof window !== 'undefined' ? window.location.origin : undefined
   );
@@ -69,6 +126,37 @@ export const CouponCard: React.FC<CouponCardProps> = ({ coupon, campaign }) => {
 
   return (
     <div className="w-full max-w-md mx-auto space-y-3.5 animate-in fade-in zoom-in-95 duration-300 select-none">
+      
+      {/* 0. Real-time Mandatory Share Gate Status Banner */}
+      {!hasShared ? (
+        <div className="p-3 rounded-2xl bg-gradient-to-r from-red-950/90 via-amber-950/90 to-red-950/90 border-2 border-amber-400/80 shadow-lg text-center space-y-1">
+          <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-black bg-amber-400 text-amber-950 uppercase tracking-wider">
+            <Lock className="w-3 h-3 text-amber-950" />
+            <span>अनिवार्य नियम (MANDATORY STEP)</span>
+          </div>
+          <h4 className="text-xs sm:text-sm font-black text-amber-200">
+            🔒 कूपन कोड व अगला बटन अभी लॉक है!
+          </h4>
+          <p className="text-[10px] sm:text-[11px] text-[#FFF4D8] leading-tight">
+            कूपन कोड सक्रिय करने और मनोज भैया को भेजने के लिए{' '}
+            <strong className="text-amber-300 underline">पहले 1 WhatsApp शेयर</strong> करना अनिवार्य है।
+          </p>
+        </div>
+      ) : (
+        <div className="p-3 rounded-2xl bg-gradient-to-r from-emerald-950/90 via-slate-900 to-emerald-950/90 border-2 border-emerald-400 shadow-lg text-center space-y-1 animate-in zoom-in-95">
+          <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-black bg-emerald-400 text-emerald-950 uppercase tracking-wider">
+            <Unlock className="w-3 h-3 text-emerald-950" />
+            <span>कूपन अनलॉक हो गया (UNLOCKED)</span>
+          </div>
+          <h4 className="text-xs sm:text-sm font-black text-emerald-200">
+            🎉 बधाई! आपका कूपन कोड सक्रिय हो चुका है
+          </h4>
+          <p className="text-[10px] sm:text-[11px] text-emerald-100 leading-tight">
+            अब नीचे दिए गए हरे बटन से कूपन को मनोज भैया के WhatsApp पर भेजें व सुरक्षित करें।
+          </p>
+        </div>
+      )}
+
       {/* 1. Digital Coupon Ticket */}
       <div className="relative rounded-3xl bg-gradient-to-br from-amber-400 via-yellow-500 to-amber-600 p-1 shadow-2xl">
         <div className="bg-[#FFFDF7] rounded-[22px] p-4 sm:p-5 overflow-hidden relative border border-amber-300/40">
@@ -91,31 +179,56 @@ export const CouponCard: React.FC<CouponCardProps> = ({ coupon, campaign }) => {
             </p>
           </div>
 
-          {/* Unique Coupon Code Display */}
-          <div className="my-3.5 p-3 rounded-2xl bg-amber-50/90 border-2 border-dashed border-amber-400 text-center relative">
-            <span className="text-[10px] font-black text-amber-900 uppercase tracking-widest block mb-1">
-              आपका प्रमाणित कूपन कोड (COUPON CODE)
-            </span>
-            <div className="flex items-center justify-center gap-2">
-              <span className="text-xl sm:text-2xl font-mono font-black text-[#86152B] tracking-wider selection:bg-amber-300">
-                {coupon.code}
+          {/* Unique Coupon Code Display (Masked if not shared, Unmasked when shared) */}
+          {hasShared ? (
+            <div className="my-3.5 p-3 rounded-2xl bg-emerald-50/90 border-2 border-dashed border-emerald-500 text-center relative animate-in zoom-in-95">
+              <span className="text-[10px] font-black text-emerald-900 uppercase tracking-widest block mb-1">
+                आपका प्रमाणित कूपन कोड (COUPON CODE) — <span className="text-emerald-700 font-bold">🔓 सक्रिय</span>
               </span>
-              <button
-                type="button"
-                onClick={handleCopy}
-                className="p-1.5 px-2 rounded-lg bg-amber-200 hover:bg-amber-300 text-amber-950 transition-colors flex items-center gap-1 text-[11px] font-bold"
-                title="कूपन कॉपी करें"
-              >
-                {copied ? <Check className="w-3.5 h-3.5 text-emerald-700" /> : <Copy className="w-3.5 h-3.5" />}
-                <span>{copied ? 'कॉपी हुआ' : 'कॉपी'}</span>
-              </button>
+              <div className="flex items-center justify-center gap-2">
+                <span className="text-xl sm:text-2xl font-mono font-black text-[#86152B] tracking-wider selection:bg-amber-300">
+                  {coupon.code}
+                </span>
+                <button
+                  type="button"
+                  onClick={handleCopy}
+                  className="p-1.5 px-2 rounded-lg bg-emerald-200 hover:bg-emerald-300 text-emerald-950 transition-colors flex items-center gap-1 text-[11px] font-bold"
+                  title="कूपन कॉपी करें"
+                >
+                  {copied ? <Check className="w-3.5 h-3.5 text-emerald-700" /> : <Copy className="w-3.5 h-3.5" />}
+                  <span>{copied ? 'कॉपी हुआ' : 'कॉपी'}</span>
+                </button>
+              </div>
+              {copied && (
+                <span className="text-[10px] text-emerald-700 font-bold mt-1 block">
+                  ✓ कोड क्लिपबोर्ड पर कॉपी हो गया है!
+                </span>
+              )}
             </div>
-            {copied && (
-              <span className="text-[10px] text-emerald-700 font-bold mt-1 block">
-                ✓ कोड क्लिपबोर्ड पर कॉपी हो गया है!
+          ) : (
+            <div className="my-3.5 p-3 rounded-2xl bg-amber-50/90 border-2 border-dashed border-amber-400 text-center relative">
+              <span className="text-[10px] font-black text-amber-900 uppercase tracking-widest block mb-1">
+                आपका कूपन कोड (COUPON CODE) — <span className="text-red-700 font-bold">🔒 लॉक है</span>
               </span>
-            )}
-          </div>
+              <div className="flex items-center justify-center gap-2">
+                <span className="text-xl sm:text-2xl font-mono font-black text-slate-400 tracking-wider blur-[2.5px] select-none">
+                  {coupon.code.slice(0, 7)}••••
+                </span>
+                <button
+                  type="button"
+                  onClick={handleCopy}
+                  className="p-1.5 px-2 rounded-lg bg-amber-200/80 text-amber-900 transition-colors flex items-center gap-1 text-[11px] font-bold"
+                  title="कूपन कॉपी करें"
+                >
+                  <Lock className="w-3.5 h-3.5 text-amber-800" />
+                  <span>शेयर करें</span>
+                </button>
+              </div>
+              <p className="text-[10px] text-amber-900 font-bold mt-1">
+                👉 कूपन कोड देखने के लिए नीचे दिए गए बटन से 1 WhatsApp शेयर करें
+              </p>
+            </div>
+          )}
 
           {/* Meta Details: Holder, Issue Date, Expiry, Status */}
           <div className="grid grid-cols-2 gap-2 text-[11px] text-slate-700 bg-amber-100/40 p-2.5 rounded-xl border border-amber-200">
@@ -127,9 +240,15 @@ export const CouponCard: React.FC<CouponCardProps> = ({ coupon, campaign }) => {
             </div>
             <div className="text-right">
               <span className="text-slate-500 block text-[9px] uppercase font-bold">कूपन स्थिति</span>
-              <span className="font-black text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded-full inline-block text-[10px]">
-                ● सक्रिय (VALID)
-              </span>
+              {hasShared ? (
+                <span className="font-black text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded-full inline-block text-[10px]">
+                  ● सक्रिय (VALID)
+                </span>
+              ) : (
+                <span className="font-black text-amber-800 bg-amber-200 px-2 py-0.5 rounded-full inline-block text-[10px]">
+                  🔒 शेयर बाकी (LOCKED)
+                </span>
+              )}
             </div>
             <div className="pt-1 border-t border-amber-200/60">
               <span className="text-slate-500 block text-[9px] uppercase font-bold">जारी तिथि</span>
@@ -153,24 +272,115 @@ export const CouponCard: React.FC<CouponCardProps> = ({ coupon, campaign }) => {
               ))}
             </div>
             <span className="text-[9px] text-slate-500 font-mono tracking-widest mt-0.5">
-              {coupon.code}
+              {hasShared ? coupon.code : 'NAHATA-••••-••••'}
             </span>
           </div>
         </div>
       </div>
 
-      {/* 2. Primary WhatsApp Confirmation Action */}
-      <a
-        href={whatsappUrl}
-        target="_blank"
-        rel="noopener noreferrer"
-        className="w-full py-3.5 px-4 rounded-2xl bg-[#25D366] hover:bg-[#20bd5a] text-white font-black text-xs sm:text-sm shadow-xl shadow-emerald-600/30 flex items-center justify-center gap-2 active:scale-98 transition-all text-center"
+      {/* 2. MANDATORY WHATSAPP SHARE GATE (Enforces viral sharing before opening next button) */}
+      <div
+        className={`p-4 rounded-2xl border-2 transition-all shadow-xl space-y-3 ${
+          hasShared
+            ? 'bg-gradient-to-br from-emerald-950/80 via-slate-900 to-black border-emerald-500/60'
+            : 'bg-gradient-to-br from-[#450711] via-[#240308] to-black border-amber-400'
+        }`}
       >
-        <MessageSquare className="w-4 h-4 sm:w-5 sm:h-5 fill-current" />
-        <span>व्हाट्सएप पर मनोज जी को कूपन भेजें & सेव करें</span>
-      </a>
+        <div className="flex items-center justify-between">
+          <span
+            className={`inline-flex items-center gap-1.5 text-[10px] font-black uppercase tracking-wider px-2.5 py-0.5 rounded-full border ${
+              hasShared
+                ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40'
+                : 'bg-amber-400 text-amber-950 border-amber-300'
+            }`}
+          >
+            {hasShared ? (
+              <Unlock className="w-3 h-3 text-emerald-400" />
+            ) : (
+              <Lock className="w-3 h-3 text-amber-950" />
+            )}
+            <span>{hasShared ? 'चरण 1: शेयरिंग पूर्ण (COMPLETED)' : 'अनिवार्य चरण 1: पहले WhatsApp शेयर करें'}</span>
+          </span>
+          <span className={`text-[11px] font-black ${hasShared ? 'text-emerald-400' : 'text-amber-300'}`}>
+            {hasShared ? '1 / 1 शेयर पूर्ण ✅' : '0 / 1 शेयर बाकी 🔒'}
+          </span>
+        </div>
 
-      {/* 3. Verified Store Visit & Call Actions */}
+        {/* Live Visual Progress Bar */}
+        <div className="w-full bg-black/60 rounded-full h-2.5 p-0.5 border border-amber-500/30 overflow-hidden">
+          <div
+            className={`h-full rounded-full transition-all duration-500 ${
+              hasShared
+                ? 'w-full bg-gradient-to-r from-emerald-400 to-teal-300'
+                : 'w-2 bg-gradient-to-r from-red-500 to-amber-500'
+            }`}
+          />
+        </div>
+
+        <div>
+          <h4 className="text-xs sm:text-sm font-black text-white flex items-center gap-1.5">
+            <Sparkles className="w-3.5 h-3.5 text-amber-400" />
+            <span>
+              {hasShared ? 'बधाई! आपका कूपन सक्रिय हो चुका है' : 'अपने व्हाट्सएप मित्रों या ग्रुप में यह ऑफर शेयर करें'}
+            </span>
+          </h4>
+          <p className="text-[10px] sm:text-[11px] text-amber-200/90 mt-0.5 leading-relaxed font-medium">
+            {hasShared
+              ? 'आपका शेयर दर्ज हो गया है। अब नीचे दिए गए हरे बटन से कूपन को मनोज भैया को भेजें।'
+              : '⚠️ जब तक आप नीचे दिए गए बटन पर क्लिक करके कम से कम 1 शेयर नहीं करेंगे, तब तक आगे का बटन लॉक रहेगा!'}
+          </p>
+        </div>
+
+        {/* Primary Share CTA */}
+        <a
+          href={shareUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          onClick={handleShareClick}
+          className={`w-full py-3.5 px-4 rounded-xl font-black text-xs sm:text-sm flex items-center justify-center gap-2 shadow-lg transition-all active:scale-98 text-center ${
+            hasShared
+              ? 'bg-emerald-900/70 hover:bg-emerald-800/80 text-emerald-200 border border-emerald-500/50'
+              : 'bg-gradient-to-r from-[#25D366] via-emerald-500 to-[#128C7E] hover:from-[#20bd5a] hover:to-emerald-600 text-white shadow-emerald-500/30 border-2 border-emerald-300 animate-pulse'
+          }`}
+        >
+          <Share2 className="w-4 h-4" />
+          <span>{hasShared ? 'व्हाट्सएप पर और शेयर करें (Optional)' : '📲 1. WhatsApp पर शेयर करें (यहाँ दबाएं - अनिवार्य)'}</span>
+        </a>
+      </div>
+
+      {/* Warning Notice if customer tapped locked Next button */}
+      {lockedNotice && !hasShared && (
+        <div className="p-2.5 rounded-xl bg-red-950/90 border border-red-500 text-red-200 text-xs font-bold text-center flex items-center justify-center gap-1.5 animate-in fade-in duration-200">
+          <AlertTriangle className="w-4 h-4 text-red-400 shrink-0" />
+          <span>{lockedNotice}</span>
+        </div>
+      )}
+
+      {/* 3. THE NEXT BUTTON ("आगे का बटन") — Strictly locked until 1 share is completed */}
+      {!hasShared ? (
+        <button
+          type="button"
+          onClick={handleLockedNextClick}
+          className={`w-full py-3.5 px-4 rounded-2xl bg-slate-900/90 hover:bg-slate-900 border-2 border-dashed border-slate-700 text-slate-400 font-black text-xs sm:text-sm shadow-md flex items-center justify-center gap-2 cursor-not-allowed select-none transition-all text-center ${
+            isShaking ? 'border-red-500 text-red-400 bg-red-950/40' : ''
+          }`}
+        >
+          <Lock className="w-4 h-4 text-amber-400 shrink-0" />
+          <span>🔒 2. अगला कदम: मनोज जी को कूपन भेजें (पहले शेयर करें)</span>
+        </button>
+      ) : (
+        <a
+          href={whatsappUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="w-full py-3.5 px-4 rounded-2xl bg-gradient-to-r from-[#25D366] via-emerald-500 to-[#128C7E] hover:from-[#20bd5a] hover:to-emerald-600 text-white font-black text-xs sm:text-sm shadow-xl shadow-emerald-600/30 flex items-center justify-center gap-2 active:scale-98 transition-all text-center border-2 border-emerald-300 animate-in zoom-in-95"
+        >
+          <MessageSquare className="w-4 h-4 sm:w-5 sm:h-5 fill-current" />
+          <span>🔓 2. मनोज जी को कूपन भेजें & सेव करें (अनलॉक हुआ) ➔</span>
+        </a>
+      )}
+
+      {/* 4. Verified Store Visit & Call Actions */}
       <div className="p-3.5 rounded-2xl bg-gradient-to-br from-[#3b0811] via-[#240308] to-black border border-amber-500/40 shadow-xl space-y-2.5">
         <div className="flex items-center justify-between">
           <span className="text-xs font-black text-amber-300 flex items-center gap-1.5">
@@ -203,39 +413,6 @@ export const CouponCard: React.FC<CouponCardProps> = ({ coupon, campaign }) => {
             <span>मनोज जी से बात करें</span>
           </a>
         </div>
-      </div>
-
-      {/* 4. WhatsApp Sharing Card (Transparent & Honest Mechanics) */}
-      <div className="p-3.5 rounded-2xl bg-gradient-to-b from-slate-900 via-[#1f1105] to-slate-950 border border-amber-500/40 shadow-xl space-y-2.5">
-        <div className="flex items-center justify-between">
-          <span className="inline-flex items-center gap-1 text-[10px] font-black uppercase tracking-wider text-amber-400 bg-amber-950/80 px-2 py-0.5 rounded-full border border-amber-500/40">
-            <Flame className="w-3 h-3 text-amber-400" /> परिवार व मित्रों के साथ शेयर करें
-          </span>
-          <span className="text-[11px] font-bold text-amber-300">
-            {shareCount} बार शेयर किया
-          </span>
-        </div>
-
-        <div>
-          <h4 className="text-xs sm:text-sm font-black text-white flex items-center gap-1">
-            <Sparkles className="w-3.5 h-3.5 text-yellow-400" />
-            <span>अपने व्हाट्सएप ग्रुप्स में यह शुभ ऑफर शेयर करें</span>
-          </h4>
-          <p className="text-[10px] sm:text-[11px] text-amber-200/80 mt-0.5 leading-relaxed">
-            आपके दोस्तों को भी लकी ड्रा का मौका मिलेगा। दुकान पर खरीदारी के समय शेयरिंग दिखाने पर विशेष उपहार!
-          </p>
-        </div>
-
-        <a
-          href={shareUrl}
-          target="_blank"
-          rel="noopener noreferrer"
-          onClick={handleShareClick}
-          className="w-full py-2.5 px-3 rounded-xl bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-400 hover:to-yellow-400 text-amber-950 font-black text-xs flex items-center justify-center gap-1.5 shadow-md active:scale-98 transition-transform"
-        >
-          <Share2 className="w-3.5 h-3.5" />
-          <span>व्हाट्सएप पर शेयर करें (WhatsApp Share)</span>
-        </a>
       </div>
 
       {/* 5. VIP WhatsApp Community */}

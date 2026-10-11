@@ -44,6 +44,7 @@ import {
 import {
   testGoogleSheetsWebhookAction,
   bulkSyncToGoogleSheetsAction,
+  saveGoogleSheetsWebhookAction,
 } from '@/app/actions/sheets';
 
 export default function AdminDashboardPage() {
@@ -117,10 +118,15 @@ export default function AdminDashboardPage() {
     });
   }, []);
 
-  const handleSaveWebhook = (e: React.FormEvent) => {
+  const handleSaveWebhook = async (e: React.FormEvent) => {
     e.preventDefault();
     saveStoredGoogleSheetsWebhookUrl(googleSheetWebhook);
-    setSaveNotification('Google Sheets Webhook URL सफलतापूर्वक सुरक्षित हो गया!');
+    try {
+      const res = await saveGoogleSheetsWebhookAction(googleSheetWebhook);
+      setSaveNotification(res.message || 'Google Sheets Webhook URL सफलतापूर्वक सुरक्षित हो गया!');
+    } catch {
+      setSaveNotification('Google Sheets Webhook URL सफलतापूर्वक सुरक्षित हो गया!');
+    }
     setTimeout(() => setSaveNotification(''), 3500);
   };
 

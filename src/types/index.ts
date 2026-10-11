@@ -80,6 +80,7 @@ export interface Coupon {
   code: string;
   campaign_id: string;
   customer_id: string;
+  customer_phone?: string;
   prize_id: string;
   prize?: Prize;
   customer?: Customer;

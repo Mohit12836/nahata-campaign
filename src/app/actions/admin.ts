@@ -42,6 +42,50 @@ export async function checkAdminAuthAction(): Promise<{ isAuthenticated: boolean
   return { isAuthenticated: isAuth };
 }
 
+export async function getAdminDataAction(): Promise<{
+  customers: import('@/types').Customer[];
+  coupons: import('@/types').Coupon[];
+  campaign: import('@/types').Campaign;
+  prizes: import('@/types').Prize[];
+}> {
+  const { getStoredCustomers, getStoredCoupons, getStoredCampaign, getStoredPrizes } = await import('@/lib/store');
+  const isAuth = await isServerAdminAuthenticated();
+  if (!isAuth) {
+    return {
+      customers: [],
+      coupons: [],
+      campaign: getStoredCampaign(),
+      prizes: getStoredPrizes(),
+    };
+  }
+
+  // Attempt Supabase if available
+  if (isSupabaseConfigured()) {
+    const supabase = getSupabaseServerClient();
+    if (supabase) {
+      try {
+        const { data: dbCustomers } = await supabase.from('customers').select('*').order('created_at', { ascending: false });
+        const { data: dbCoupons } = await supabase.from('coupons').select('*, prize:prizes(*), customer:customers(*)').order('created_at', { ascending: false });
+        if (dbCustomers && dbCustomers.length > 0) {
+          return {
+            customers: dbCustomers,
+            coupons: dbCoupons || [],
+            campaign: getStoredCampaign(),
+            prizes: getStoredPrizes(),
+          };
+        }
+      } catch {}
+    }
+  }
+
+  return {
+    customers: getStoredCustomers(),
+    coupons: getStoredCoupons(),
+    campaign: getStoredCampaign(),
+    prizes: getStoredPrizes(),
+  };
+}
+
 export interface RedeemCouponInput {
   code: string;
   billNumber?: string;

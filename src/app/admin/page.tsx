@@ -35,6 +35,7 @@ import {
   adminLogoutAction,
   checkAdminAuthAction,
   redeemCouponAction,
+  getAdminDataAction,
 } from '@/app/actions/admin';
 import {
   getStoredGoogleSheetsWebhookUrl,
@@ -80,11 +81,25 @@ export default function AdminDashboardPage() {
   // Settings form state
   const [saveNotification, setSaveNotification] = useState('');
 
-  const reloadAllData = () => {
+  const reloadAllData = async () => {
+    try {
+      const serverData = await getAdminDataAction();
+      if (serverData.customers && serverData.customers.length > 0) {
+        setCustomers(serverData.customers);
+      } else {
+        setCustomers(getStoredCustomers());
+      }
+      if (serverData.coupons && serverData.coupons.length > 0) {
+        setCoupons(serverData.coupons);
+      } else {
+        setCoupons(getStoredCoupons());
+      }
+    } catch {
+      setCustomers(getStoredCustomers());
+      setCoupons(getStoredCoupons());
+    }
     setCampaign(getStoredCampaign());
     setPrizes(getStoredPrizes());
-    setCustomers(getStoredCustomers());
-    setCoupons(getStoredCoupons());
     setGoogleSheetWebhook(getStoredGoogleSheetsWebhookUrl());
   };
 
@@ -95,6 +110,7 @@ export default function AdminDashboardPage() {
       setIsCheckingAuth(false);
       if (res.isAuthenticated) {
         setGoogleSheetWebhook(getStoredGoogleSheetsWebhookUrl());
+        reloadAllData();
       }
     }).catch(() => {
       setIsCheckingAuth(false);

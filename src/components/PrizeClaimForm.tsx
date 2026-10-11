@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { User, ShieldCheck, Sparkles, CheckCircle2, Phone, MapPin, ArrowRight } from 'lucide-react';
+import { User, Sparkles, CheckCircle2, MapPin, ArrowRight } from 'lucide-react';
 import { Prize } from '@/types';
 
 interface PrizeClaimFormProps {

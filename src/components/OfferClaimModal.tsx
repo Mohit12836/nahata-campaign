@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { User, ShieldCheck, Sparkles, CheckCircle2, Phone, AlertCircle } from 'lucide-react';
+import { User, ShieldCheck, Sparkles, CheckCircle2, AlertCircle } from 'lucide-react';
 import { Campaign, Prize } from '@/types';
 
 interface OfferClaimModalProps {

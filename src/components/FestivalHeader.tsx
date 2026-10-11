@@ -1,8 +1,8 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import Image from 'next/image';
-import { Volume2, VolumeX, MapPin, Sparkles, Award } from 'lucide-react';
+import { Volume2, VolumeX, MapPin } from 'lucide-react';
 import { Campaign } from '@/types';
 import { soundEngine } from '@/lib/audio';
 

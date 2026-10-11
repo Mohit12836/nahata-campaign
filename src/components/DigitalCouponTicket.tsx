@@ -30,27 +30,58 @@ export const DigitalCouponTicket: React.FC<DigitalCouponTicketProps> = ({
   return (
     <div className="w-full max-w-sm mx-auto select-none animate-in fade-in zoom-in-95 duration-300">
       {/* Outer Golden Border Envelope */}
-      <div className="relative rounded-2xl bg-gradient-to-br from-[#FFC857] via-[#FFB020] to-[#FFC857] p-0.5 shadow-2xl">
-        <div className="bg-[#FFF4D8] text-[#26030A] rounded-[14px] p-3.5 relative overflow-hidden">
+      <div className="relative rounded-2xl bg-gradient-to-br from-[#FFD700] via-[#FFB020] to-[#E5A800] p-1 shadow-2xl">
+        <div className="bg-[#FFFDF7] text-[#26030A] rounded-[14px] p-3.5 relative overflow-hidden border border-[#FFD700]">
           {/* Ticket Perforation Notches on Left & Right */}
-          <div className="absolute -left-3 top-1/2 -translate-y-1/2 w-6 h-6 rounded-full bg-[#5B0716] border border-[#FFC857]/40 shadow-inner" />
-          <div className="absolute -right-3 top-1/2 -translate-y-1/2 w-6 h-6 rounded-full bg-[#5B0716] border border-[#FFC857]/40 shadow-inner" />
+          <div className="absolute -left-3 top-1/2 -translate-y-1/2 w-6 h-6 rounded-full bg-[#3B020B] border border-[#FFD700]/50 shadow-inner" />
+          <div className="absolute -right-3 top-1/2 -translate-y-1/2 w-6 h-6 rounded-full bg-[#3B020B] border border-[#FFD700]/50 shadow-inner" />
 
-          {/* Top Brand Banner */}
-          <div className="text-center pb-2.5 border-b border-dashed border-[#5B0716]/30">
-            <div className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-black bg-[#5B0716] text-[#FFF4D8] mb-1">
-              <Store className="w-3 h-3 text-[#FFC857]" /> {campaign.store_name}
+          {/* Top Brand Banner with Store Logo & Manoj Bhaiya */}
+          <div className="flex items-center gap-2.5 pb-2.5 border-b border-dashed border-[#5B0716]/30">
+            <div className="relative w-12 h-12 rounded-full overflow-hidden border-2 border-[#D4AF37] shadow-sm shrink-0 bg-[#26030A]">
+              <img
+                src="/nahata-logo.jpg"
+                alt="नाहाटा जनरल स्टोर्स"
+                className="w-full h-full object-cover"
+              />
             </div>
-            <h3 className="text-base sm:text-lg font-black text-[#5B0716] leading-tight">
-              {coupon.prize?.title || 'विशेष डिस्काउंट वाउचर'}
-            </h3>
-            <p className="text-[10px] text-[#26030A]/80 mt-0.5 font-medium">
-              {coupon.prize?.terms_and_conditions || 'काउंटर बिलिंग पर तुरंत मान्य'}
+
+            <div className="flex-1 min-w-0">
+              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[9px] font-black bg-[#5B0716] text-[#FFD700]">
+                🚩 नवरात्रि स्पेशल कूपन पास
+              </span>
+              <h3 className="text-sm font-black text-[#5B0716] truncate">
+                {campaign.store_name}
+              </h3>
+              <p className="text-[10px] text-gray-700 font-semibold truncate">
+                बस स्टैंड रोड, कुशलगढ़ (राजस्थान)
+              </p>
+            </div>
+
+            <div className="relative w-11 h-11 rounded-full overflow-hidden border-2 border-[#D4AF37] shadow-sm shrink-0 bg-[#26030A]" title="श्री मनोज भैया">
+              <img
+                src="/manoj-nahata.jpg"
+                alt="मनोज भैया"
+                className="w-full h-full object-cover"
+              />
+            </div>
+          </div>
+
+          {/* Offer Title & Highlight */}
+          <div className="mt-2.5 p-2 rounded-xl bg-gradient-to-r from-[#5B0716] via-[#86152B] to-[#5B0716] text-[#FFF4D8] text-center shadow-xs">
+            <span className="text-[9px] font-black text-[#FFD700] uppercase tracking-wider block">
+              ✨ आपका पक्का लकी ड्रॉ उपहार
+            </span>
+            <h4 className="text-sm sm:text-base font-black text-white mt-0.5 leading-tight">
+              {coupon.prize?.title || '🎁 निश्चित स्पेशल गिफ्ट हैम्पर (खरीदारी पर)'}
+            </h4>
+            <p className="text-[10px] text-amber-200 mt-1 font-medium leading-tight">
+              (दुकान जाकर खरीदारी करने पर गिफ्ट हैम्पर खुलेगा!)
             </p>
           </div>
 
           {/* Unique Coupon Code Display */}
-          <div className="my-3 p-2.5 rounded-xl bg-white border-2 border-dashed border-[#86152B] text-center shadow-xs">
+          <div className="my-2.5 p-2 rounded-xl bg-amber-50 border-2 border-dashed border-[#86152B] text-center shadow-xs">
             <span className="text-[9px] font-black text-[#86152B] uppercase tracking-widest block">
               आपका आधिकारिक कूपन कोड
             </span>
@@ -61,13 +92,13 @@ export const DigitalCouponTicket: React.FC<DigitalCouponTicketProps> = ({
               <button
                 type="button"
                 onClick={handleCopyCode}
-                className="p-1.5 rounded-lg bg-[#FFC857] hover:bg-[#FFB020] text-[#26030A] transition-transform active:scale-90"
+                className="p-1.5 rounded-lg bg-[#FFD700] hover:bg-[#FFB020] text-[#26030A] transition-transform active:scale-90 font-bold"
                 title="कोड कॉपी करें"
               >
                 {copied ? (
-                  <Check className="w-3.5 h-3.5 text-[#17864B]" />
+                  <Check className="w-4 h-4 text-[#17864B]" />
                 ) : (
-                  <Copy className="w-3.5 h-3.5" />
+                  <Copy className="w-4 h-4" />
                 )}
               </button>
             </div>
@@ -79,25 +110,25 @@ export const DigitalCouponTicket: React.FC<DigitalCouponTicketProps> = ({
           </div>
 
           {/* Customer & Expiry Meta */}
-          <div className="flex justify-between items-center text-[10px] text-[#26030A]/70 px-1 pb-1">
-            <span className="flex items-center gap-1 font-medium">
-              <User className="w-3 h-3 text-[#86152B]" />
-              <strong>{coupon.customer?.full_name || 'मान्य ग्राहक'}</strong>
+          <div className="flex justify-between items-center text-[11px] text-gray-800 px-1 py-1 bg-amber-100/60 rounded-lg">
+            <span className="flex items-center gap-1 font-bold text-[#5B0716]">
+              <User className="w-3.5 h-3.5 text-[#86152B]" />
+              <span>{coupon.customer?.full_name || 'मान्य ग्राहक'}</span>
             </span>
-            <span className="flex items-center gap-1 font-bold text-[#86152B]">
-              <Calendar className="w-3 h-3" />
+            <span className="flex items-center gap-1 font-black text-[#86152B]">
+              <Calendar className="w-3.5 h-3.5" />
               <span>वैधता: {formattedExpiry} तक</span>
             </span>
           </div>
 
           {/* Counter Redemption Instructions */}
-          <div className="mt-2 pt-2 border-t border-dashed border-[#5B0716]/20 text-[10px] text-[#26030A]/80 space-y-0.5">
+          <div className="mt-2 pt-2 border-t border-dashed border-[#5B0716]/30 text-[10px] text-[#26030A] space-y-0.5 bg-yellow-50/50 p-1.5 rounded-lg">
             <div className="flex items-center gap-1 font-bold text-[#5B0716]">
-              <ShieldCheck className="w-3 h-3 text-[#17864B]" />
-              <span>दुकान पर कैसे रिडीम करें:</span>
+              <ShieldCheck className="w-3.5 h-3.5 text-[#17864B]" />
+              <span>रिडीम करने का आसान तरीका:</span>
             </div>
-            <p>1. बिलिंग कराने से पहले मनोज जी या काउंटर पर यह कोड दिखाएं।</p>
-            <p>2. यह कूपन 1 ग्राहक व 1 खरीदारी के लिए ही मान्य है।</p>
+            <p>1. नीचे दिए बटन से मनोज भैया को WhatsApp करें या दुकान पर यह स्क्रीन दिखाएं।</p>
+            <p>2. खरीदारी करने पर अपना गिफ्ट हैम्पर और महा-बचत डिस्काउंट प्राप्त करें।</p>
           </div>
         </div>
       </div>

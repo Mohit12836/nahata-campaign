@@ -7,9 +7,7 @@ import {
   Users,
   Flame,
   Trophy,
-  Sparkles,
   ArrowRight,
-  ExternalLink,
 } from 'lucide-react';
 import { getNahataWhatsAppClaimUrl, getNahataShareUrl } from '@/lib/whatsapp';
 import { Coupon, Campaign } from '@/types';

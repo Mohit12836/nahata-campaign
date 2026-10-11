@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { MapPin, PhoneCall, Store } from 'lucide-react';
+import { MapPin, PhoneCall } from 'lucide-react';
 
 interface StoreVisitActionsProps {
   whatsappNumber?: string;

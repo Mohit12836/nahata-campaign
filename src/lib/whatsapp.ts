@@ -17,43 +17,44 @@ export const getNahataWhatsAppClaimUrl = ({
   terms,
   storeName = 'नाहाटा जनरल स्टोर्स (Nahata General Stores)',
 }: WhatsAppClaimParams): string => {
-  const cleanNumber = whatsappNumber.replace(/\D/g, '');
+  const cleanNumber = (whatsappNumber || '919829012345').replace(/\D/g, '');
   
-  const text = `🎉 *फेस्टिवल ऑफर क्लेम रिक्वेस्ट* 🛍️
-━━━━━━━━━━━━━━━━━━
-दुकान: *${storeName}*
+  const text = `🚩 *जय माता दी!* 🚩
 
-नमस्ते मनोज जी,
-मैंने आपके लकी ड्रॉ कैंपेन में भाग लिया है और यह ऑफर जीता है:
+नमस्ते मनोज भैया,
+मैंने *${storeName} (बस स्टैंड रोड, कुशलगढ़)* का नवरात्रि स्पेशल ऑफर क्लेम कर लिया है!
 
-🎁 *इनाम / ऑफर:* ${prizeTitle}
-🎟️ *कूपन कोड:* *${couponCode}*
-👤 *ग्राहक नाम:* ${customerName}
-📞 *मोबाइल:* ${customerPhone}
-${terms ? `📌 *नियम:* ${terms}` : ''}
-━━━━━━━━━━━━━━━━━━
-कृपया मेरा कूपन कन्फर्म करें ताकि मैं खरीदारी / होम डिलीवरी पर इसे रिडीम कर सकूँ। धन्यवाद!`;
+🎟️ *मेरा कूपन कोड:* *${couponCode}*
+👤 *ग्राहक का नाम:* ${customerName}
+📞 *मोबाइल नंबर:* ${customerPhone}
+🎁 *ऑफर:* ${prizeTitle || 'खरीदारी पर निश्चित स्पेशल गिफ्ट हैम्पर + महा-बचत ऑफर'}
+${terms ? `📌 *नियम:* ${terms}\n` : ''}
+📍 मैं जल्द ही आपकी दुकान (बस स्टैंड रोड, कुशलगढ़) पर आकर खरीदारी करके अपने गिफ्ट हैम्पर व ऑफर का लाभ उठाऊँगा/उठाऊँगी। कृपया मेरा कूपन रिकॉर्ड में दर्ज कर लें। धन्यवाद!`;
 
   return `https://wa.me/${cleanNumber}?text=${encodeURIComponent(text)}`;
 };
 
 export const getNahataShareUrl = (
-  campaignTitle: string,
+  customerNameOrCampaignTitle?: string,
   prizeWonTitle?: string,
   campaignUrl?: string
 ): string => {
   const url = campaignUrl || (typeof window !== 'undefined' ? window.location.origin : 'https://nahata-campaign.vercel.app');
-  const wonText = prizeWonTitle ? `मुझे अभी *${prizeWonTitle}* मिला है! 🎁` : `मुझे अभी शानदार डिस्काउंट कूपन मिला है! 🎁`;
-  
-  const text = `🪔 *नाहाटा जनरल स्टोर्स (कुशलगढ़) — महा बचत धमाका!* 🛍️
+  const safeName = customerNameOrCampaignTitle && !customerNameOrCampaignTitle.includes('नाहाटा')
+    ? customerNameOrCampaignTitle
+    : 'आपके मित्र';
 
-भाई, नाहाटा स्टोर्स पर लकी स्क्रैच कार्ड और स्पिन व्हील चल रहा है! 
-${wonText}
+  const text = `🚩 *जय माता दी!* 🚩
 
-आप भी 1 सेकंड में अपनी किस्मत आजमाएं और फ्री गिफ्ट व महा छूट पाएं! 👇
-👉 *यहाँ क्लिक करके अपना इनाम निकालें:* ${url}
+*${safeName}* जी ने आपको *मनोज भैया (नाहाटा जनरल स्टोर्स, बस स्टैंड रोड, कुशलगढ़, राजस्थान)* का स्पेशल नवरात्रि गिफ्ट हैम्पर ऑफर भेजा है! 🎁✨
 
-(नोट: यह ऑफर केवल सीमित समय और पहले 500 ग्राहकों के लिए है)`;
+🛍️ नाहाटा जनरल स्टोर्स पर अपनी खरीदारी पर पाएं निश्चित गिफ्ट हैम्पर और महा-बचत ऑफर!
+(नोट: आपके गिफ्ट हैम्पर में क्या खास निकला, यह दुकान जाकर खरीदारी करने पर पता चलेगा!)
+
+👇 अपना फ्री कूपन अभी क्लेम व रिडीम करने के लिए तुरंत इस लिंक पर क्लिक करें:
+👉 ${url}
+
+📍 नाहाटा जनरल स्टोर्स, बस स्टैंड रोड, कुशलगढ़ (राज.)`;
 
   return `https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`;
 };

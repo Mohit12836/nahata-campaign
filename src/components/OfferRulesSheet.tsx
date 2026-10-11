@@ -8,10 +8,7 @@ import {
   PhoneCall,
   Clock,
   ShieldCheck,
-  Award,
-  Store,
   CheckCircle2,
-  ExternalLink,
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Campaign } from '@/types';

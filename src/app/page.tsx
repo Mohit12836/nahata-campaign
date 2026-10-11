@@ -10,7 +10,7 @@ import {
   getSessionTargetPrize,
 } from '@/lib/store';
 import { claimCampaignPrizeAction } from '@/app/actions/campaign';
-import { INITIAL_PRIZES } from '@/lib/mock-data';
+import { INITIAL_PRIZES, INITIAL_CAMPAIGN } from '@/lib/mock-data';
 import { FestivalHeader } from '@/components/FestivalHeader';
 import { ScratchCard } from '@/components/ScratchCard';
 import { SpinWheel } from '@/components/SpinWheel';

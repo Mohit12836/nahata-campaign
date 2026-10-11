@@ -237,6 +237,52 @@ async function runTests() {
   );
 
   // -------------------------------------------------------------
+  // TEST GROUP 8: GOOGLE SHEETS AUTO-SYNC SECURITY & VALIDATION
+  // -------------------------------------------------------------
+  console.log('\n[Group 8: Google Sheets Auto-Sync Security & URL Validation]');
+  const { isValidGoogleAppsScriptUrl, GOOGLE_SHEETS_SYNC_SECRET } = await import('../src/lib/google-sheets');
+
+  // URL Validation Tests
+  const validUrl = 'https://script.google.com/macros/s/AKfycbz1234567890abcdef/exec';
+  const invalidUrl1 = 'http://script.google.com/macros/s/AKfycbz1234567890abcdef/exec'; // Insecure HTTP
+  const invalidUrl2 = 'https://evil-attacker.com/webhook'; // Malicious domain
+  const invalidUrl3 = 'https://script.google.com/evil/path'; // Not web app exec
+  const invalidUrl4 = 'http://localhost:3000/api/steal'; // SSRF localhost
+
+  assert(
+    'Accept Legitimate Google Apps Script Web App URL',
+    isValidGoogleAppsScriptUrl(validUrl),
+    `Valid Web App URL correctly verified: ${validUrl.slice(0, 45)}...`
+  );
+  assert(
+    'Reject Insecure HTTP Apps Script URL',
+    !isValidGoogleAppsScriptUrl(invalidUrl1),
+    'Non-HTTPS URL rejected'
+  );
+  assert(
+    'Reject Arbitrary External Domain (Anti-SSRF)',
+    !isValidGoogleAppsScriptUrl(invalidUrl2),
+    'Attacker endpoint rejected'
+  );
+  assert(
+    'Reject Malformed Apps Script Path',
+    !isValidGoogleAppsScriptUrl(invalidUrl3),
+    'Non-exec Apps Script path rejected'
+  );
+  assert(
+    'Reject Localhost SSRF Payload',
+    !isValidGoogleAppsScriptUrl(invalidUrl4),
+    'Internal localhost SSRF rejected'
+  );
+
+  // Secret Token Test
+  assert(
+    'Enforce Default Sync Secret Token',
+    typeof GOOGLE_SHEETS_SYNC_SECRET === 'string' && GOOGLE_SHEETS_SYNC_SECRET.length >= 16,
+    `Protected with secret token: ${GOOGLE_SHEETS_SYNC_SECRET.slice(0, 8)}...`
+  );
+
+  // -------------------------------------------------------------
   // SUMMARY
   // -------------------------------------------------------------
   console.log('\n================================================================');

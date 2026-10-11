@@ -65,7 +65,9 @@ export async function redeemCouponAction(
     return { success: false, message: 'कृपया कूपन कोड दर्ज करें।' };
   }
 
-  // 2. Check if Supabase is Configured
+  // 2. Central Execution: Try Supabase Cloud Backend first
+  let res: { success: boolean; message: string; coupon?: Coupon } | null = null;
+
   if (isSupabaseConfigured()) {
     const supabase = getSupabaseServerClient();
     if (supabase) {
@@ -81,7 +83,7 @@ export async function redeemCouponAction(
           return { success: false, message: `डेटाबेस त्रुटि: ${error.message}` };
         }
 
-        return data as { success: boolean; message: string };
+        res = data as { success: boolean; message: string; coupon?: Coupon };
       } catch (err: unknown) {
         return {
           success: false,
@@ -92,25 +94,27 @@ export async function redeemCouponAction(
   }
 
   // 3. Fallback to server-validated store execution
-  const res = redeemCoupon(
-    input.code,
-    input.billNumber,
-    input.billAmount,
-    input.redeemedBy || 'मनोज नाहटा (काउंटर)'
-  );
+  if (!res) {
+    res = redeemCoupon(
+      input.code,
+      input.billNumber,
+      input.billAmount,
+      input.redeemedBy || 'मनोज नाहटा (काउंटर)'
+    );
+  }
 
-  // 4. Automatic Google Sheets Auto-Sync (Non-blocking)
-  if (res.success && res.coupon) {
+  // 4. Unified Post-Success Google Sheets Auto-Sync (Runs on BOTH Supabase and Fallback paths)
+  if (res.success) {
     try {
       const payload = {
         timestamp: new Date().toLocaleString('hi-IN'),
         storeName: 'नाहाटा जनरल स्टोर्स',
-        couponCode: res.coupon.code,
-        billNumber: input.billNumber || res.coupon.bill_number || '',
-        billAmount: input.billAmount || res.coupon.bill_amount || 0,
+        couponCode: input.code.trim().toUpperCase(),
+        billNumber: input.billNumber || res.coupon?.bill_number || '',
+        billAmount: input.billAmount || res.coupon?.bill_amount || 0,
         redeemedBy: input.redeemedBy || 'मनोज नाहटा (काउंटर)',
-        customerPhone: res.coupon.customer?.phone || res.coupon.customer_phone,
-        customerName: res.coupon.customer?.full_name,
+        customerPhone: res.coupon?.customer?.phone || res.coupon?.customer_phone || '',
+        customerName: res.coupon?.customer?.full_name || '',
       };
       sendToGoogleSheetsWebhook('COUPON_REDEEMED', payload).catch(() => {});
     } catch {}

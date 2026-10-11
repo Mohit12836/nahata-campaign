@@ -72,7 +72,9 @@ export async function claimCampaignPrizeAction(input: ClaimPrizeInput): Promise<
     };
   }
 
-  // 3. Check if Supabase Cloud Backend is Configured
+  // 3. Central Execution: Try Supabase Cloud Backend first
+  let result: PlayResultResponse | null = null;
+
   if (isSupabaseConfigured()) {
     const supabase = getSupabaseServerClient();
     if (supabase) {
@@ -95,7 +97,7 @@ export async function claimCampaignPrizeAction(input: ClaimPrizeInput): Promise<
           };
         }
 
-        return data as PlayResultResponse;
+        result = data as PlayResultResponse;
       } catch (err: unknown) {
         return {
           status: 'ERROR',
@@ -105,17 +107,19 @@ export async function claimCampaignPrizeAction(input: ClaimPrizeInput): Promise<
     }
   }
 
-  // 4. Server-Side Execution (Fallback mode)
-  const result = executeGamePlay(
-    cleanPhone,
-    input.fullName.trim(),
-    input.city,
-    input.businessCategory,
-    input.gameType,
-    input.targetPrizeId
-  );
+  // 4. Server-Side Execution (Fallback store mode when Supabase is unconfigured or skipped)
+  if (!result) {
+    result = executeGamePlay(
+      cleanPhone,
+      input.fullName.trim(),
+      input.city,
+      input.businessCategory,
+      input.gameType,
+      input.targetPrizeId
+    );
+  }
 
-  // 5. Automatic Real-Time Google Sheets Auto-Sync (Non-blocking)
+  // 5. Unified Post-Success Google Sheets Auto-Sync (Runs on BOTH Supabase and Fallback paths)
   if (result.status === 'SUCCESS' && result.coupon) {
     try {
       const payload = {

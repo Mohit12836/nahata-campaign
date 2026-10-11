@@ -16,30 +16,87 @@
  * ==============================================================================
  */
 
+/**
+ * सुरक्षित टोकन (Secret Token): अनधिकृत पोस्ट अनुरोधों को रोकने के लिए
+ * आप Google Apps Script में Project Settings ➔ Script Properties में "SYNC_SECRET" भी सेट कर सकते हैं।
+ */
+var DEFAULT_SYNC_SECRET = "NAHATA_SECURE_SYNC_2026_TOKEN";
+
+function getExpectedSecret() {
+  try {
+    var props = PropertiesService.getScriptProperties();
+    var secret = props.getProperty("SYNC_SECRET");
+    if (secret && secret.trim().length > 0) return secret.trim();
+  } catch (e) {}
+  return DEFAULT_SYNC_SECRET;
+}
+
 function doPost(e) {
   try {
+    if (!e || !e.postData || !e.postData.contents) {
+      return ContentService.createTextOutput(
+        JSON.stringify({ status: 'ERROR', error: 'खाली अनुरोध (Empty payload)' })
+      ).setMimeType(ContentService.MimeType.JSON);
+    }
+
     var rawData = e.postData.contents;
     var json = JSON.parse(rawData);
+
+    // 1. सुरक्षा जाँच (Token Authentication Check)
+    var clientToken = json.authToken || json.token || (e.parameter && e.parameter.token);
+    var expectedSecret = getExpectedSecret();
+
+    if (!clientToken || clientToken !== expectedSecret) {
+      return ContentService.createTextOutput(
+        JSON.stringify({
+          status: 'UNAUTHORIZED',
+          error: 'अनधिकृत अनुरोध! अमान्य या अनुपस्थित सुरक्षा टोकन (Invalid or missing secret token).'
+        })
+      ).setMimeType(ContentService.MimeType.JSON);
+    }
+
     var action = json.action;
     var data = json.data;
 
+    // 2. कनेक्शन टेस्ट (PING)
+    if (action === 'PING') {
+      return ContentService.createTextOutput(
+        JSON.stringify({
+          status: 'SUCCESS',
+          message: 'Google Sheets Webhook कनेक्शन सुरक्षित और सक्रिय है!',
+          timestamp: new Date().toISOString()
+        })
+      ).setMimeType(ContentService.MimeType.JSON);
+    }
+
     var ss = SpreadsheetApp.getActiveSpreadsheet();
 
+    // 3. डेटा प्रोसेसिंग (Data Actions)
     if (action === 'NEW_LEAD') {
       appendNewLead(ss, data);
     } else if (action === 'COUPON_REDEEMED') {
       recordRedemption(ss, data);
     } else if (action === 'BULK_SYNC') {
+      var syncedLeads = 0;
+      var syncedRedemptions = 0;
       if (Array.isArray(data.leads)) {
         for (var i = 0; i < data.leads.length; i++) {
           appendNewLead(ss, data.leads[i]);
+          syncedLeads++;
         }
       }
       if (Array.isArray(data.redemptions)) {
         for (var j = 0; j < data.redemptions.length; j++) {
           recordRedemption(ss, data.redemptions[j]);
+          syncedRedemptions++;
         }
       }
+      return ContentService.createTextOutput(
+        JSON.stringify({
+          status: 'SUCCESS',
+          message: 'Bulk sync पूर्ण हुआ (' + syncedLeads + ' लीड्स, ' + syncedRedemptions + ' रिडेम्पशन)'
+        })
+      ).setMimeType(ContentService.MimeType.JSON);
     }
 
     return ContentService.createTextOutput(
@@ -55,7 +112,12 @@ function doPost(e) {
 
 function doGet(e) {
   return ContentService.createTextOutput(
-    JSON.stringify({ status: 'ONLINE', message: 'Nahata Offer Platform Google Sheet Webhook Active' })
+    JSON.stringify({
+      status: 'ONLINE',
+      authenticated: true,
+      message: 'Nahata Offer Platform Google Sheet Webhook Active & Protected',
+      serverTime: new Date().toISOString()
+    })
   ).setMimeType(ContentService.MimeType.JSON);
 }
 
@@ -164,6 +226,31 @@ function appendNewLead(ss, lead) {
     ];
   }
 
+  // Check for duplicate lead by Coupon Code
+  var couponCode = (lead.couponCode || '').trim();
+  if (couponCode && sheet.getLastRow() > 1) {
+    var allData = sheet.getDataRange().getValues();
+    var couponColIdx = -1;
+    for (var col = 0; col < currentHeaders.length; col++) {
+      var headerText = (currentHeaders[col] || '').toString().toLowerCase();
+      if (headerText.indexOf('coupon') !== -1 || headerText.indexOf('कूपन') !== -1 || headerText.indexOf('code') !== -1) {
+        couponColIdx = col;
+        break;
+      }
+    }
+
+    if (couponColIdx !== -1) {
+      for (var r = 1; r < allData.length; r++) {
+        if (allData[r][couponColIdx] && allData[r][couponColIdx].toString().trim() === couponCode) {
+          // Already exists: update row instead of appending duplicate
+          sheet.getRange(r + 1, 1, 1, row.length).setValues([row]);
+          autoFitColumns(sheet);
+          return;
+        }
+      }
+    }
+  }
+
   sheet.appendRow(row);
 
   // Ensure Phone column is formatted as Plain Text to never cause #ERROR!
@@ -218,17 +305,48 @@ function recordRedemption(ss, red) {
     red.storeName || 'नाहाटा जनरल स्टोर्स'
   ];
 
+  // Check for duplicate redemption by Coupon Code
+  var redCouponCode = (red.couponCode || '').trim();
+  if (redCouponCode && sheet.getLastRow() > 1) {
+    var allRedData = sheet.getDataRange().getValues();
+    for (var r = 1; r < allRedData.length; r++) {
+      if (allRedData[r][1] && allRedData[r][1].toString().trim() === redCouponCode) {
+        // Already exists: update row
+        sheet.getRange(r + 1, 1, 1, row.length).setValues([row]);
+        autoFitColumns(sheet);
+        updateCustomerRedemptionStatus(ss, redCouponCode);
+        return;
+      }
+    }
+  }
+
   sheet.appendRow(row);
   autoFitColumns(sheet);
+  updateCustomerRedemptionStatus(ss, redCouponCode);
+}
 
-  // Update Status in Customers sheet if found
+function updateCustomerRedemptionStatus(ss, couponCode) {
+  if (!couponCode) return;
   var leadSheet = ss.getSheetByName("👥 ग्राहक लीड्स (Customers)");
-  if (leadSheet && red.couponCode) {
+  if (!leadSheet || leadSheet.getLastRow() < 2) return;
+
+  var lastCol = leadSheet.getLastColumn();
+  var headers = leadSheet.getRange(1, 1, 1, lastCol).getValues()[0];
+  var couponColIdx = -1;
+  var statusColIdx = -1;
+
+  for (var c = 0; c < headers.length; c++) {
+    var h = (headers[c] || '').toString().toLowerCase();
+    if (h.indexOf('coupon') !== -1 || h.indexOf('कूपन') !== -1 || h.indexOf('code') !== -1) couponColIdx = c;
+    if (h.indexOf('status') !== -1 || h.indexOf('स्थिति') !== -1) statusColIdx = c;
+  }
+
+  if (couponColIdx !== -1 && statusColIdx !== -1) {
     var data = leadSheet.getDataRange().getValues();
     for (var i = 1; i < data.length; i++) {
-      if (data[i][8] === red.couponCode) { // Column 9 is Coupon Code
-        leadSheet.getRange(i + 1, 10).setValue("✅ रिडीम हो चुका (REDEEMED)");
-        leadSheet.getRange(i + 1, 10).setBackground("#dcfce7").setFontColor("#15803d");
+      if (data[i][couponColIdx] && data[i][couponColIdx].toString().trim() === couponCode) {
+        leadSheet.getRange(i + 1, statusColIdx + 1).setValue("✅ रिडीम हो चुका (REDEEMED)");
+        leadSheet.getRange(i + 1, statusColIdx + 1).setBackground("#dcfce7").setFontColor("#15803d");
         break;
       }
     }

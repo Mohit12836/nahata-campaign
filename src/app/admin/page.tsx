@@ -1117,9 +1117,15 @@ export default function AdminDashboardPage() {
                     </button>
                   </div>
                 </div>
-                <p className="text-[11px] text-slate-500">
-                  यह URL आपके Google Sheet के Apps Script डिप्लॉयमेंट से मिलता है। नीचे आसान 4-चरण गाइड देखें।
-                </p>
+                <div className="flex items-center gap-2 pt-1">
+                  <span className="text-[11px] bg-slate-100 text-slate-700 px-2.5 py-1 rounded-lg border border-slate-200 font-mono flex items-center gap-1.5">
+                    <span>🔐 एंडपॉइंट सुरक्षा टोकन:</span>
+                    <strong className="text-emerald-700 font-bold">NAHATA_SECURE_SYNC_2026_TOKEN</strong>
+                  </span>
+                  <span className="text-[11px] text-slate-500">
+                    (अनधिकृत बाहरी अनुरोधों से पूर्ण सुरक्षा)
+                  </span>
+                </div>
               </form>
             </div>
 

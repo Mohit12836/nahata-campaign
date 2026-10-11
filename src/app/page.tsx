@@ -26,8 +26,10 @@ import {
 import { INITIAL_MERCHANTS } from '@/lib/mock-data';
 import { registerMerchantApplication } from '@/lib/store';
 import { Merchant } from '@/types';
+import StoreCampaignClient from './store/[slug]/StoreCampaignClient';
 
 export default function PlatformLandingPage() {
+  const [viewMode, setViewMode] = useState<'offer' | 'platform'>('offer');
   const [isRegisterModalOpen, setIsRegisterModalOpen] = useState(false);
   const [registeredMerchant, setRegisteredMerchant] = useState<Merchant | null>(null);
 
@@ -78,6 +80,30 @@ export default function PlatformLandingPage() {
     setFormSuccess(true);
   };
 
+  if (viewMode === 'offer') {
+    return (
+      <div className="relative min-h-screen bg-slate-950">
+        {/* Top Switcher Bar */}
+        <div className="bg-gradient-to-r from-red-950 via-slate-950 to-amber-950 border-b border-amber-500/30 px-3 py-1.5 text-xs text-amber-200">
+          <div className="max-w-md mx-auto flex items-center justify-between">
+            <span className="text-[10px] text-amber-300 font-bold flex items-center gap-1">
+              <span>🪔</span> <span>नाहाटा जनरल स्टोर्स • कुशलगढ़ (राजस्थान)</span>
+            </span>
+            <button
+              type="button"
+              onClick={() => setViewMode('platform')}
+              className="text-[10px] bg-amber-500/20 hover:bg-amber-500/30 text-amber-200 border border-amber-400/40 px-2 py-0.5 rounded-full font-bold inline-flex items-center gap-1 transition-colors"
+            >
+              <span>🏢 अन्य व्यापारी डेमो</span>
+              <ArrowRight className="w-2.5 h-2.5" />
+            </button>
+          </div>
+        </div>
+        <StoreCampaignClient params={Promise.resolve({ slug: 'nahata' })} />
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col selection:bg-amber-500 selection:text-amber-950 overflow-x-hidden">
       {/* Top Banner Alert */}
@@ -88,12 +114,13 @@ export default function PlatformLandingPage() {
         <span>
           कुशलगढ़ के <strong>नाहाटा जनरल स्टोर्स</strong> पर सफलतापूर्वक लाइव • 104+ कूपन रिडीम
         </span>
-        <Link
-          href="/store/nahata"
+        <button
+          type="button"
+          onClick={() => setViewMode('offer')}
           className="underline font-bold text-amber-300 hover:text-white ml-1 inline-flex items-center gap-0.5"
         >
-          डेमो देखें <ArrowRight className="w-3 h-3" />
-        </Link>
+          कस्टमर स्क्रीन देखें <ArrowRight className="w-3 h-3" />
+        </button>
       </div>
 
       {/* Main Navbar */}

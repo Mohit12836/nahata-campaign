@@ -59,23 +59,23 @@ export const FestivalHeader: React.FC<FestivalHeaderProps> = ({ campaign }) => {
   }, []);
 
   return (
-    <header className="relative w-full text-center pt-2 pb-2 px-2 sm:px-4 overflow-hidden select-none">
+    <header className="relative w-full text-center pt-1 pb-2 px-2 overflow-hidden select-none">
       {/* Dynamic Keyframe style for Uchalta (Spring Bouncing) Logo */}
       <style jsx global>{`
         @keyframes uchaltaBounce {
           0% {
-            transform: scale(0.3) translateY(-90px);
+            transform: scale(0.3) translateY(-40px);
             opacity: 0;
           }
           50% {
-            transform: scale(1.18) translateY(12px);
+            transform: scale(1.15) translateY(6px);
             opacity: 1;
           }
           70% {
-            transform: scale(0.92) translateY(-8px);
+            transform: scale(0.95) translateY(-4px);
           }
           85% {
-            transform: scale(1.06) translateY(4px);
+            transform: scale(1.04) translateY(2px);
           }
           100% {
             transform: scale(1) translateY(0);
@@ -83,115 +83,93 @@ export const FestivalHeader: React.FC<FestivalHeaderProps> = ({ campaign }) => {
           }
         }
         .animate-uchalta-logo {
-          animation: uchaltaBounce 1.1s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+          animation: uchaltaBounce 0.9s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
         }
       `}</style>
 
-      {/* Floating Audio Toggle in Top Right */}
-      <div className="absolute top-2 right-2 z-30">
+      {/* Top Festive Badge & Floating Audio */}
+      <div className="flex items-center justify-between gap-2 mb-2">
+        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-gradient-to-r from-amber-500/20 via-yellow-400/20 to-amber-500/20 text-yellow-300 text-[11px] font-black border border-amber-400/40 shadow-sm">
+          <span>🪔</span>
+          <span>शुभ नवरात्रि • महा बचत उत्सव</span>
+        </span>
+
         <button
           type="button"
           onClick={toggleSound}
           title={isMuted ? 'साउंड चालू करें' : 'साउंड म्यूट करें'}
-          className="p-1.5 rounded-full bg-black/60 hover:bg-black/80 border border-amber-500/40 text-amber-300 shadow-md backdrop-blur-sm transition-transform active:scale-90 flex items-center gap-1 text-[10px]"
+          className="p-1.5 px-2.5 rounded-full bg-black/60 hover:bg-black/80 border border-amber-500/40 text-amber-300 shadow-md backdrop-blur-sm transition-transform active:scale-90 flex items-center gap-1 text-[10px] font-bold"
         >
           {isMuted ? <VolumeX className="w-3.5 h-3.5 text-rose-400" /> : <Volume2 className="w-3.5 h-3.5 text-yellow-300 animate-pulse" />}
-          <span className="hidden sm:inline font-bold">{isMuted ? 'म्यूट' : 'साउंड चालू'}</span>
+          <span>{isMuted ? 'म्यूट' : 'साउंड चालू'}</span>
         </button>
       </div>
 
-      {/* 1. Festive Ambient Garland Lights */}
-      <div className="flex justify-center items-center gap-3 sm:gap-5 mb-4 opacity-90">
-        {['#F59E0B', '#EF4444', '#10B981', '#3B82F6', '#EC4899', '#F59E0B', '#EF4444'].map((col, idx) => (
-          <div key={idx} className="flex flex-col items-center animate-pulse" style={{ animationDelay: `${idx * 180}ms` }}>
-            <div className="w-1.5 h-2 bg-amber-900" />
-            <div
-              className="w-3 h-4.5 rounded-full shadow-lg"
-              style={{ backgroundColor: col, boxShadow: `0 0 12px ${col}` }}
-            />
-          </div>
-        ))}
-      </div>
+      {/* Brand & Location Centerpiece (Single Compact Row / Card) */}
+      <div className="p-3 rounded-2xl bg-gradient-to-b from-amber-950/70 via-black/60 to-red-950/60 border border-amber-500/40 backdrop-blur-md shadow-lg flex items-center gap-3 text-left relative overflow-hidden">
+        {/* Subtle decorative glow */}
+        <div className="absolute top-0 right-0 w-28 h-28 bg-amber-500/15 rounded-full blur-2xl pointer-events-none" />
 
-      {/* 2. UCHALTA BRAND LOGO (Customer Trust Anchor) */}
-      <div className="relative inline-block mb-3 group cursor-pointer" onClick={handleLogoTap}>
-        {/* Ambient Radial Golden Glow behind Logo */}
-        <div className="absolute -inset-4 bg-gradient-to-r from-amber-500/40 via-yellow-400/50 to-orange-500/40 rounded-full blur-2xl opacity-75 animate-pulse" />
-        
-        {/* 3D Floating / Spring Bouncing Container */}
+        {/* 3D Uchalta Logo */}
         <div
-          className={`relative w-36 h-36 sm:w-44 sm:h-44 mx-auto rounded-full p-1.5 bg-gradient-to-tr from-amber-400 via-yellow-200 to-amber-600 shadow-[0_12px_40px_rgba(245,158,11,0.5)] border border-yellow-300/70 transform transition-transform duration-300 hover:scale-105 active:scale-95 ${
+          onClick={handleLogoTap}
+          className={`relative w-14 h-14 sm:w-16 sm:h-16 shrink-0 rounded-full p-1 bg-gradient-to-tr from-amber-400 via-yellow-200 to-amber-600 shadow-[0_0_20px_rgba(245,158,11,0.5)] border border-yellow-300 cursor-pointer active:scale-95 transition-transform ${
             hasBounced ? 'animate-uchalta-logo' : 'opacity-0'
           }`}
         >
-          <div className="w-full h-full rounded-full overflow-hidden bg-[#350707] relative shadow-inner">
+          <div className="w-full h-full rounded-full overflow-hidden bg-[#350707] relative">
             <Image
               src="/nahata-logo.jpg"
-              alt="Nahata General Stores Kushalgarh Rajasthan Logo"
+              alt="Nahata General Stores Kushalgarh Logo"
               fill
               priority
               unoptimized
-              sizes="(max-width: 640px) 144px, 176px"
-              className="object-cover object-center scale-[1.02] drop-shadow-md"
+              className="object-cover object-center"
             />
           </div>
+          <span className="absolute -bottom-1 -right-1 bg-emerald-600 text-white text-[8px] font-black px-1 rounded-full shadow border border-white">
+            ✓
+          </span>
+        </div>
 
-          {/* Golden Verified Seal Tag */}
-          <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 bg-gradient-to-r from-amber-500 via-yellow-400 to-amber-600 text-slate-950 font-black text-[10px] sm:text-[11px] px-3 py-0.5 rounded-full shadow-md border border-white/60 flex items-center gap-1 whitespace-nowrap">
-            <CheckCircle2 className="w-3 h-3 fill-emerald-800 text-white" />
-            <span>ओरिजिनल स्टोर • कुशलगढ़</span>
+        {/* Store Title & Address */}
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-1.5 flex-wrap">
+            <h1 className="text-base sm:text-lg font-black text-transparent bg-clip-text bg-gradient-to-r from-yellow-200 via-amber-300 to-yellow-100 truncate">
+              {campaign.store_name}
+            </h1>
+            <span className="text-[10px] bg-amber-500/20 text-amber-300 px-1.5 py-0.2 rounded font-bold border border-amber-400/30 shrink-0">
+              ओरिजिनल स्टोर
+            </span>
+          </div>
+
+          <p className="text-[11px] text-amber-200/90 font-medium flex items-center gap-1 mt-0.5 truncate">
+            <MapPin className="w-3 h-3 text-rose-400 shrink-0" />
+            <span>बस स्टैंड रोड, कुशलगढ़ (राजस्थान)</span>
+          </p>
+
+          <div className="flex items-center gap-2 mt-1">
+            <div className="flex items-center gap-1 text-[10px] text-yellow-300 font-bold bg-amber-900/60 px-2 py-0.5 rounded-full border border-amber-500/30">
+              <Award className="w-2.5 h-2.5 text-yellow-400" />
+              <span>श्री मनोज नाहटा • 30+ वर्षों का विश्वास</span>
+            </div>
           </div>
         </div>
       </div>
 
-      {/* 3. Verified Authority & Location Badge */}
-      <div className="mt-3 flex flex-wrap items-center justify-center gap-2">
-        <span className="inline-flex items-center gap-1 px-3 py-0.5 rounded-full bg-amber-950/80 text-amber-300 text-[11px] font-bold border border-amber-500/40 shadow-sm">
-          <Award className="w-3.5 h-3.5 text-yellow-400" />
-          <span>{campaign.contact_person} द्वारा अधिकृत</span>
-        </span>
-        <span className="inline-flex items-center gap-1 px-3 py-0.5 rounded-full bg-black/40 text-amber-200/90 text-[11px] font-semibold border border-white/10">
-          <MapPin className="w-3 h-3 text-rose-400" />
-          <span>कुशलगढ़, राजस्थान</span>
-        </span>
-      </div>
-
-      {/* 4. Main Campaign Headline */}
-      <h1 className="mt-3 text-2xl sm:text-3xl md:text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-yellow-200 via-amber-300 to-yellow-100 drop-shadow-md tracking-tight">
-        {campaign.title}
-      </h1>
-
-      <p className="mt-1.5 text-xs sm:text-sm text-amber-200/90 max-w-md mx-auto font-medium leading-relaxed">
-        {campaign.headline}
-      </p>
-
-      {/* 5. Trust Category Badges (Customer Confidence) */}
-      <div className="mt-3 flex items-center justify-center gap-1.5 sm:gap-2 text-[10px] sm:text-xs text-amber-300/90 flex-wrap">
-        <span className="bg-amber-950/60 px-2 py-0.5 rounded-lg border border-amber-500/30">🛒 किराना & सुपरमार्ट</span>
-        <span className="bg-amber-950/60 px-2 py-0.5 rounded-lg border border-amber-500/30">📦 प्लास्टिक & कंटेनर</span>
-        <span className="bg-amber-950/60 px-2 py-0.5 rounded-lg border border-amber-500/30">🏠 घरेलू सामान</span>
-        <span className="bg-amber-950/60 px-2 py-0.5 rounded-lg border border-amber-500/30">🎁 स्टेशनरी व गिफ्ट</span>
-      </div>
-
-      {/* 6. Festive Countdown Timer (Urgency + Trust) */}
-      <div className="mt-4 inline-flex items-center gap-2 p-2 px-3.5 sm:px-4 rounded-2xl bg-black/60 backdrop-blur-md border border-amber-500/40 shadow-inner">
-        <Clock className="w-4 h-4 text-amber-400 animate-spin" style={{ animationDuration: '8s' }} />
-        <span className="text-[11px] sm:text-xs font-bold text-amber-300">ऑफर समाप्त होने में:</span>
-        <div className="flex items-center gap-1 sm:gap-1.5 text-xs font-mono font-black text-white">
-          <span className="bg-amber-950/90 px-1.5 py-0.5 rounded border border-amber-500/50 text-yellow-300">
-            {timeLeft.days}d
-          </span>
-          :
-          <span className="bg-amber-950/90 px-1.5 py-0.5 rounded border border-amber-500/50 text-yellow-300">
-            {timeLeft.hours}h
-          </span>
-          :
-          <span className="bg-amber-950/90 px-1.5 py-0.5 rounded border border-amber-500/50 text-yellow-300">
-            {timeLeft.minutes}m
-          </span>
-          :
-          <span className="bg-amber-950/90 px-1.5 py-0.5 rounded border border-amber-500/50 text-rose-400">
-            {timeLeft.seconds}s
+      {/* Main Campaign Hook Banner */}
+      <div className="mt-2 p-2 rounded-xl bg-gradient-to-r from-red-600/30 via-amber-500/30 to-red-600/30 border border-amber-400/30 text-center">
+        <h2 className="text-xs sm:text-sm font-black text-yellow-300 flex items-center justify-center gap-1.5">
+          <span>🎁</span>
+          <span>{campaign.headline || 'अपना लकी कार्ड स्क्रैच करें — 100% पक्का डिस्काउंट व गिफ्ट!'}</span>
+        </h2>
+        <div className="flex items-center justify-center gap-2.5 text-[10px] text-amber-200/90 mt-0.5">
+          <span>⚡ 100% फ्री</span>
+          <span>•</span>
+          <span>🔥 104+ ग्राहक जीत चुके</span>
+          <span>•</span>
+          <span className="flex items-center gap-1 text-emerald-400 font-bold">
+            <Clock className="w-2.5 h-2.5" /> ऑफर सीमित समय
           </span>
         </div>
       </div>

@@ -44,9 +44,9 @@ export const OfferClaimModal: React.FC<OfferClaimModalProps> = ({
 }) => {
   const [fullName, setFullName] = useState('');
   const [phone, setPhone] = useState('');
-  const [city, setCity] = useState('बीकानेर');
+  const [city, setCity] = useState('कुशलगढ़');
   const [businessCategory, setBusinessCategory] = useState('घरेलू उपभोक्ता (Family / Home)');
-  const [consent, setConsent] = useState(false);
+  const [consent, setConsent] = useState(true);
   const [error, setError] = useState('');
 
   const handleSubmit = (e: React.FormEvent) => {

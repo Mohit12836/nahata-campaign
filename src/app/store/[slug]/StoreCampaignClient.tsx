@@ -123,23 +123,25 @@ export default function StoreCampaignClient({
 
   const currentPrize = targetPrize || INITIAL_PRIZES[0];
 
+  const [showDetailsDrawer, setShowDetailsDrawer] = useState(false);
+
   return (
-    <main className="min-h-screen bg-gradient-to-b from-red-950 via-[#2a0808] to-slate-950 text-slate-100 flex flex-col items-center justify-between pb-12 relative overflow-x-hidden selection:bg-amber-500 selection:text-amber-950">
+    <main className="min-h-screen bg-gradient-to-b from-red-950 via-[#2a0808] to-slate-950 text-slate-100 flex flex-col items-center justify-between pb-8 relative overflow-x-hidden selection:bg-amber-500 selection:text-amber-950">
       {/* Ambient background glow */}
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-lg h-96 bg-gradient-to-b from-amber-500/20 via-rose-500/10 to-transparent blur-3xl pointer-events-none" />
 
       {/* Top Bar with Navigation */}
-      <div className="w-full max-w-md mx-auto px-4 pt-3 flex items-center justify-between z-20 text-xs">
+      <div className="w-full max-w-md mx-auto px-3 pt-2.5 flex items-center justify-between z-20 text-xs">
         <Link
           href="/"
           className="inline-flex items-center gap-1 text-[11px] font-bold text-amber-300 hover:text-white bg-black/40 px-2.5 py-1 rounded-full border border-amber-500/30 transition-colors"
         >
           <ArrowLeft className="w-3 h-3" />
-          <span>मुख्य पेज</span>
+          <span>होम</span>
         </Link>
         <div className="flex items-center gap-2">
-          <span className="text-[11px] font-bold text-amber-400/90 bg-amber-950/80 px-2.5 py-1 rounded-full border border-amber-500/40 truncate max-w-[150px]">
-            📍 {merchant.location.split(',')[1] || merchant.location}
+          <span className="text-[11px] font-bold text-amber-300 bg-amber-950/90 px-2.5 py-1 rounded-full border border-amber-500/40 truncate max-w-[170px]">
+            📍 बस स्टैंड रोड, कुशलगढ़
           </span>
           <Link
             href={`/admin?store=${merchant.slug}`}
@@ -151,27 +153,24 @@ export default function StoreCampaignClient({
         </div>
       </div>
 
-      {/* Main Container */}
-      <div className="w-full max-w-md mx-auto px-4 z-10 space-y-6 mt-2">
-        {/* Festival Header with Uchalta Bouncing 3D Logo */}
+      {/* Main Single-Screen Content Container */}
+      <div className="w-full max-w-md mx-auto px-3 z-10 space-y-3 mt-1 flex-1 flex flex-col justify-center">
+        {/* Compact Festival Header with Bouncing Logo & Store Address */}
         <FestivalHeader campaign={currentCampaign} />
 
-        {/* MANOJ NAHATA / OWNER TRUST & AUTHORITY SECTION */}
-        {currentCampaign.show_owner_card !== false && (
-          <ManojTrustCard campaign={currentCampaign} />
-        )}
-
-        {/* STAGE 1: THE GAME (Scratch Card or Spin Wheel) */}
+        {/* ============================================================ */}
+        {/* STAGE 1: THE GAME (Scratch Card or Spin Wheel)                */}
+        {/* ============================================================ */}
         {gameStage === 'GAME' && (
-          <div className="space-y-4 animate-in fade-in duration-300">
+          <div className="space-y-2.5 animate-in fade-in duration-300">
             {/* Game Selector Tabs */}
-            <div className="p-1 rounded-2xl bg-black/50 border border-amber-500/30 backdrop-blur-md grid grid-cols-2 gap-1">
+            <div className="p-1 rounded-2xl bg-black/60 border border-amber-500/40 backdrop-blur-md grid grid-cols-2 gap-1 shadow-md">
               <button
                 type="button"
                 onClick={() => setActiveTab('scratch')}
                 className={`py-2 px-3 rounded-xl font-bold text-xs sm:text-sm flex items-center justify-center gap-1.5 transition-all ${
                   activeTab === 'scratch'
-                    ? 'bg-gradient-to-r from-amber-500 to-yellow-500 text-amber-950 shadow-md scale-[1.02]'
+                    ? 'bg-gradient-to-r from-amber-500 via-yellow-400 to-amber-500 text-amber-950 shadow-md font-black scale-[1.02]'
                     : 'text-amber-200/80 hover:text-white'
                 }`}
               >
@@ -184,7 +183,7 @@ export default function StoreCampaignClient({
                 onClick={() => setActiveTab('spin')}
                 className={`py-2 px-3 rounded-xl font-bold text-xs sm:text-sm flex items-center justify-center gap-1.5 transition-all ${
                   activeTab === 'spin'
-                    ? 'bg-gradient-to-r from-amber-500 to-yellow-500 text-amber-950 shadow-md scale-[1.02]'
+                    ? 'bg-gradient-to-r from-amber-500 via-yellow-400 to-amber-500 text-amber-950 shadow-md font-black scale-[1.02]'
                     : 'text-amber-200/80 hover:text-white'
                 }`}
               >
@@ -193,10 +192,10 @@ export default function StoreCampaignClient({
               </button>
             </div>
 
-            {/* Render Active Game */}
-            <div className="py-2">
+            {/* Interactive Game View */}
+            <div className="py-1">
               {!isClient ? (
-                <div className="w-full aspect-square max-w-[320px] mx-auto rounded-3xl bg-amber-950/40 border border-amber-500/30 flex items-center justify-center text-amber-300 text-xs font-bold animate-pulse">
+                <div className="w-full aspect-square max-w-[280px] mx-auto rounded-3xl bg-amber-950/40 border border-amber-500/30 flex items-center justify-center text-amber-300 text-xs font-bold animate-pulse">
                   लकी कार्ड लोड हो रहा है...
                 </div>
               ) : activeTab === 'scratch' ? (
@@ -212,15 +211,44 @@ export default function StoreCampaignClient({
                 />
               )}
             </div>
+
+            {/* Compact Trust Strip & Collapsible Details Drawer */}
+            <div className="pt-0.5 text-center space-y-1.5">
+              <div className="flex items-center justify-center gap-2 text-[10px] sm:text-[11px] text-amber-200/90 font-bold bg-black/50 py-1.5 px-3 rounded-full border border-amber-500/30">
+                <span>🔒 100% मुफ़्त</span>
+                <span>•</span>
+                <span>दुकान पर तुरंत छूट</span>
+                <span>•</span>
+                <span>कोई छुपे नियम नहीं</span>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => setShowDetailsDrawer(!showDetailsDrawer)}
+                className="inline-flex items-center gap-1 text-[11px] text-amber-300 hover:text-white underline font-semibold transition-colors py-0.5"
+              >
+                <span>{showDetailsDrawer ? '▲ कम जानकारी दिखाएं' : '▼ 📋 दुकान का पता, समय व नियम (विस्तार से देखें)'}</span>
+              </button>
+
+              {/* Expandable Full Trust & Timeline Section */}
+              {showDetailsDrawer && (
+                <div className="pt-2 space-y-4 animate-in fade-in duration-200 text-left">
+                  {currentCampaign.show_owner_card !== false && (
+                    <ManojTrustCard campaign={currentCampaign} />
+                  )}
+                  <ProcessTimeline />
+                  <TrustBadges campaign={currentCampaign} />
+                </div>
+              )}
+            </div>
           </div>
         )}
 
-        {/* 3-STEP PROCESS TIMELINE */}
-        <ProcessTimeline />
-
-        {/* STAGE 2: LEAD CLAIM MODAL FORM */}
+        {/* ============================================================ */}
+        {/* STAGE 2: LEAD CLAIM MODAL FORM (Distraction-Free)             */}
+        {/* ============================================================ */}
         {gameStage === 'CLAIM' && (
-          <div className="space-y-3">
+          <div className="space-y-3 animate-in fade-in zoom-in-95 duration-300">
             {errorMessage && (
               <div className="p-3 rounded-xl bg-red-500/20 border border-red-400/50 text-red-200 text-xs font-semibold text-center animate-in fade-in">
                 ⚠️ {errorMessage}
@@ -235,9 +263,11 @@ export default function StoreCampaignClient({
           </div>
         )}
 
-        {/* STAGE 3: WON COUPON TICKET VIEW */}
+        {/* ============================================================ */}
+        {/* STAGE 3: WON COUPON TICKET VIEW (Viral Share & Store Visit)  */}
+        {/* ============================================================ */}
         {gameStage === 'COUPON' && wonCoupon && (
-          <div className="space-y-3">
+          <div className="space-y-3 animate-in fade-in zoom-in-95 duration-300">
             {alreadyPlayedNotice && (
               <div className="p-3 rounded-xl bg-amber-500/20 border border-amber-400/50 text-amber-200 text-xs font-semibold text-center animate-in fade-in">
                 ℹ️ {alreadyPlayedNotice} (आपका पूर्व-सत्यापित कूपन नीचे प्रदर्शित है)
@@ -246,9 +276,6 @@ export default function StoreCampaignClient({
             <CouponCard coupon={wonCoupon} campaign={currentCampaign} />
           </div>
         )}
-
-        {/* Trust Badges & Store Info */}
-        <TrustBadges campaign={currentCampaign} />
       </div>
 
       {/* Footer */}

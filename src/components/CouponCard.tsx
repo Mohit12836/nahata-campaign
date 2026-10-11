@@ -14,6 +14,8 @@ import {
   CheckCircle2,
   ArrowRight,
   Flame,
+  MapPin,
+  PhoneCall,
 } from 'lucide-react';
 import { Coupon, Campaign } from '@/types';
 import { getNahataWhatsAppClaimUrl, getNahataShareUrl } from '@/lib/whatsapp';
@@ -251,7 +253,27 @@ export const CouponCard: React.FC<CouponCardProps> = ({ coupon, campaign }) => {
         )}
       </div>
 
-      {/* 5. Store Counter Instructions */}
+      {/* 5. Direct Store Navigation & Call Manoj Ji */}
+      <div className="grid grid-cols-2 gap-2 pt-1">
+        <a
+          href="https://www.google.com/maps/search/?api=1&query=Nahata+General+Stores+Bus+Stand+Road+Kushalgarh+Rajasthan"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="py-3 px-3 rounded-2xl bg-gradient-to-r from-slate-900 to-amber-950 hover:from-slate-800 hover:to-amber-900 text-yellow-300 font-bold text-xs flex items-center justify-center gap-1.5 border border-amber-500/40 shadow-lg active:scale-95 transition-all text-center"
+        >
+          <MapPin className="w-4 h-4 text-rose-400 shrink-0" />
+          <span>दुकान का रास्ता 📍</span>
+        </a>
+        <a
+          href={`tel:${campaign.whatsapp_number || '9829012345'}`}
+          className="py-3 px-3 rounded-2xl bg-gradient-to-r from-emerald-950 to-slate-900 hover:from-emerald-900 hover:to-slate-800 text-emerald-300 font-bold text-xs flex items-center justify-center gap-1.5 border border-emerald-500/40 shadow-lg active:scale-95 transition-all text-center"
+        >
+          <PhoneCall className="w-4 h-4 text-emerald-400 shrink-0" />
+          <span>मनोज जी को कॉल 📞</span>
+        </a>
+      </div>
+
+      {/* 6. Store Counter Instructions */}
       <div className="p-3.5 rounded-2xl bg-amber-50/90 border border-amber-300 text-xs text-amber-950 space-y-1.5 shadow-sm">
         <p className="font-bold text-amber-900 flex items-center gap-1.5">
           <span>🏪</span> <span>दुकान पर कूपन भुनाने के 3 आसान नियम:</span>

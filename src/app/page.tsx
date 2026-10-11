@@ -91,13 +91,8 @@ export default function CustomerCampaignPage() {
     }
   };
 
-  if (!isClient || !campaign || !targetPrize) {
-    return (
-      <div className="min-h-screen bg-slate-950 flex items-center justify-center text-amber-300 font-bold text-sm">
-        लोड हो रहा है...
-      </div>
-    );
-  }
+  const currentCampaign = campaign || INITIAL_CAMPAIGN;
+  const currentPrize = targetPrize || INITIAL_PRIZES[0];
 
   return (
     <main className="min-h-screen bg-gradient-to-b from-red-950 via-[#2a0808] to-slate-950 text-slate-100 flex flex-col items-center justify-between pb-12 relative overflow-x-hidden selection:bg-amber-500 selection:text-amber-950">
@@ -121,7 +116,7 @@ export default function CustomerCampaignPage() {
       {/* Main Container */}
       <div className="w-full max-w-md mx-auto px-4 z-10 space-y-6">
         {/* Festival Header */}
-        <FestivalHeader campaign={campaign} />
+        <FestivalHeader campaign={currentCampaign} />
 
         {/* STAGE 1: THE GAME (Scratch Card or Spin Wheel) */}
         {gameStage === 'GAME' && (
@@ -157,15 +152,19 @@ export default function CustomerCampaignPage() {
 
             {/* Render Active Game */}
             <div className="py-2">
-              {activeTab === 'scratch' ? (
+              {!isClient ? (
+                <div className="w-full aspect-square max-w-[320px] mx-auto rounded-3xl bg-amber-950/40 border border-amber-500/30 flex items-center justify-center text-amber-300 text-xs font-bold animate-pulse">
+                  लकी कार्ड लोड हो रहा है...
+                </div>
+              ) : activeTab === 'scratch' ? (
                 <ScratchCard
-                  prize={targetPrize}
+                  prize={currentPrize}
                   onScratchComplete={handleGameFinished}
                 />
               ) : (
                 <SpinWheel
                   prizes={prizes}
-                  targetPrize={targetPrize}
+                  targetPrize={currentPrize}
                   onSpinComplete={handleGameFinished}
                 />
               )}
@@ -174,7 +173,7 @@ export default function CustomerCampaignPage() {
         )}
 
         {/* STAGE 2: LEAD CLAIM MODAL FORM */}
-        {gameStage === 'CLAIM' && targetPrize && (
+        {gameStage === 'CLAIM' && (
           <div className="space-y-3">
             {errorMessage && (
               <div className="p-3 rounded-xl bg-red-500/20 border border-red-400/50 text-red-200 text-xs font-semibold text-center animate-in fade-in">
@@ -182,8 +181,8 @@ export default function CustomerCampaignPage() {
               </div>
             )}
             <OfferClaimModal
-              campaign={campaign}
-              prize={targetPrize}
+              campaign={currentCampaign}
+              prize={currentPrize}
               onSubmit={handleFormSubmit}
               isLoading={isSubmitting}
             />
@@ -198,17 +197,17 @@ export default function CustomerCampaignPage() {
                 ℹ️ {alreadyPlayedNotice} (आपका पूर्व-सत्यापित कूपन नीचे प्रदर्शित है)
               </div>
             )}
-            <CouponCard coupon={wonCoupon} campaign={campaign} />
+            <CouponCard coupon={wonCoupon} campaign={currentCampaign} />
           </div>
         )}
 
         {/* Trust Badges & Store Info */}
-        <TrustBadges campaign={campaign} />
+        <TrustBadges campaign={currentCampaign} />
       </div>
 
       {/* Footer */}
       <footer className="w-full max-w-md mx-auto px-4 mt-8 text-center text-xs text-amber-400/60 space-y-1">
-        <p>© 2026 {campaign.store_name} • सर्वाधिकार सुरक्षित</p>
+        <p>© 2026 {currentCampaign.store_name} • सर्वाधिकार सुरक्षित</p>
         <p className="text-[10px]">
           त्योहार का लकी कूपन सिस्टम • Powered by Rajasthan Retail Tech
         </p>

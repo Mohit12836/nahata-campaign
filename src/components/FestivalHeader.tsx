@@ -58,6 +58,7 @@ export const FestivalHeader: React.FC<FestivalHeaderProps> = ({ campaign }) => {
               alt="Nahata General Stores Kushalgarh Rajasthan Logo"
               fill
               priority
+              unoptimized
               sizes="(max-width: 640px) 144px, 176px"
               className="object-cover object-center scale-[1.02] drop-shadow-md"
             />

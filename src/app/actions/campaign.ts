@@ -119,6 +119,7 @@ export async function claimCampaignPrizeAction(input: ClaimPrizeInput): Promise<
   if (result.status === 'SUCCESS' && result.coupon) {
     try {
       const payload = {
+        leadId: `LEAD-${result.coupon.code.slice(0, 8)}`,
         timestamp: new Date().toLocaleString('hi-IN'),
         storeName: 'नाहाटा जनरल स्टोर्स',
         customerName: input.fullName.trim(),
@@ -126,6 +127,7 @@ export async function claimCampaignPrizeAction(input: ClaimPrizeInput): Promise<
         whatsappLink: `https://wa.me/91${cleanPhone}`,
         city: input.city || 'कुशलगढ़',
         category: input.businessCategory || 'घरेलू उपभोक्ता (Family / Home)',
+        purchaseFrequency: 'नियमित ग्राहक (Regular)',
         gameType: input.gameType,
         prizeTitle: result.prize?.title || 'विशेष डिस्काउंट',
         couponCode: result.coupon.code,

@@ -19,14 +19,17 @@ export async function bulkSyncToGoogleSheetsAction(overrideUrl?: string): Promis
 
   const leads: GoogleSheetsLeadPayload[] = coupons.map((c) => {
     const cust = c.customer || customers.find((cust) => cust.id === c.customer_id);
+    const phone = cust?.phone || c.customer_phone || '';
     return {
+      leadId: cust?.id || `LEAD-${c.code.slice(0, 8)}`,
       timestamp: new Date(c.created_at).toLocaleString('hi-IN'),
       storeName: campaign.store_name,
       customerName: cust?.full_name || 'अज्ञात ग्राहक',
-      phone: cust?.phone || c.customer_phone || '',
-      whatsappLink: `https://wa.me/91${cust?.phone || c.customer_phone || ''}`,
+      phone: phone,
+      whatsappLink: `https://wa.me/91${phone}`,
       city: cust?.city || 'कुशलगढ़',
-      category: cust?.business_category || 'सामान्य ग्राहक',
+      category: cust?.business_category || 'घरेलू उपभोक्ता (Retail)',
+      purchaseFrequency: 'नियमित ग्राहक (Regular)',
       gameType: cust?.lead_source?.includes('SPIN') ? 'spin' : 'scratch',
       prizeTitle: c.prize?.title || 'विशेष डिस्काउंट',
       couponCode: c.code,

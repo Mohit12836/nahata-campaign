@@ -5,6 +5,7 @@
  */
 
 export interface GoogleSheetsLeadPayload {
+  leadId?: string;
   timestamp: string;
   storeName: string;
   customerName: string;
@@ -12,6 +13,7 @@ export interface GoogleSheetsLeadPayload {
   whatsappLink: string;
   city: string;
   category: string;
+  purchaseFrequency?: string;
   gameType: string;
   prizeTitle: string;
   couponCode: string;

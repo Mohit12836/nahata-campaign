@@ -67,9 +67,9 @@ export function validateVehicleInput(
   if (!input.vehicleNumber || input.vehicleNumber.trim().length < 4) {
     errors.vehicleNumber = 'Valid registration vehicle number is required.';
   } else {
-    const formattedNumber = input.vehicleNumber.trim().toUpperCase().replace(/\s+/g, '');
+    const formattedNumber = input.vehicleNumber.trim().toUpperCase().replace(/[^A-Z0-9]/g, '');
     const isDuplicate = existingVehicles.some(
-      (v) => v.vehicleNumber.toUpperCase().replace(/\s+/g, '') === formattedNumber
+      (v) => v.vehicleNumber.toUpperCase().replace(/[^A-Z0-9]/g, '') === formattedNumber
     );
     if (isDuplicate) {
       errors.vehicleNumber = `Vehicle number "${input.vehicleNumber}" is already registered in this organization.`;
@@ -146,9 +146,9 @@ export function validateDriverInput(
   if (!input.licenseNumber || input.licenseNumber.trim().length < 5) {
     errors.licenseNumber = 'Valid commercial driving license number is required.';
   } else {
-    const cleanLic = input.licenseNumber.trim().toUpperCase().replace(/\s+/g, '');
+    const cleanLic = input.licenseNumber.trim().toUpperCase().replace(/[^A-Z0-9]/g, '');
     const isDuplicate = existingDrivers.some(
-      (d) => d.licenseNumber.toUpperCase().replace(/\s+/g, '') === cleanLic
+      (d) => d.licenseNumber.toUpperCase().replace(/[^A-Z0-9]/g, '') === cleanLic
     );
     if (isDuplicate) {
       errors.licenseNumber = `Driver with license "${input.licenseNumber}" is already registered.`;

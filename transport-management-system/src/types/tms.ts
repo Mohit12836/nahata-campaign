@@ -235,42 +235,153 @@ export interface Trip {
   createdAt: string;
 }
 
+export type ExpenseCategory = 'Fuel' | 'Toll_FASTag' | 'Loading' | 'Unloading' | 'Repair' | 'Driver_Allowance' | 'Miscellaneous';
+export type PaymentMode = 'Cash' | 'Bank_Transfer' | 'UPI' | 'Fuel_Card' | 'Cheque';
+export type TdsSection = '194C_INDIVIDUAL' | '194C_COMPANY' | '194C_6_EXEMPT' | '206AA_HIGHER';
+
 export interface TripExpense {
   id: string;
+  organizationId?: string;
   tripId: string;
-  expenseCategory: 'Fuel' | 'Toll_FASTag' | 'Loading' | 'Repair' | 'Driver_Allowance';
+  driverId?: string;
+  expenseCategory: ExpenseCategory;
   amount: number;
   paidBy: 'Driver_Advance' | 'Company_Bank' | 'Fuel_Card';
   slipNumber?: string;
+  vendorName?: string;
   receiptImageUrl?: string;
   isApproved: boolean;
+  approvalStatus: 'pending' | 'approved' | 'rejected';
+  rejectionReason?: string;
+  verifiedBy?: string;
+  verifiedAt?: string;
+  createdAt: string;
 }
 
 export interface DriverAdvance {
   id: string;
+  organizationId?: string;
   driverId: string;
+  driverName?: string;
   tripId?: string;
+  tripNumber?: string;
   amount: number;
-  paymentMode: 'Cash' | 'Bank_Transfer' | 'UPI' | 'Fuel_Card';
+  paymentMode: PaymentMode;
   transactionRef?: string;
   disbursedAt: string;
+  disbursedBy?: string;
   isSettled: boolean;
+  settledAt?: string;
+}
+
+export interface DriverSettlement {
+  id: string;
+  organizationId: string;
+  settlementNumber: string;
+  driverId: string;
+  driverName: string;
+  tripId: string;
+  tripNumber: string;
+  settlementDate: string;
+  totalAdvanceDisbursed: number;
+  totalApprovedExpenses: number;
+  totalRejectedExpenses: number;
+  shortageDeductions: number;
+  netPayableOrRecoverable: number; // positive = driver refunds company; negative = company pays driver
+  settlementStatus: 'draft' | 'settled' | 'disputed';
+  settledBy: string;
+  remarks?: string;
+  createdAt: string;
+}
+
+export interface VendorSettlement {
+  id: string;
+  organizationId: string;
+  voucherNumber: string;
+  vendorId: string;
+  vendorName: string;
+  vendorType: 'Fuel_Station' | 'Truck_Broker' | 'Maintenance_Workshop' | 'Tyre_Vendor';
+  tripId?: string;
+  tripNumber?: string;
+  grossFreight: number;
+  advancePaid: number;
+  tdsSection: TdsSection;
+  tdsRatePercent: number;
+  tdsAmount: number;
+  shortageDeductions: number;
+  netPayable: number;
+  settlementStatus: 'pending' | 'approved' | 'paid';
+  panNumber?: string;
+  paymentRef?: string;
+  paymentDate?: string;
+  remarks?: string;
+  createdAt: string;
+}
+
+export interface CustomerInvoiceItem {
+  lrId: string;
+  lrNumber: string;
+  lrDate: string;
+  originCity: string;
+  destinationCity: string;
+  packagesCount: number;
+  goodsDescription: string;
+  chargedWeightTon: number;
+  ratePerTon: number;
+  freightAmount: number;
+  surchargesAmount: number;
+  netItemAmount: number;
 }
 
 export interface CustomerInvoice {
   id: string;
+  organizationId?: string;
+  branchId?: string;
   invoiceNumber: string;
   invoiceDate: string;
   customerId: string;
   customerName: string;
+  customerGstin?: string;
+  billingAddress: string;
+  originState: string;
+  destinationState: string;
+  isRcmApplicable: boolean; // Reverse Charge Mechanism under GTA
   subtotalAmount: number;
+  cgstRate: number;
   cgstAmount: number;
+  sgstRate: number;
   sgstAmount: number;
+  igstRate: number;
   igstAmount: number;
+  totalGstAmount: number;
   grandTotal: number;
   paidAmount: number;
   balanceAmount: number;
   paymentStatus: 'unpaid' | 'partially_paid' | 'paid';
   dueDate: string;
   includedLRs: string[];
+  items?: CustomerInvoiceItem[];
+  createdAt?: string;
+}
+
+export interface JournalEntryLine {
+  accountName: string;
+  accountType: 'ASSET' | 'LIABILITY' | 'EQUITY' | 'REVENUE' | 'EXPENSE';
+  debitAmount: number;
+  creditAmount: number;
+}
+
+export interface JournalEntry {
+  id: string;
+  entryNumber: string;
+  organizationId?: string;
+  entryDate: string;
+  description: string;
+  referenceType: 'INVOICE' | 'DRIVER_ADVANCE' | 'DRIVER_SETTLEMENT' | 'VENDOR_SETTLEMENT' | 'TRIP_EXPENSE';
+  referenceId: string;
+  lines: JournalEntryLine[];
+  totalDebit: number;
+  totalCredit: number;
+  isBalanced: boolean;
+  createdAt: string;
 }

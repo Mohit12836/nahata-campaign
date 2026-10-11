@@ -1,5 +1,7 @@
 'use client';
 
+export const dynamic = 'force-dynamic';
+
 import React, { use, useState, useSyncExternalStore } from 'react';
 import Link from 'next/link';
 import { Gift, Disc, Lock, ArrowLeft, Store } from 'lucide-react';

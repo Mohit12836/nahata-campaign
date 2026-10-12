@@ -208,11 +208,6 @@ export default function FestivalOfferFunnel({
             {/* Top Compact Brand Header */}
             <FestivalHeader campaign={campaign} />
 
-            {/* Prize Preview Strip */}
-            <div className="px-0.5">
-              <OfferPrizePreview prizes={prizes} />
-            </div>
-
             {/* Game Selector Tabs */}
             <div className="w-full my-0.5 p-0.5 rounded-xl bg-black/60 border border-[#FFC857]/40 backdrop-blur-sm grid grid-cols-2 gap-1 shadow-sm shrink-0">
               <button

@@ -220,10 +220,10 @@ export const ScratchCard: React.FC<ScratchCardProps> = ({
   };
 
   return (
-    <div className="relative w-full max-w-[320px] mx-auto select-none">
+    <div className="relative w-full max-w-[350px] mx-auto select-none">
       {/* Outer Festive Golden Frame */}
-      <div className="relative p-2 rounded-2xl bg-gradient-to-br from-[#FFC857] via-[#FFB020] to-[#B8860B] shadow-xl border-2 border-[#FFE89B]">
-        <div className="relative w-full h-[155px] sm:h-[165px] rounded-xl overflow-hidden bg-gradient-to-br from-[#26030A] via-[#5B0716] to-[#26030A] border border-[#FFC857]/40 flex items-center justify-center p-3">
+      <div className="relative p-2.5 rounded-3xl bg-gradient-to-br from-[#FFC857] via-[#FFB020] to-[#B8860B] shadow-2xl border-2 border-[#FFE89B]">
+        <div className="relative w-full h-[180px] sm:h-[195px] rounded-2xl overflow-hidden bg-gradient-to-br from-[#26030A] via-[#5B0716] to-[#26030A] border border-[#FFC857]/40 flex items-center justify-center p-4">
           
           {/* UNDERNEATH: REVEALED PRIZE CARD */}
           <div className="text-center flex flex-col items-center justify-center space-y-1.5 w-full animate-in fade-in duration-300">

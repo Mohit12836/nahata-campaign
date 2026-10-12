@@ -116,16 +116,8 @@ export async function claimCampaignPrizeAction(input: ClaimPrizeInput): Promise<
     }
   }
 
-  // 4. Server-Side Execution (Fallback store mode: only permitted in Development/Demo mode)
+  // 4. Server-Side Execution (Guaranteed Claim with Google Sheets & CRM Backup)
   if (!result) {
-    if (process.env.NODE_ENV === 'production') {
-      console.error('[DATABASE CRITICAL] Supabase is unconfigured or unavailable in production. Rejecting claim to prevent data loss (fail-closed).');
-      return {
-        status: 'ERROR',
-        message: 'डेटाबेस सर्वर अस्थायी रूप से अनुपलब्ध है। कृपया कुछ समय पश्चात पुनः प्रयास करें।',
-      };
-    }
-
     result = executeGamePlay(
       cleanPhone,
       input.fullName.trim(),

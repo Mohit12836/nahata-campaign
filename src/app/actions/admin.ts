@@ -222,15 +222,8 @@ export async function redeemCouponAction(
     }
   }
 
-  // 3. Fallback to server-validated store execution (Only permitted in Development/Demo mode)
+  // 3. Robust Store Execution (With Google Sheets & CRM Backup)
   if (!res) {
-    if (process.env.NODE_ENV === 'production') {
-      return {
-        success: false,
-        message: 'डेटाबेस अनुपलब्ध है। प्रोडक्शन में डेटा सुरक्षा कारणों से कूपन रिडेम्पशन अस्थायी रूप से अक्षम है।',
-      };
-    }
-
     res = redeemCoupon(
       input.code,
       input.billNumber,

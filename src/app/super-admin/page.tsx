@@ -29,13 +29,23 @@ import {
   getStoredCoupons,
   getStoredCustomers,
 } from '@/lib/store';
-import { adminLoginAction, adminLogoutAction, checkAdminAuthAction } from '@/app/actions/admin';
+import {
+  adminLoginAction,
+  adminLogoutAction,
+  checkAdminAuthAction,
+  getSuperAdminMerchantsAction,
+  updateMerchantStatusAction,
+  updateMerchantQuotaAction,
+  updateMerchantPlanAction,
+} from '@/app/actions/admin';
 
 export default function SuperAdminPage() {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
   const [pinInput, setPinInput] = useState('');
   const [pinError, setPinError] = useState<string | null>(null);
   const [isLoggingIn, setIsLoggingIn] = useState(false);
+  const [actionMessage, setActionMessage] = useState<{ text: string; type: 'success' | 'error' } | null>(null);
+  const [isMutatingId, setIsMutatingId] = useState<string | null>(null);
 
   const [merchants, setMerchants] = useState<Merchant[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
@@ -47,12 +57,21 @@ export default function SuperAdminPage() {
   const [redeemedCount, setRedeemedCount] = useState(0);
   const [totalCustomersCount, setTotalCustomersCount] = useState(0);
 
-  const loadData = () => {
-    const storedMerchants = getStoredMerchants();
+  const loadData = async () => {
+    // 1. Fetch Merchants securely from Server Action (backed by Supabase)
+    const merchantsRes = await getSuperAdminMerchantsAction();
+    if (merchantsRes.success && merchantsRes.merchants) {
+      setMerchants(merchantsRes.merchants);
+    } else {
+      const storedMerchants = getStoredMerchants();
+      setMerchants(storedMerchants);
+      if (merchantsRes.message) {
+        setActionMessage({ text: merchantsRes.message, type: 'error' });
+      }
+    }
+
     const storedCoupons = getStoredCoupons();
     const storedCustomers = getStoredCustomers();
-
-    setMerchants(storedMerchants);
     setTotalCouponsCount(storedCoupons.length);
     setRedeemedCount(storedCoupons.filter((c) => c.status === 'redeemed').length);
     setTotalCustomersCount(storedCustomers.length);
@@ -95,30 +114,73 @@ export default function SuperAdminPage() {
     setPinInput('');
   };
 
-  const handleStatusChange = (merchantId: string, newStatus: 'active' | 'pending' | 'suspended') => {
-    const updated = merchants.map((m) =>
-      m.id === merchantId ? { ...m, status: newStatus } : m
-    );
-    setMerchants(updated);
-    saveStoredMerchants(updated);
+  const handleStatusChange = async (merchantId: string, newStatus: 'active' | 'pending' | 'suspended') => {
+    setIsMutatingId(merchantId);
+    setActionMessage(null);
+    try {
+      const res = await updateMerchantStatusAction(merchantId, newStatus);
+      if (res.success && res.merchant) {
+        setMerchants((prev) =>
+          prev.map((m) => (m.id === merchantId ? res.merchant! : m))
+        );
+        setActionMessage({ text: res.message, type: 'success' });
+      } else {
+        setActionMessage({ text: res.message, type: 'error' });
+      }
+    } catch (err: unknown) {
+      setActionMessage({
+        text: err instanceof Error ? err.message : 'स्टेटस बदलने में सर्वर त्रुटि',
+        type: 'error',
+      });
+    } finally {
+      setIsMutatingId(null);
+    }
   };
 
-  const handleQuotaIncrease = (merchantId: string, additionalQuota: number) => {
-    const updated = merchants.map((m) =>
-      m.id === merchantId
-        ? { ...m, quota_coupons_total: m.quota_coupons_total + additionalQuota }
-        : m
-    );
-    setMerchants(updated);
-    saveStoredMerchants(updated);
+  const handleQuotaIncrease = async (merchantId: string, additionalQuota: number) => {
+    setIsMutatingId(merchantId);
+    setActionMessage(null);
+    try {
+      const res = await updateMerchantQuotaAction(merchantId, additionalQuota);
+      if (res.success && res.merchant) {
+        setMerchants((prev) =>
+          prev.map((m) => (m.id === merchantId ? res.merchant! : m))
+        );
+        setActionMessage({ text: res.message, type: 'success' });
+      } else {
+        setActionMessage({ text: res.message, type: 'error' });
+      }
+    } catch (err: unknown) {
+      setActionMessage({
+        text: err instanceof Error ? err.message : 'कोटा बढ़ाने में सर्वर त्रुटि',
+        type: 'error',
+      });
+    } finally {
+      setIsMutatingId(null);
+    }
   };
 
-  const handlePlanChange = (merchantId: string, newPlan: 'starter' | 'growth' | 'enterprise') => {
-    const updated = merchants.map((m) =>
-      m.id === merchantId ? { ...m, plan: newPlan } : m
-    );
-    setMerchants(updated);
-    saveStoredMerchants(updated);
+  const handlePlanChange = async (merchantId: string, newPlan: 'starter' | 'growth' | 'enterprise') => {
+    setIsMutatingId(merchantId);
+    setActionMessage(null);
+    try {
+      const res = await updateMerchantPlanAction(merchantId, newPlan);
+      if (res.success && res.merchant) {
+        setMerchants((prev) =>
+          prev.map((m) => (m.id === merchantId ? res.merchant! : m))
+        );
+        setActionMessage({ text: res.message, type: 'success' });
+      } else {
+        setActionMessage({ text: res.message, type: 'error' });
+      }
+    } catch (err: unknown) {
+      setActionMessage({
+        text: err instanceof Error ? err.message : 'प्लान बदलने में सर्वर त्रुटि',
+        type: 'error',
+      });
+    } finally {
+      setIsMutatingId(null);
+    }
   };
 
   // Filtered merchants
@@ -367,6 +429,28 @@ export default function SuperAdminPage() {
           )}
         </div>
 
+        {/* Action Feedback Banner */}
+        {actionMessage && (
+          <div
+            className={`p-3 rounded-xl border text-xs font-semibold flex items-center justify-between ${
+              actionMessage.type === 'success'
+                ? 'bg-emerald-950/60 border-emerald-500/40 text-emerald-200'
+                : 'bg-rose-950/60 border-rose-500/40 text-rose-200'
+            }`}
+          >
+            <div className="flex items-center gap-2">
+              <span>{actionMessage.type === 'success' ? '✅' : '⚠️'}</span>
+              <span>{actionMessage.text}</span>
+            </div>
+            <button
+              onClick={() => setActionMessage(null)}
+              className="text-slate-400 hover:text-white text-xs font-bold px-2 py-0.5 rounded"
+            >
+              ✕
+            </button>
+          </div>
+        )}
+
         {/* Tab 1: Merchants Management */}
         {activeTab === 'merchants' && (
           <div className="space-y-4">
@@ -422,9 +506,10 @@ export default function SuperAdminPage() {
                       <div className="flex justify-between items-center pt-1 border-t border-slate-800">
                         <span className="text-slate-500">प्लान:</span>
                         <select
+                          disabled={isMutatingId === merchant.id}
                           value={merchant.plan}
                           onChange={(e) => handlePlanChange(merchant.id, e.target.value as 'starter' | 'growth' | 'enterprise')}
-                          className="bg-slate-900 border border-slate-700 rounded px-2 py-0.5 text-[11px] text-amber-300 font-bold focus:outline-none"
+                          className="bg-slate-900 border border-slate-700 rounded px-2 py-0.5 text-[11px] text-amber-300 font-bold focus:outline-none disabled:opacity-50"
                         >
                           <option value="starter">Starter (1K)</option>
                           <option value="growth">Growth (5K)</option>
@@ -436,10 +521,11 @@ export default function SuperAdminPage() {
                         <div className="flex items-center gap-1.5 font-bold text-slate-200">
                           <span>{merchant.quota_coupons_total.toLocaleString('hi-IN')}</span>
                           <button
+                            disabled={isMutatingId === merchant.id}
                             onClick={() => handleQuotaIncrease(merchant.id, 500)}
-                            className="text-[10px] text-indigo-400 hover:text-indigo-300 underline"
+                            className="text-[10px] text-indigo-400 hover:text-indigo-300 underline disabled:opacity-50"
                           >
-                            +500 जोड़ें
+                            {isMutatingId === merchant.id ? 'अपडेट...' : '+500 जोड़ें'}
                           </button>
                         </div>
                       </div>
@@ -471,21 +557,23 @@ export default function SuperAdminPage() {
                     <div className="flex items-center gap-1 pt-1">
                       {merchant.status !== 'active' && (
                         <button
+                          disabled={isMutatingId === merchant.id}
                           onClick={() => handleStatusChange(merchant.id, 'active')}
-                          className="flex-1 py-1 rounded bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 text-[11px] font-bold border border-emerald-500/30 flex items-center justify-center gap-1"
+                          className="flex-1 py-1 rounded bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 text-[11px] font-bold border border-emerald-500/30 flex items-center justify-center gap-1 disabled:opacity-50"
                         >
                           <Check className="w-3 h-3" />
-                          <span>मंजूर / सक्रिय करें</span>
+                          <span>{isMutatingId === merchant.id ? 'प्रक्रिया में...' : 'मंजूर / सक्रिय करें'}</span>
                         </button>
                       )}
 
                       {merchant.status === 'active' && (
                         <button
+                          disabled={isMutatingId === merchant.id}
                           onClick={() => handleStatusChange(merchant.id, 'suspended')}
-                          className="flex-1 py-1 rounded bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 text-[11px] font-bold border border-rose-500/30 flex items-center justify-center gap-1"
+                          className="flex-1 py-1 rounded bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 text-[11px] font-bold border border-rose-500/30 flex items-center justify-center gap-1 disabled:opacity-50"
                         >
                           <X className="w-3 h-3" />
-                          <span>स्थगित (Pause) करें</span>
+                          <span>{isMutatingId === merchant.id ? 'प्रक्रिया में...' : 'स्थगित (Pause) करें'}</span>
                         </button>
                       )}
                     </div>

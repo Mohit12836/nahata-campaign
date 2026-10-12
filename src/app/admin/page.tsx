@@ -1,7 +1,8 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, Suspense } from 'react';
 import Link from 'next/link';
+import { useSearchParams } from 'next/navigation';
 import {
   Users,
   Gift,
@@ -20,8 +21,12 @@ import {
   ExternalLink,
   RefreshCw,
   Check,
+  Share2,
+  Sparkles,
+  Printer,
+  TrendingUp,
 } from 'lucide-react';
-import { Campaign, Prize, Customer, Coupon } from '@/types';
+import { Campaign, Prize, Customer, Coupon, Merchant } from '@/types';
 import {
   getStoredCampaign,
   saveStoredCampaign,
@@ -29,6 +34,8 @@ import {
   saveStoredPrizes,
   getStoredCustomers,
   getStoredCoupons,
+  getStoredMerchants,
+  getMerchantBySlug,
 } from '@/lib/store';
 import {
   adminLoginAction,
@@ -47,16 +54,23 @@ import {
   saveGoogleSheetsWebhookAction,
 } from '@/app/actions/sheets';
 
-export default function AdminDashboardPage() {
+function AdminDashboardContent() {
+  const searchParams = useSearchParams();
+  const storeSlug = searchParams?.get('store') || 'nahata';
+
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isCheckingAuth, setIsCheckingAuth] = useState(true);
   const [pinInput, setPinInput] = useState('');
   const [pinError, setPinError] = useState('');
-  const [activeTab, setActiveTab] = useState<'crm' | 'redemption' | 'settings' | 'sheets'>('crm');
+  const [activeTab, setActiveTab] = useState<'crm' | 'redemption' | 'qr-links' | 'settings' | 'sheets'>('crm');
   const [campaign, setCampaign] = useState<Campaign>(getStoredCampaign);
   const [prizes, setPrizes] = useState<Prize[]>(getStoredPrizes);
   const [customers, setCustomers] = useState<Customer[]>(getStoredCustomers);
   const [coupons, setCoupons] = useState<Coupon[]>(getStoredCoupons);
+  const [copiedLink, setCopiedLink] = useState(false);
+  const [copiedPromoText, setCopiedPromoText] = useState(false);
+  const [merchant, setMerchant] = useState<Merchant | undefined>(() => getMerchantBySlug(storeSlug));
+  const [originUrl, setOriginUrl] = useState('');
 
   // Google Sheets Auto-Sync State
   const [googleSheetWebhook, setGoogleSheetWebhook] = useState('');
@@ -77,6 +91,7 @@ export default function AdminDashboardPage() {
   const [redemptionResult, setRedemptionResult] = useState<{
     success: boolean;
     message: string;
+    coupon?: Coupon;
   } | null>(null);
 
   // Settings form state
@@ -99,13 +114,30 @@ export default function AdminDashboardPage() {
       setCustomers(getStoredCustomers());
       setCoupons(getStoredCoupons());
     }
-    setCampaign(getStoredCampaign());
+    const currentCampaign = getStoredCampaign();
+    const currentMerchant = getMerchantBySlug(storeSlug);
+    setMerchant(currentMerchant);
+    if (currentMerchant && storeSlug !== 'nahata') {
+      setCampaign({
+        ...currentCampaign,
+        slug: currentMerchant.slug,
+        store_name: currentMerchant.name,
+        contact_person: currentMerchant.owner_name,
+        whatsapp_number: currentMerchant.whatsapp_number,
+        location: currentMerchant.location,
+      });
+    } else {
+      setCampaign(currentCampaign);
+    }
     setPrizes(getStoredPrizes());
     setGoogleSheetWebhook(getStoredGoogleSheetsWebhookUrl());
   };
 
   // Check server session on mount
   React.useEffect(() => {
+    if (typeof window !== 'undefined') {
+      setOriginUrl(window.location.origin);
+    }
     checkAdminAuthAction().then((res) => {
       setIsAuthenticated(res.isAuthenticated);
       setIsCheckingAuth(false);
@@ -116,7 +148,7 @@ export default function AdminDashboardPage() {
     }).catch(() => {
       setIsCheckingAuth(false);
     });
-  }, []);
+  }, [storeSlug]);
 
   const handleSaveWebhook = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -364,7 +396,7 @@ export default function AdminDashboardPage() {
 
           <div className="flex items-center gap-2">
             <Link
-              href="/store/nahata"
+              href={`/store/${campaign.slug}`}
               target="_blank"
               className="px-2.5 py-1 rounded-lg bg-amber-500/20 hover:bg-amber-500/30 text-xs font-bold text-amber-200 border border-amber-500/30 transition-colors"
             >
@@ -494,8 +526,21 @@ export default function AdminDashboardPage() {
                 : 'bg-white text-slate-600 hover:bg-slate-100 border border-slate-200'
             }`}
           >
-            <QrCode className="w-4 h-4" />
-            <span>कूपन सत्यापन & रिडेम्पशन</span>
+            <QrCode className="w-4 h-4 text-emerald-400" />
+            <span>Weekly Sale रिडेम्पशन & नया कूपन ({redeemedCoupons} प्रयुक्त)</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setActiveTab('qr-links')}
+            className={`px-4 py-2.5 rounded-xl font-bold text-xs sm:text-sm flex items-center gap-2 transition-all shrink-0 ${
+              activeTab === 'qr-links'
+                ? 'bg-red-900 text-white shadow-md'
+                : 'bg-white text-slate-600 hover:bg-slate-100 border border-slate-200'
+            }`}
+          >
+            <QrCode className="w-4 h-4 text-amber-500" />
+            <span>QR कोड & शेयर लिंक्स</span>
           </button>
 
           <button
@@ -551,10 +596,11 @@ export default function AdminDashboardPage() {
                   className="px-3 py-2 rounded-xl border border-slate-200 text-xs sm:text-sm bg-white outline-none"
                 >
                   <option value="ALL">सभी वर्ग (Categories)</option>
-                  <option value="किराना / जनरल स्टोर">किराना / जनरल स्टोर</option>
+                  <option value="घरेलू उपभोक्ता (Family / Home)">घरेलू उपभोक्ता (Family / Home)</option>
+                  <option value="दुकानदार / रिटेलर">दुकानदार / रिटेलर</option>
                   <option value="होलसेलर">होलसेलर</option>
-                  <option value="रिटेलर">रिटेलर</option>
-                  <option value="घरेलू उपभोक्ता (Consumer)">उपभोक्ता</option>
+                  <option value="विद्यार्थी / स्कूल वर्ग">विद्यार्थी / स्कूल वर्ग</option>
+                  <option value="अन्य ग्राहक">अन्य ग्राहक</option>
                 </select>
 
                 <button
@@ -677,13 +723,45 @@ export default function AdminDashboardPage() {
 
               {redemptionResult && (
                 <div
-                  className={`p-3 rounded-xl text-xs font-bold ${
+                  className={`p-3.5 rounded-xl text-xs font-bold space-y-2 ${
                     redemptionResult.success
                       ? 'bg-emerald-50 border border-emerald-300 text-emerald-800'
                       : 'bg-red-50 border border-red-300 text-red-800'
                   }`}
                 >
-                  {redemptionResult.message}
+                  <p>{redemptionResult.message}</p>
+                  {redemptionResult.success && redemptionResult.coupon?.next_purchase_coupon && (
+                    <div className="p-3 bg-white rounded-lg border border-emerald-200 shadow-sm space-y-1 text-slate-800">
+                      <div className="flex items-center justify-between">
+                        <span className="text-[10px] uppercase font-black tracking-wider text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded-full">
+                          🎫 अगली खरीद का नया कूपन जारी हुआ!
+                        </span>
+                        <span className="font-mono font-black text-emerald-700 text-xs">
+                          {redemptionResult.coupon.next_purchase_coupon.code}
+                        </span>
+                      </div>
+                      <p className="text-xs font-bold text-slate-900">
+                        {redemptionResult.coupon.next_purchase_coupon.discount_text}
+                      </p>
+                      <p className="text-[10px] text-slate-500">
+                        न्यूनतम खरीद: ₹{redemptionResult.coupon.next_purchase_coupon.min_order_value} • 
+                        वैधता: {new Date(redemptionResult.coupon.next_purchase_coupon.valid_until).toLocaleDateString('hi-IN')} तक
+                      </p>
+                      <div className="pt-1">
+                        <a
+                          href={`https://wa.me/91${redemptionResult.coupon.customer?.phone || ''}?text=${encodeURIComponent(
+                            `नमस्ते ${redemptionResult.coupon.customer?.full_name || 'ग्राहक'} जी! नाहाटा जनरल स्टोर्स से खरीदारी के लिए धन्यवाद। आपका अगला डिस्काउंट कूपन: *${redemptionResult.coupon.next_purchase_coupon.code}* (${redemptionResult.coupon.next_purchase_coupon.discount_text}) अगली बार दिखाने पर लागू होगा!`
+                          )}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-[11px] shadow-sm transition-colors"
+                        >
+                          <MessageSquare className="w-3 h-3" />
+                          <span>ग्राहक को WhatsApp पर नया कूपन भेजें</span>
+                        </a>
+                      </div>
+                    </div>
+                  )}
                 </div>
               )}
 
@@ -1047,6 +1125,201 @@ export default function AdminDashboardPage() {
           </form>
         )}
 
+        {/* TAB: QR CODE & SHARE LINKS */}
+        {activeTab === 'qr-links' && (
+          <div className="space-y-6 animate-in fade-in duration-200">
+            {/* Top Info Banner */}
+            <div className="p-6 rounded-2xl bg-gradient-to-r from-red-950 via-slate-900 to-amber-950 text-white border border-amber-500/30 shadow-md">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div>
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-amber-400 bg-amber-400/10 px-2.5 py-0.5 rounded-full border border-amber-400/20">
+                    📢 दुकान प्रचार & वायरल शेयरिंग टूल्स
+                  </span>
+                  <h3 className="text-lg sm:text-xl font-black text-white mt-1">
+                    {campaign.store_name} — QR स्टैंडी & WhatsApp कैंपेन
+                  </h3>
+                  <p className="text-xs text-slate-300 mt-1 max-w-2xl">
+                    दुकान के काउंटर पर लगाने के लिए QR कोड प्रिंट करें और ग्राहकों को WhatsApp पर भेजने के लिए बना-बनाया मैसेज 1-क्लिक में कॉपी करें।
+                  </p>
+                </div>
+
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => window.print()}
+                    className="px-4 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-xs sm:text-sm shadow-md transition-all flex items-center gap-2"
+                  >
+                    <Printer className="w-4 h-4" />
+                    <span>QR स्टैंडी प्रिंट करें</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            {/* Grid: Live QR Standee Preview & WhatsApp Campaign Box */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              {/* Counter QR Standee Card */}
+              <div className="p-6 rounded-2xl bg-white border border-slate-200 shadow-sm space-y-4 print:shadow-none print:border-none">
+                <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+                  <div className="flex items-center gap-2">
+                    <QrCode className="w-5 h-5 text-red-700" />
+                    <h4 className="font-black text-slate-900 text-sm sm:text-base">
+                      काउंटर QR स्टैंडी (Table-Top Preview)
+                    </h4>
+                  </div>
+                  <span className="text-[10px] bg-emerald-100 text-emerald-800 font-bold px-2 py-0.5 rounded-full border border-emerald-200">
+                    100% स्कैनेबल
+                  </span>
+                </div>
+
+                {/* Printable Standee Box */}
+                <div className="p-6 rounded-2xl bg-gradient-to-b from-amber-50 via-white to-red-50 border-2 border-dashed border-amber-400 text-center space-y-4">
+                  <div className="space-y-1">
+                    <span className="text-[11px] font-bold uppercase tracking-wider text-red-700 bg-red-100 px-3 py-1 rounded-full border border-red-200">
+                      ✨ {campaign.title} ✨
+                    </span>
+                    <h3 className="text-xl sm:text-2xl font-black text-slate-900 pt-2">
+                      {campaign.store_name}
+                    </h3>
+                    <p className="text-xs text-slate-600 font-medium">
+                      {campaign.location} | संपर्क: {campaign.whatsapp_number}
+                    </p>
+                  </div>
+
+                  {/* QR Image Box */}
+                  <div className="inline-block p-4 bg-white rounded-2xl shadow-md border-2 border-red-600/30">
+                    <img
+                      src={`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(
+                        `${originUrl || 'https://nahata-campaign.vercel.app'}/store/${campaign.slug}`
+                      )}&margin=10`}
+                      alt="Store Offer QR Code"
+                      className="w-44 h-44 mx-auto rounded-lg"
+                      loading="lazy"
+                    />
+                    <div className="mt-2 text-[10px] text-slate-500 font-bold">
+                      कैमरा या Google Pay से स्कैन करें
+                    </div>
+                  </div>
+
+                  <div className="space-y-1">
+                    <p className="text-sm font-black text-red-800">
+                      🎁 मोबाइल पर स्क्रैच कार्ड खोलें और पक्का इनाम जीतें!
+                    </p>
+                    <p className="text-[11px] text-slate-500">
+                      हर खरीदारी पर विशेष डिस्काउंट कूपन और उपहार
+                    </p>
+                  </div>
+                </div>
+
+                {/* Store URL & Copy Button */}
+                <div className="space-y-2 pt-2">
+                  <label className="block text-xs font-bold text-slate-700">
+                    दुकान का मुख्य ऑफर लिंक (WhatsApp / Instagram बायो में डालें):
+                  </label>
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="text"
+                      readOnly
+                      value={`${originUrl || 'https://nahata-campaign.vercel.app'}/store/${campaign.slug}`}
+                      className="flex-1 px-3 py-2 rounded-xl border border-slate-300 bg-slate-50 text-xs text-slate-700 font-mono select-all"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const url = `${originUrl || window.location.origin}/store/${campaign.slug}`;
+                        navigator.clipboard.writeText(url);
+                        setCopiedLink(true);
+                        setTimeout(() => setCopiedLink(false), 2500);
+                      }}
+                      className="px-3.5 py-2 rounded-xl bg-red-900 hover:bg-red-800 text-white font-bold text-xs flex items-center gap-1.5 transition-colors shrink-0"
+                    >
+                      {copiedLink ? <Check className="w-3.5 h-3.5 text-emerald-300" /> : <Copy className="w-3.5 h-3.5" />}
+                      <span>{copiedLink ? 'कॉपी हुआ!' : 'कॉपी लिंक'}</span>
+                    </button>
+                    <Link
+                      href={`/store/${campaign.slug}`}
+                      target="_blank"
+                      className="p-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 transition-colors shrink-0"
+                      title="नया टैब में खोलें"
+                    >
+                      <ExternalLink className="w-4 h-4" />
+                    </Link>
+                  </div>
+                </div>
+              </div>
+
+              {/* WhatsApp Promotional Campaign Template Box */}
+              <div className="p-6 rounded-2xl bg-white border border-slate-200 shadow-sm space-y-4">
+                <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+                  <div className="flex items-center gap-2">
+                    <MessageSquare className="w-5 h-5 text-emerald-600" />
+                    <h4 className="font-black text-slate-900 text-sm sm:text-base">
+                      WhatsApp ब्रॉडकास्ट & शेयरिंग मैसेज
+                    </h4>
+                  </div>
+                  <span className="text-[10px] bg-emerald-100 text-emerald-800 font-bold px-2 py-0.5 rounded-full border border-emerald-200">
+                    रेडी-टू-सेंड
+                  </span>
+                </div>
+
+                <p className="text-xs text-slate-600">
+                  इस मैसेज को कॉपी करके अपने ग्राहकों के WhatsApp ग्रुप, ब्रॉडकास्ट लिस्ट या स्टेटस पर शेयर करें:
+                </p>
+
+                {/* WhatsApp Message Preview Bubble */}
+                <div className="p-4 rounded-2xl bg-[#EFEAE2] border border-[#DAD3C8] text-slate-800 text-xs sm:text-sm font-sans space-y-2 whitespace-pre-wrap leading-relaxed shadow-inner">
+                  {`🛍️ *${campaign.store_name} — ${campaign.title}* 🎉
+
+नमस्ते जी! 🙏
+हमारी दुकान पर विशेष फेस्टिव लकी ड्रॉ ऑफर शुरू हो चुका है! 
+
+🎁 *आप क्या जीत सकते हैं:*
+• 10% से 50% तक विशेष डिस्काउंट कूपन
+• सरप्राइज गिफ्ट हैंपर व उपहार
+• हर खरीदारी पर पक्का इनाम!
+
+👇 *अभी अपना स्क्रैच कार्ड खोलें:*
+${originUrl || 'https://nahata-campaign.vercel.app'}/store/${campaign.slug}
+
+📍 *पता:* ${campaign.location}
+📞 *संपर्क:* ${campaign.whatsapp_number}
+
+_ऑफर सीमित समय के लिए मान्य है। अभी खेलें और इनाम पाएं!_`}
+                </div>
+
+                {/* Action Buttons */}
+                <div className="flex flex-wrap items-center gap-2.5 pt-2">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const msg = `🛍️ *${campaign.store_name} — ${campaign.title}* 🎉\n\nनमस्ते जी! 🙏\nहमारी दुकान पर विशेष फेस्टिव लकी ड्रॉ ऑफर शुरू हो चुका है!\n\n🎁 *आप क्या जीत सकते हैं:*\n• 10% से 50% तक विशेष डिस्काउंट कूपन\n• सरप्राइज गिफ्ट हैंपर व उपहार\n• हर खरीदारी पर पक्का इनाम!\n\n👇 *अभी अपना स्क्रैच कार्ड खोलें:*\n${originUrl || window.location.origin}/store/${campaign.slug}\n\n📍 *पता:* ${campaign.location}\n📞 *संपर्क:* ${campaign.whatsapp_number}\n\n_ऑफर सीमित समय के लिए मान्य है। अभी खेलें और इनाम पाएं!_`;
+                      navigator.clipboard.writeText(msg);
+                      setCopiedPromoText(true);
+                      setTimeout(() => setCopiedPromoText(false), 2500);
+                    }}
+                    className="flex-1 py-2.5 px-4 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs flex items-center justify-center gap-2 transition-colors"
+                  >
+                    {copiedPromoText ? <Check className="w-4 h-4 text-emerald-400" /> : <Copy className="w-4 h-4" />}
+                    <span>{copiedPromoText ? 'मैसेज कॉपी हो गया!' : 'प्रचार मैसेज कॉपी करें'}</span>
+                  </button>
+
+                  <a
+                    href={`https://wa.me/?text=${encodeURIComponent(
+                      `🛍️ *${campaign.store_name} — ${campaign.title}* 🎉\n\nनमस्ते जी! 🙏 हमारी दुकान पर विशेष फेस्टिव लकी ड्रॉ ऑफर शुरू हो चुका है!\n\n👇 अपना स्क्रैच कार्ड खोलें:\n${originUrl || 'https://nahata-campaign.vercel.app'}/store/${campaign.slug}\n\n📍 पता: ${campaign.location}`
+                    )}`}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="py-2.5 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs flex items-center justify-center gap-2 transition-colors"
+                  >
+                    <Share2 className="w-4 h-4" />
+                    <span>WhatsApp पर भेजें ↗</span>
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* TAB 4: GOOGLE SHEETS & DRIVE AUTO-SYNC */}
         {activeTab === 'sheets' && (
           <div className="space-y-6 animate-in fade-in duration-200">
@@ -1237,3 +1510,19 @@ export default function AdminDashboardPage() {
     </div>
   );
 }
+
+export default function AdminDashboardPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-screen bg-slate-950 flex flex-col items-center justify-center text-amber-300 font-bold gap-3">
+          <div className="w-8 h-8 border-2 border-amber-400 border-t-transparent rounded-full animate-spin" />
+          <p className="text-sm">दुकान डैशबोर्ड लोड हो रहा है...</p>
+        </div>
+      }
+    >
+      <AdminDashboardContent />
+    </Suspense>
+  );
+}
+

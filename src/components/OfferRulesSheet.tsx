@@ -102,10 +102,10 @@ export const OfferRulesSheet: React.FC<OfferRulesSheetProps> = ({
               <div className="flex items-center gap-2 pt-1 border-t border-white/10 text-[11px]">
                 <PhoneCall className="w-3.5 h-3.5 text-[#17864B] shrink-0" />
                 <a
-                  href={`tel:${campaign.whatsapp_number || '9829012345'}`}
+                  href={`tel:${campaign.whatsapp_number || '8290447144'}`}
                   className="text-[#FFC857] hover:underline font-bold"
                 >
-                  सीधा संपर्क: +{campaign.whatsapp_number || '9829012345'}
+                  सीधा संपर्क: +{campaign.whatsapp_number || '8290447144'}
                 </a>
               </div>
             </div>
@@ -149,7 +149,7 @@ export const OfferRulesSheet: React.FC<OfferRulesSheetProps> = ({
               </a>
 
               <a
-                href={`tel:${campaign.whatsapp_number || '9829012345'}`}
+                href={`tel:${campaign.whatsapp_number || '8290447144'}`}
                 className="py-2.5 px-2 rounded-xl bg-gradient-to-r from-[#17864B] to-emerald-700 hover:from-emerald-600 text-white font-bold text-[11px] flex items-center justify-center gap-1 border border-emerald-400/40 shadow-md active:scale-95 transition-all text-center"
               >
                 <PhoneCall className="w-3.5 h-3.5 text-white shrink-0" />

@@ -17,7 +17,7 @@ export const getNahataWhatsAppClaimUrl = ({
   terms,
   storeName = 'नाहाटा जनरल स्टोर्स (Nahata General Stores)',
 }: WhatsAppClaimParams): string => {
-  const cleanNumber = (whatsappNumber || '919829012345').replace(/\D/g, '');
+  const cleanNumber = (whatsappNumber || '918290447144').replace(/\D/g, '');
   
   const text = `🚩 *जय माता दी!* 🚩
 

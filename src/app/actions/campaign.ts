@@ -9,8 +9,10 @@ import {
   getStoredCoupons,
   saveStoredCoupons,
   getStoredCampaign,
+  getStoredPrizes,
+  selectWinningPrize,
 } from '@/lib/store';
-import { PlayResultResponse } from '@/types';
+import { PlayResultResponse, Prize } from '@/types';
 import { sendToGoogleSheetsWebhook } from '@/lib/google-sheets';
 
 // In-memory sliding window rate limiter (5 requests per 60s per IP/Phone)
@@ -114,8 +116,16 @@ export async function claimCampaignPrizeAction(input: ClaimPrizeInput): Promise<
     }
   }
 
-  // 4. Server-Side Execution (Fallback store mode when Supabase is unconfigured or skipped)
+  // 4. Server-Side Execution (Fallback store mode: only permitted in Development/Demo mode)
   if (!result) {
+    if (process.env.NODE_ENV === 'production') {
+      console.error('[DATABASE CRITICAL] Supabase is unconfigured or unavailable in production. Rejecting claim to prevent data loss (fail-closed).');
+      return {
+        status: 'ERROR',
+        message: 'डेटाबेस सर्वर अस्थायी रूप से अनुपलब्ध है। कृपया कुछ समय पश्चात पुनः प्रयास करें।',
+      };
+    }
+
     result = executeGamePlay(
       cleanPhone,
       input.fullName.trim(),
@@ -124,6 +134,16 @@ export async function claimCampaignPrizeAction(input: ClaimPrizeInput): Promise<
       input.gameType,
       input.targetPrizeId
     );
+  }
+
+  // 4.5 Issue secure opaque session cookie (No PII inside token)
+  if ((result.status === 'SUCCESS' || result.status === 'ALREADY_PLAYED') && result.customer) {
+    try {
+      const { setCustomerSession } = await import('@/lib/customer-auth');
+      await setCustomerSession(result.customer.id, input.campaignId);
+    } catch (sessErr) {
+      console.warn('Customer session creation warning:', sessErr);
+    }
   }
 
   // 5. Dual CRM & Store Persistence Guarantee (Mirrors into Admin CRM immediately)
@@ -191,3 +211,73 @@ export async function claimCampaignPrizeAction(input: ClaimPrizeInput): Promise<
 
   return result;
 }
+
+const sessionPrizeStore = new Map<string, Prize>();
+
+export async function getOrAssignSessionPrizeAction(
+  clientSessionId?: string,
+  campaignSlug?: string
+): Promise<{ prize: Prize; sessionId: string }> {
+  let clientIp = '127.0.0.1';
+  try {
+    const reqHeaders = await headers();
+    clientIp = reqHeaders.get('x-forwarded-for') || reqHeaders.get('x-real-ip') || '127.0.0.1';
+  } catch {}
+
+  const effectiveSessionId = clientSessionId && clientSessionId.trim().length > 5
+    ? clientSessionId.trim()
+    : `sess_${clientIp.replace(/[^a-zA-Z0-9]/g, '_')}_${campaignSlug || 'nahata'}`;
+
+  const existing = sessionPrizeStore.get(effectiveSessionId);
+  if (existing) {
+    return { prize: existing, sessionId: effectiveSessionId };
+  }
+
+  const prizes = getStoredPrizes();
+  const assigned = selectWinningPrize(prizes);
+  sessionPrizeStore.set(effectiveSessionId, assigned);
+  return { prize: assigned, sessionId: effectiveSessionId };
+}
+
+export async function getActiveCustomerSessionAction(): Promise<{
+  isAuthenticated: boolean;
+  coupon?: import('@/types').Coupon;
+  customer?: import('@/types').Customer;
+}> {
+  try {
+    const { getCustomerSession } = await import('@/lib/customer-auth');
+    const session = await getCustomerSession();
+    if (!session) {
+      return { isAuthenticated: false };
+    }
+
+    const customers = getStoredCustomers();
+    const customer = customers.find((c) => c.id === session.customerId);
+    if (!customer) {
+      return { isAuthenticated: false };
+    }
+
+    const coupons = getStoredCoupons();
+    const coupon = coupons.find((cp) => cp.customer_id === customer.id || cp.customer?.phone === customer.phone);
+
+    return {
+      isAuthenticated: true,
+      customer,
+      coupon,
+    };
+  } catch {
+    return { isAuthenticated: false };
+  }
+}
+
+export async function logoutCustomerAction(): Promise<{ success: boolean }> {
+  try {
+    const { clearCustomerSession } = await import('@/lib/customer-auth');
+    await clearCustomerSession();
+    return { success: true };
+  } catch {
+    return { success: false };
+  }
+}
+
+

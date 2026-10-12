@@ -7,3 +7,28 @@ This version has breaking changes — APIs, conventions, and file structure may 
 This block is written and re-added by `next dev` — verify at `node_modules/next/dist/server/lib/generate-agent-files.js`. Removing it from a diff only re-creates the uncommitted change; committing it with your work keeps the tree clean.
 
 <!-- END:nextjs-agent-rules -->
+
+<!-- BEGIN:project-execution-protocol -->
+## Strict Local Execution & Efficiency Protocol
+
+1. **Discovery Radar & Scoped Inspection:**
+   - For multi-file, unfamiliar, or architecture-level tasks: Run `python C:\Users\hp\.gemini\antigravity\tools\code_map.py "src"` to locate relevant files and symbol line numbers without blind scanning.
+   - For simple, obvious single-file tasks: `code_map.py` is NOT mandatory; jump straight to the target file.
+   - Never dump entire files (> 50 lines) into context. Always supply tight `StartLine` and `EndLine` in `view_file` (window: 25–60 lines).
+
+2. **Batched Read-Only Commands:**
+   - Combine inspection and git commands into single invocations (e.g. `git status -s; git log -n 1 --oneline`).
+   - Avoid unbounded recursive scans over `node_modules` or `.next`.
+
+3. **Network & Background Command Discipline:**
+   - Add explicit timeouts to network/server requests (e.g. `curl -m 10` or `Invoke-WebRequest -TimeoutSec 10`).
+   - For commands taking up to 10s, pass `WaitMsBeforeAsync: 10000` to allow synchronous completion.
+   - When a command goes to the background, do NOT poll `manage_task status`; wait for reactive system notifications.
+
+4. **Tiered Verification (Task-Appropriate Testing):**
+   - Choose verification suited to the task: targeted unit/component checks first, `npx tsc --noEmit` (~10s) for type/syntax integrity, and full `npm run build` only for significant integration or pre-deployment milestones. Never skip required tests.
+   - Bound auto-fix retries to a maximum of 2 attempts before pausing to report the exact failure to the user.
+
+5. **Mandatory 5-Line Task Summary:**
+   - Conclude each task with: Task Scope, Files Inspected/Changed, Verification Exit Code & Duration, and Measured Elapsed Breakdown.
+<!-- END:project-execution-protocol -->

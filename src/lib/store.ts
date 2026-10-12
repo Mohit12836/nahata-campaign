@@ -317,8 +317,21 @@ export const redeemCoupon = (
   coupon.bill_number = billNumber || `BILL-${Math.floor(1000 + Math.random() * 9000)}`;
   coupon.bill_amount = billAmount || 0;
 
+  // Generate Next Purchase Coupon for customer repeat visit / Next Weekly Sale
+  const nextSuffix = Math.floor(1000 + Math.random() * 9000);
+  coupon.next_purchase_coupon = {
+    code: `NAHATA-REPEAT-${nextSuffix}`,
+    discount_text: 'अगली खरीद पर ₹50 फ्लैट छूट (या 10% अतिरिक्त छूट)',
+    min_order_value: 500,
+    valid_until: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString(),
+  };
+
   coupons[index] = coupon;
   saveStoredCoupons(coupons);
 
-  return { success: true, message: 'कूपन सफलतापूर्वक रिडीम और सत्यापित कर दिया गया!', coupon };
+  return {
+    success: true,
+    message: 'कूपन सफलतापूर्वक रिडीम हुआ! अगली खरीद का नया डिस्काउंट कूपन जारी कर दिया गया है।',
+    coupon,
+  };
 };

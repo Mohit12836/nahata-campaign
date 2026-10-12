@@ -48,11 +48,22 @@ export const OfferClaimModal: React.FC<OfferClaimModalProps> = ({
   const [consent, setConsent] = useState(true);
   const [error, setError] = useState('');
 
+  const handlePhoneChange = (rawValue: string) => {
+    const digits = rawValue.replace(/\D/g, '');
+    if (digits.length === 12 && digits.startsWith('91') && /^[6-9]/.test(digits.slice(2))) {
+      setPhone(digits.slice(2));
+    } else if (digits.length === 11 && digits.startsWith('0') && /^[6-9]/.test(digits.slice(1))) {
+      setPhone(digits.slice(1));
+    } else {
+      setPhone(digits);
+    }
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
 
-    const cleanPhone = phone.replace(/\D/g, '').slice(-10);
+    const cleanPhone = phone.replace(/\D/g, '');
     if (!fullName.trim() || fullName.trim().length < 2) {
       setError('कृपया अपना पूरा नाम (न्यूनतम 2 अक्षर) दर्ज करें।');
       return;
@@ -147,9 +158,9 @@ export const OfferClaimModal: React.FC<OfferClaimModalProps> = ({
             <input
               type="tel"
               required
-              maxLength={10}
+              maxLength={16}
               value={phone}
-              onChange={(e) => setPhone(e.target.value.replace(/\D/g, ''))}
+              onChange={(e) => handlePhoneChange(e.target.value)}
               placeholder="10 अंकों का नंबर (उदा. 9829012345)"
               className="w-full pl-12 pr-3 py-2.5 rounded-xl border border-amber-300 bg-white text-sm text-slate-900 focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none font-medium shadow-sm"
             />
@@ -212,7 +223,7 @@ export const OfferClaimModal: React.FC<OfferClaimModalProps> = ({
         <button
           type="submit"
           disabled={isLoading}
-          className="w-full py-3 px-4 rounded-xl bg-gradient-to-r from-emerald-600 via-teal-600 to-emerald-700 hover:from-emerald-700 hover:to-teal-800 text-white font-black text-sm shadow-lg shadow-emerald-700/30 active:scale-98 transition-all flex items-center justify-center gap-2 mt-1"
+          className="w-full py-3 px-4 rounded-xl bg-gradient-to-r from-emerald-600 via-teal-600 to-emerald-700 hover:from-emerald-700 hover:to-teal-800 disabled:opacity-60 disabled:cursor-not-allowed text-white font-black text-sm shadow-lg shadow-emerald-700/30 active:scale-[0.98] transition-all flex items-center justify-center gap-2 mt-1"
         >
           {isLoading ? (
             <span className="flex items-center gap-2">

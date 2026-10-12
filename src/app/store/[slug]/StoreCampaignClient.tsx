@@ -1,17 +1,15 @@
 'use client';
 
-import React, { use, useState, useSyncExternalStore } from 'react';
+import React, { use, useState, useEffect } from 'react';
 import { Campaign, Prize } from '@/types';
 import {
   getStoredPrizes,
-  getSessionTargetPrize,
   getMerchantBySlug,
 } from '@/lib/store';
 import { INITIAL_PRIZES, INITIAL_CAMPAIGN, INITIAL_MERCHANTS } from '@/lib/mock-data';
+import { getOrAssignSessionPrizeAction } from '@/app/actions/campaign';
 import FestivalOfferFunnel from '@/components/FestivalOfferFunnel';
 import { OfferRulesSheet } from '@/components/OfferRulesSheet';
-
-const subscribe = () => () => {};
 
 export default function StoreCampaignClient({
   params,
@@ -21,17 +19,27 @@ export default function StoreCampaignClient({
   const resolvedParams = use(params);
   const slug = resolvedParams?.slug || 'nahata';
 
-  const isClient = useSyncExternalStore(
-    subscribe,
-    () => true,
-    () => false
-  );
+  const [targetPrize, setTargetPrize] = useState<Prize>(INITIAL_PRIZES[0]);
 
-  const targetPrize = useSyncExternalStore(
-    subscribe,
-    getSessionTargetPrize,
-    () => INITIAL_PRIZES[0]
-  );
+  useEffect(() => {
+    // Get persistent client session token from sessionStorage/localStorage
+    let sessId = '';
+    try {
+      sessId = localStorage.getItem(`nahata_client_sess_${slug}`) || '';
+      if (!sessId) {
+        sessId = `client_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`;
+        localStorage.setItem(`nahata_client_sess_${slug}`, sessId);
+      }
+    } catch {}
+
+    getOrAssignSessionPrizeAction(sessId, slug)
+      .then((res) => {
+        if (res.prize) {
+          setTargetPrize(res.prize);
+        }
+      })
+      .catch(() => {});
+  }, [slug]);
 
   const merchant = getMerchantBySlug(slug) || INITIAL_MERCHANTS[0];
 
@@ -48,7 +56,7 @@ export default function StoreCampaignClient({
     contact_person: 'श्री मनोज भैया',
     owner_photo_url: '/manoj-nahata.jpg',
     owner_quote: 'कुशलगढ़ का अपना परिवार • 30+ वर्षों का अटूट विश्वास और गारंटी!',
-    whatsapp_number: merchant.whatsapp_number || '919829012345',
+    whatsapp_number: merchant.whatsapp_number || '918290447144',
     whatsapp_community_link: merchant.whatsapp_community_link,
   };
 
@@ -63,7 +71,7 @@ export default function StoreCampaignClient({
       <FestivalOfferFunnel
         campaign={currentCampaign}
         prizes={prizes}
-        targetPrize={isClient ? targetPrize : INITIAL_PRIZES[0]}
+        targetPrize={targetPrize}
       />
 
       {/* Direct Global Rules Sheet */}

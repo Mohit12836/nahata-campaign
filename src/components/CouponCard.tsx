@@ -26,9 +26,10 @@ import { getNahataWhatsAppClaimUrl, getNahataShareUrl } from '@/lib/whatsapp';
 interface CouponCardProps {
   coupon: Coupon;
   campaign: Campaign;
+  onOpenDashboard?: () => void;
 }
 
-export const CouponCard: React.FC<CouponCardProps> = ({ coupon, campaign }) => {
+export const CouponCard: React.FC<CouponCardProps> = ({ coupon, campaign, onOpenDashboard }) => {
   const [copied, setCopied] = useState(false);
   const [shareCount, setShareCount] = useState<number>(0);
   const [hasShared, setHasShared] = useState<boolean>(false);
@@ -94,8 +95,10 @@ export const CouponCard: React.FC<CouponCardProps> = ({ coupon, campaign }) => {
     );
   };
 
+  const [refCopied, setRefCopied] = useState(false);
+
   const whatsappUrl = getNahataWhatsAppClaimUrl({
-    whatsappNumber: campaign.whatsapp_number || '919829012345',
+    whatsappNumber: campaign.whatsapp_number || '918290447144',
     customerName: coupon.customer?.full_name || 'ग्राहक',
     customerPhone: coupon.customer?.phone || '',
     couponCode: coupon.code,
@@ -104,11 +107,24 @@ export const CouponCard: React.FC<CouponCardProps> = ({ coupon, campaign }) => {
     storeName: campaign.store_name,
   });
 
+  // Unique Customer Referral Link (Format: domain/store/[slug]?ref=[COUPON_CODE])
+  const originUrl = typeof window !== 'undefined' ? window.location.origin : 'https://nahata-campaign.vercel.app';
+  const referralLink = `${originUrl}/store/${campaign.slug || 'nahata'}?ref=${coupon.code}`;
+
   const shareUrl = getNahataShareUrl(
     coupon.customer?.full_name || campaign.title,
     coupon.prize?.title,
-    typeof window !== 'undefined' ? window.location.origin : undefined
+    referralLink
   );
+
+  const handleCopyReferral = () => {
+    navigator.clipboard.writeText(referralLink);
+    setRefCopied(true);
+    try {
+      soundEngine.playFestiveBell();
+    } catch {}
+    setTimeout(() => setRefCopied(false), 2500);
+  };
 
   const formattedExpiry = new Date(coupon.expires_at).toLocaleDateString('hi-IN', {
     day: 'numeric',
@@ -127,35 +143,42 @@ export const CouponCard: React.FC<CouponCardProps> = ({ coupon, campaign }) => {
   return (
     <div className="w-full max-w-md mx-auto space-y-3.5 animate-in fade-in zoom-in-95 duration-300 select-none">
       
-      {/* 0. Real-time Mandatory Share Gate Status Banner */}
-      {!hasShared ? (
-        <div className="p-3 rounded-2xl bg-gradient-to-r from-red-950/90 via-amber-950/90 to-red-950/90 border-2 border-amber-400/80 shadow-lg text-center space-y-1">
-          <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-black bg-amber-400 text-amber-950 uppercase tracking-wider">
-            <Lock className="w-3 h-3 text-amber-950" />
-            <span>अनिवार्य नियम (MANDATORY STEP)</span>
-          </div>
-          <h4 className="text-xs sm:text-sm font-black text-amber-200">
-            🔒 कूपन कोड व अगला बटन अभी लॉक है!
-          </h4>
-          <p className="text-[10px] sm:text-[11px] text-[#FFF4D8] leading-tight">
-            कूपन कोड सक्रिय करने और मनोज भैया को भेजने के लिए{' '}
-            <strong className="text-amber-300 underline">पहले 1 WhatsApp शेयर</strong> करना अनिवार्य है।
-          </p>
+      {/* 0. Real-time Share Gate & Demo Mode Persistence Notice */}
+      <div className="space-y-2">
+        <div className="px-3 py-1.5 rounded-xl bg-amber-950/60 border border-amber-500/30 text-amber-200/90 text-[10.5px] font-medium flex items-center justify-between">
+          <span>🛠️ डेमो मोड: कूपन व पास आपके ब्राउज़र (Local Session) में सुरक्षित हैं</span>
+          <span className="text-[9.5px] px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-300 font-bold border border-amber-500/40">स्थानीय डेटा</span>
         </div>
-      ) : (
-        <div className="p-3 rounded-2xl bg-gradient-to-r from-emerald-950/90 via-slate-900 to-emerald-950/90 border-2 border-emerald-400 shadow-lg text-center space-y-1 animate-in zoom-in-95">
-          <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-black bg-emerald-400 text-emerald-950 uppercase tracking-wider">
-            <Unlock className="w-3 h-3 text-emerald-950" />
-            <span>कूपन अनलॉक हो गया (UNLOCKED)</span>
+
+        {!hasShared ? (
+          <div className="p-3 rounded-2xl bg-gradient-to-r from-red-950/90 via-amber-950/90 to-red-950/90 border-2 border-amber-400/80 shadow-lg text-center space-y-1">
+            <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-black bg-amber-400 text-amber-950 uppercase tracking-wider">
+              <Lock className="w-3 h-3 text-amber-950" />
+              <span>अनिवार्य नियम (SHARE REQUIRED)</span>
+            </div>
+            <h4 className="text-xs sm:text-sm font-black text-amber-200">
+              🔒 कूपन कोड व अगला बटन अभी लॉक है!
+            </h4>
+            <p className="text-[10px] sm:text-[11px] text-[#FFF4D8] leading-tight">
+              कूपन कोड सक्रिय करने और मनोज भैया को भेजने के लिए{' '}
+              <strong className="text-amber-300 underline">पहले WhatsApp पर शेयर</strong> बटन दबाएं।
+            </p>
           </div>
-          <h4 className="text-xs sm:text-sm font-black text-emerald-200">
-            🎉 बधाई! आपका कूपन कोड सक्रिय हो चुका है
-          </h4>
-          <p className="text-[10px] sm:text-[11px] text-emerald-100 leading-tight">
-            अब नीचे दिए गए हरे बटन से कूपन को मनोज भैया के WhatsApp पर भेजें व सुरक्षित करें।
-          </p>
-        </div>
-      )}
+        ) : (
+          <div className="p-3 rounded-2xl bg-gradient-to-r from-emerald-950/90 via-slate-900 to-emerald-950/90 border-2 border-emerald-400 shadow-lg text-center space-y-1 animate-in zoom-in-95">
+            <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-black bg-emerald-400 text-emerald-950 uppercase tracking-wider">
+              <Unlock className="w-3 h-3 text-emerald-950" />
+              <span>शेयर क्लिक दर्ज (SHARE INITIATED)</span>
+            </div>
+            <h4 className="text-xs sm:text-sm font-black text-emerald-200">
+              🎉 कूपन कोड सक्रिय हो चुका है
+            </h4>
+            <p className="text-[10px] sm:text-[11px] text-emerald-100 leading-tight">
+              (WhatsApp शेयर क्लिक दर्ज हुआ। अब नीचे दिए गए हरे बटन से कूपन मनोज भैया को भेजें।)
+            </p>
+          </div>
+        )}
+      </div>
 
       {/* 1. Digital Coupon Ticket */}
       <div className="relative rounded-3xl bg-gradient-to-br from-amber-400 via-yellow-500 to-amber-600 p-1 shadow-2xl">
@@ -278,6 +301,48 @@ export const CouponCard: React.FC<CouponCardProps> = ({ coupon, campaign }) => {
         </div>
       </div>
 
+      {/* 1.5 NEXT PURCHASE COUPON WALLET (Visible when customer redeems their first reward pass) */}
+      {coupon.next_purchase_coupon && (
+        <div className="p-4 rounded-3xl bg-gradient-to-r from-emerald-950 via-slate-900 to-teal-950 border-2 border-emerald-400 shadow-2xl space-y-2.5 animate-in zoom-in-95">
+          <div className="flex items-center justify-between">
+            <span className="text-[10px] font-black uppercase tracking-wider text-emerald-300 bg-emerald-500/20 px-2.5 py-0.5 rounded-full border border-emerald-400/30 flex items-center gap-1">
+              <Sparkles className="w-3 h-3 text-emerald-400" />
+              <span>कूपन वॉलेट • अगली खरीद का इनाम</span>
+            </span>
+            <span className="text-[10px] font-bold text-emerald-400">
+              अगले Weekly Sale पर मान्य
+            </span>
+          </div>
+
+          <div className="bg-white/10 p-3 rounded-2xl border border-white/10 space-y-1">
+            <div className="flex items-center justify-between">
+              <span className="text-base font-black text-emerald-200 font-mono">
+                {coupon.next_purchase_coupon.code}
+              </span>
+              <button
+                type="button"
+                onClick={() => {
+                  navigator.clipboard.writeText(coupon.next_purchase_coupon!.code);
+                  try {
+                    soundEngine.playFestiveBell();
+                  } catch {}
+                }}
+                className="px-2 py-0.5 rounded-lg bg-emerald-400 text-slate-950 font-bold text-[10px] hover:bg-emerald-300 transition-colors"
+              >
+                कोड कॉपी करें
+              </button>
+            </div>
+            <p className="text-xs font-bold text-white">
+              {coupon.next_purchase_coupon.discount_text}
+            </p>
+            <p className="text-[10px] text-emerald-200/80">
+              न्यूनतम खरीद: ₹{coupon.next_purchase_coupon.min_order_value} • 
+              वैधता: {new Date(coupon.next_purchase_coupon.valid_until).toLocaleDateString('hi-IN')} तक
+            </p>
+          </div>
+        </div>
+      )}
+
       {/* 2. MANDATORY WHATSAPP SHARE GATE (Enforces viral sharing before opening next button) */}
       <div
         className={`p-4 rounded-2xl border-2 transition-all shadow-xl space-y-3 ${
@@ -369,16 +434,81 @@ export const CouponCard: React.FC<CouponCardProps> = ({ coupon, campaign }) => {
           <span>🔒 2. अगला कदम: मनोज जी को कूपन भेजें (पहले शेयर करें)</span>
         </button>
       ) : (
-        <a
-          href={whatsappUrl}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="w-full py-3.5 px-4 rounded-2xl bg-gradient-to-r from-[#25D366] via-emerald-500 to-[#128C7E] hover:from-[#20bd5a] hover:to-emerald-600 text-white font-black text-xs sm:text-sm shadow-xl shadow-emerald-600/30 flex items-center justify-center gap-2 active:scale-98 transition-all text-center border-2 border-emerald-300 animate-in zoom-in-95"
-        >
-          <MessageSquare className="w-4 h-4 sm:w-5 sm:h-5 fill-current" />
-          <span>🔓 2. मनोज जी को कूपन भेजें & सेव करें (अनलॉक हुआ) ➔</span>
-        </a>
+        <div className="space-y-2">
+          <a
+            href={whatsappUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="w-full py-3.5 px-4 rounded-2xl bg-gradient-to-r from-[#25D366] via-emerald-500 to-[#128C7E] hover:from-[#20bd5a] hover:to-emerald-600 text-white font-black text-xs sm:text-sm shadow-xl shadow-emerald-600/30 flex items-center justify-center gap-2 active:scale-98 transition-all text-center border-2 border-emerald-300 animate-in zoom-in-95"
+          >
+            <MessageSquare className="w-4 h-4 sm:w-5 sm:h-5 fill-current" />
+            <span>🔓 2. मनोज जी को कूपन भेजें & सेव करें (अनलॉक हुआ) ➔</span>
+          </a>
+          {onOpenDashboard && (
+            <button
+              type="button"
+              onClick={onOpenDashboard}
+              className="w-full py-3 px-4 rounded-2xl bg-gradient-to-r from-amber-500 via-amber-400 to-yellow-500 hover:from-amber-400 hover:to-yellow-400 text-slate-950 font-black text-xs sm:text-sm shadow-lg flex items-center justify-center gap-2 active:scale-98 transition-all text-center border border-amber-300"
+            >
+              <span>🎟️ अपना कस्टमर डैशबोर्ड व वॉलेट खोलें ➔</span>
+            </button>
+          )}
+        </div>
       )}
+
+      {/* 3.5 UNIQUE REFERRAL LINK & MULTI-PLATFORM VIRAL SHARING */}
+      <div className="p-3.5 rounded-2xl bg-gradient-to-br from-amber-950/70 via-slate-900 to-black border border-amber-500/40 shadow-xl space-y-2.5">
+        <div className="flex items-center justify-between">
+          <span className="text-xs font-black text-amber-300 flex items-center gap-1.5">
+            <Sparkles className="w-3.5 h-3.5 text-amber-400" />
+            <span>आपका पर्सनल रेफ़रल लिंक (Viral Referral)</span>
+          </span>
+          <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-400/20 text-amber-300 border border-amber-400/30">
+            मित्रों को जोड़ें
+          </span>
+        </div>
+
+        <p className="text-[10.5px] text-amber-100/80 leading-relaxed font-medium">
+          इस लिंक को कॉपी करके WhatsApp स्टेटस या दोस्तों को भेजें। जब वे इस लिंक से कूपन क्लेम करेंगे, तो आपका रेफ़रल काउंट बढ़ेगा!
+        </p>
+
+        {/* Link Box */}
+        <div className="flex items-center gap-2 bg-black/60 p-2 rounded-xl border border-amber-500/30">
+          <input
+            type="text"
+            readOnly
+            value={referralLink}
+            className="bg-transparent text-[11px] font-mono text-amber-200 truncate flex-1 outline-none select-all"
+          />
+          <button
+            type="button"
+            onClick={handleCopyReferral}
+            className="px-2.5 py-1 rounded-lg bg-amber-500 hover:bg-amber-400 text-amber-950 font-bold text-[11px] flex items-center gap-1 shrink-0 transition-colors"
+          >
+            {refCopied ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />}
+            <span>{refCopied ? 'कॉपी हुआ' : 'लिंक कॉपी'}</span>
+          </button>
+        </div>
+
+        {/* Multi-channel buttons */}
+        <div className="grid grid-cols-2 gap-2 pt-0.5">
+          <a
+            href={shareUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="py-2 px-2.5 rounded-xl bg-emerald-600/30 hover:bg-emerald-600/40 border border-emerald-500/40 text-emerald-300 font-bold text-[11px] flex items-center justify-center gap-1.5 transition-colors text-center"
+          >
+            <span>📱 WhatsApp शेयर</span>
+          </a>
+          <button
+            type="button"
+            onClick={handleCopyReferral}
+            className="py-2 px-2.5 rounded-xl bg-purple-600/30 hover:bg-purple-600/40 border border-purple-500/40 text-purple-300 font-bold text-[11px] flex items-center justify-center gap-1.5 transition-colors text-center"
+          >
+            <span>📸 Instagram / Status</span>
+          </button>
+        </div>
+      </div>
 
       {/* 4. Verified Store Visit & Call Actions */}
       <div className="p-3.5 rounded-2xl bg-gradient-to-br from-[#3b0811] via-[#240308] to-black border border-amber-500/40 shadow-xl space-y-2.5">
@@ -406,7 +536,7 @@ export const CouponCard: React.FC<CouponCardProps> = ({ coupon, campaign }) => {
 
           {/* Call Manoj Ji */}
           <a
-            href={`tel:${campaign.whatsapp_number?.replace(/\D/g, '').slice(-10) || '9829012345'}`}
+            href={`tel:${campaign.whatsapp_number?.replace(/\D/g, '').slice(-10) || '8290447144'}`}
             className="py-2.5 px-3 rounded-xl bg-emerald-900/60 hover:bg-emerald-800/70 border border-emerald-500/40 text-emerald-200 font-black text-[11px] sm:text-xs flex items-center justify-center gap-1.5 shadow active:scale-98 transition-all text-center"
           >
             <PhoneCall className="w-3.5 h-3.5 text-emerald-400" />
@@ -415,32 +545,60 @@ export const CouponCard: React.FC<CouponCardProps> = ({ coupon, campaign }) => {
         </div>
       </div>
 
-      {/* 5. VIP WhatsApp Community */}
+      {/* 5. WEEKLY SALE & REDEMPTION PASS WHATSAPP GROUP */}
       {campaign.whatsapp_community_link && (
-        <div className="p-3.5 rounded-2xl bg-gradient-to-br from-amber-950/80 via-slate-900 to-slate-950 border border-amber-500/30 shadow-lg space-y-2">
-          <div className="flex items-center gap-2">
-            <div className="p-2 rounded-xl bg-amber-500/20 text-amber-300">
-              <Users className="w-4 h-4" />
+        <div className="p-4 rounded-3xl bg-gradient-to-br from-[#26030A] via-[#420814] to-black border-2 border-amber-400/70 shadow-2xl space-y-3 relative overflow-hidden">
+          {/* Subtle Ambient Glow */}
+          <div className="absolute top-0 right-0 w-32 h-32 bg-amber-500/10 rounded-full blur-2xl pointer-events-none" />
+
+          <div className="flex items-start gap-3">
+            <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-amber-400 to-amber-600 text-slate-950 flex items-center justify-center font-black text-lg shrink-0 shadow-md">
+              🛍️
             </div>
-            <div>
-              <h4 className="text-xs sm:text-sm font-black text-white">
-                VIP WhatsApp कम्युनिटी से जुड़ें
+            <div className="space-y-1">
+              <div className="flex items-center gap-1.5 flex-wrap">
+                <span className="text-[10px] uppercase font-black tracking-wider text-amber-300 bg-amber-500/20 px-2 py-0.5 rounded-full border border-amber-400/40">
+                  साप्ताहिक सेल & रिडेम्पशन क्लब
+                </span>
+                <span className="text-[10px] font-bold text-emerald-400 bg-emerald-950/80 px-2 py-0.5 rounded-full border border-emerald-500/40">
+                  ● लाइव ग्रुप
+                </span>
+              </div>
+              <h4 className="text-sm sm:text-base font-black text-white leading-snug">
+                Weekly Sale में कूपन भुनाने हेतु WhatsApp ग्रुप से जुड़ें
               </h4>
-              <p className="text-[10px] text-amber-200/80">
-                दैनिक नए घरेलू सामान, ऑफर्स और कुशलगढ़ लोकल डिलीवरी अपडेट्स
+              <p className="text-[11px] text-amber-100/85 leading-relaxed font-medium">
+                हर हफ्ते लगने वाली <strong className="text-amber-300">कुशलगढ़ महा-बचत सेल</strong> के दिन, समय और नए कूपन केवल इसी ग्रुप में साझा किए जाते हैं। काउंटर पर कूपन दिखाने से पहले ग्रुप में जुड़े रहना आवश्यक है।
               </p>
             </div>
           </div>
 
+          {/* Quick Perks Strip */}
+          <div className="grid grid-cols-2 gap-2 text-[10px] text-amber-200/90 font-semibold bg-black/40 p-2.5 rounded-xl border border-amber-500/20">
+            <div className="flex items-center gap-1.5">
+              <span className="text-emerald-400 font-bold">✓</span>
+              <span>हर हफ्ते नए डिस्काउंट कूपन</span>
+            </div>
+            <div className="flex items-center gap-1.5">
+              <span className="text-emerald-400 font-bold">✓</span>
+              <span>हैम्पर लकी ड्रॉ लाइव सूचना</span>
+            </div>
+          </div>
+
+          {/* Join WhatsApp Group CTA */}
           <a
             href={campaign.whatsapp_community_link}
             target="_blank"
             rel="noopener noreferrer"
-            className="w-full py-2 px-3 rounded-xl bg-amber-400/90 hover:bg-amber-300 text-slate-950 font-black text-xs flex items-center justify-center gap-1.5 shadow active:scale-98 transition-all"
+            className="w-full py-3 px-4 rounded-2xl bg-gradient-to-r from-[#25D366] via-emerald-500 to-[#128C7E] hover:from-[#20bd5a] hover:to-emerald-600 text-white font-black text-xs sm:text-sm flex items-center justify-center gap-2 shadow-xl shadow-emerald-600/30 active:scale-98 transition-all border border-emerald-300/60 text-center"
           >
-            <span>ग्रुप जॉइन करें (निःशुल्क)</span>
-            <ArrowRight className="w-3.5 h-3.5" />
+            <MessageSquare className="w-4 h-4 fill-current" />
+            <span>Weekly Sale WhatsApp ग्रुप में शामिल हों ➔</span>
           </a>
+
+          <p className="text-[10px] text-amber-300/70 text-center font-medium">
+            🔒 केवल नाहाटा जनरल स्टोर्स के ग्राहकों के लिए • शून्य स्पैम
+          </p>
         </div>
       )}
 

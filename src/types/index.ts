@@ -92,6 +92,13 @@ export interface Coupon {
   bill_number?: string;
   bill_amount?: number;
   created_at: string;
+  // Next Purchase Coupon issued after redemption
+  next_purchase_coupon?: {
+    code: string;
+    discount_text: string;
+    min_order_value: number;
+    valid_until: string;
+  };
 }
 
 export interface PlayAttempt {

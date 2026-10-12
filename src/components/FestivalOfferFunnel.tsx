@@ -1,10 +1,13 @@
 'use client';
 
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import confetti from 'canvas-confetti';
 import { Gift, Disc, ChevronDown } from 'lucide-react';
 import { soundEngine } from '@/lib/audio';
-import { claimCampaignPrizeAction } from '@/app/actions/campaign';
+import {
+  claimCampaignPrizeAction,
+  getActiveCustomerSessionAction,
+} from '@/app/actions/campaign';
 import { INITIAL_PRIZES, INITIAL_CAMPAIGN } from '@/lib/mock-data';
 import { Campaign, Prize, Coupon } from '@/types';
 import { FestivalHeader } from './FestivalHeader';
@@ -12,13 +15,17 @@ import { OfferPrizePreview } from './OfferPrizePreview';
 import { ScratchCard } from './ScratchCard';
 import { SpinWheel } from './SpinWheel';
 import { OfferClaimModal } from './OfferClaimModal';
+import { WeeklySaleClubStep } from './WeeklySaleClubStep';
 import { CouponCard } from './CouponCard';
+import { CustomerDashboard } from './CustomerDashboard';
 import { OfferRulesSheet } from './OfferRulesSheet';
 
 export enum FunnelStage {
   PLAY = 'PLAY',
   CLAIM = 'CLAIM',
+  WEEKLY_CLUB = 'WEEKLY_CLUB',
   COUPON = 'COUPON',
+  DASHBOARD = 'DASHBOARD',
 }
 
 interface FestivalOfferFunnelProps {
@@ -32,11 +39,32 @@ export default function FestivalOfferFunnel({
   prizes = INITIAL_PRIZES,
   targetPrize,
 }: FestivalOfferFunnelProps) {
-  // Funnel State Machine: PLAY -> CLAIM -> COUPON
+  // Funnel State Machine: PLAY -> CLAIM -> WEEKLY_CLUB -> COUPON -> DASHBOARD
   const [stage, setStage] = useState<FunnelStage>(FunnelStage.PLAY);
   const [gameMode, setGameMode] = useState<'scratch' | 'spin'>('scratch');
   const [wonPrize, setWonPrize] = useState<Prize | null>(null);
   const [wonCoupon, setWonCoupon] = useState<Coupon | null>(null);
+
+  // Check if customer already has a valid active session on mount
+  useEffect(() => {
+    let isMounted = true;
+    async function checkSession() {
+      try {
+        const res = await getActiveCustomerSessionAction();
+        if (isMounted && res.isAuthenticated && res.coupon) {
+          setWonCoupon(res.coupon);
+          if (res.coupon.prize) {
+            setWonPrize(res.coupon.prize);
+          }
+          setStage(FunnelStage.DASHBOARD);
+        }
+      } catch {}
+    }
+    checkSession();
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
   // Active prize resolved from targetPrize or first available prize
   const activePrize = wonPrize || targetPrize || prizes[0] || INITIAL_PRIZES[0];
@@ -108,7 +136,8 @@ export default function FestivalOfferFunnel({
           setWonPrize(response.prize);
         }
         triggerCelebration();
-        setStage(FunnelStage.COUPON);
+        // Advance to STEP 2: Weekly Sale & Redemption Club
+        setStage(FunnelStage.WEEKLY_CLUB);
       }
     } catch (err: unknown) {
       setIsSubmitting(false);
@@ -232,6 +261,19 @@ export default function FestivalOfferFunnel({
         )}
 
         {/* ========================================================= */}
+        {/* STAGE 2.5: WEEKLY SALE & REDEMPTION CLUB (Mobile-First)   */}
+        {/* ========================================================= */}
+        {stage === FunnelStage.WEEKLY_CLUB && wonCoupon && (
+          <div className="flex-1 flex flex-col justify-start py-2 animate-in fade-in zoom-in-95 duration-200">
+            <WeeklySaleClubStep
+              campaign={campaign}
+              coupon={wonCoupon}
+              onContinue={() => setStage(FunnelStage.COUPON)}
+            />
+          </div>
+        )}
+
+        {/* ========================================================= */}
         {/* STAGE 3: DIGITAL COUPON + STORE VISIT + SHARING            */}
         {/* ========================================================= */}
         {stage === FunnelStage.COUPON && wonCoupon && (
@@ -241,7 +283,29 @@ export default function FestivalOfferFunnel({
                 ℹ️ {alreadyPlayedNotice} (आपका पूर्व-सत्यापित कूपन नीचे उपलब्ध है)
               </div>
             )}
-            <CouponCard coupon={wonCoupon} campaign={campaign} />
+            <CouponCard
+              coupon={wonCoupon}
+              campaign={campaign}
+              onOpenDashboard={() => setStage(FunnelStage.DASHBOARD)}
+            />
+          </div>
+        )}
+
+        {/* ========================================================= */}
+        {/* STAGE 4: PERSISTENT CUSTOMER ACCOUNT & WALLET DASHBOARD   */}
+        {/* ========================================================= */}
+        {stage === FunnelStage.DASHBOARD && wonCoupon && (
+          <div className="flex-1 flex flex-col justify-start space-y-3 py-2 animate-in fade-in zoom-in-95 duration-300">
+            <CustomerDashboard
+              campaign={campaign}
+              coupon={wonCoupon}
+              customer={wonCoupon.customer}
+              onLogout={() => {
+                setWonCoupon(null);
+                setWonPrize(null);
+                setStage(FunnelStage.PLAY);
+              }}
+            />
           </div>
         )}
       </div>

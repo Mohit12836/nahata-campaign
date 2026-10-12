@@ -171,8 +171,8 @@ async function runTests() {
   assert('Reject Wrong PIN (0000)', !isWrongPin, 'Wrong PIN rejected via timing-safe comparison');
 
   const token = createAdminSessionToken();
-  const isTokenValid = verifyAdminSessionToken(token);
-  const isTamperedTokenValid = verifyAdminSessionToken(`${token}_tampered`);
+  const isTokenValid = token !== null && verifyAdminSessionToken(token);
+  const isTamperedTokenValid = token !== null && verifyAdminSessionToken(`${token}_tampered`);
   assert('Create & Verify HMAC Session Token', isTokenValid, 'Token created and verified');
   assert('Reject Tampered Session Token', !isTamperedTokenValid, 'Tampered token rejected');
 
@@ -390,6 +390,165 @@ async function runTests() {
     'Google Sheets: Server Webhook Runtime Persistence',
     retrievedWebhook === sampleAppsScriptUrl && storedResolution === sampleAppsScriptUrl,
     'Server-side webhook runtime cache operational for automatic lead forwarding'
+  );
+
+  // -------------------------------------------------------------
+  // TEST GROUP 11: PRODUCTION FAIL-CLOSED & SECURITY HARDENING
+  // -------------------------------------------------------------
+  console.log('\n[Group 11: Production Fail-Closed & Hardened Auth]');
+
+  // Test A: In production, missing/weak ADMIN_SESSION_SECRET fails closed (returns null)
+  const originalEnv = process.env.NODE_ENV;
+  const originalSecret = process.env.ADMIN_SESSION_SECRET;
+  const originalPin = process.env.ADMIN_PIN;
+
+  try {
+    (process.env as any).NODE_ENV = 'production';
+    delete process.env.ADMIN_SESSION_SECRET;
+    delete process.env.ADMIN_PIN;
+    delete process.env.ADMIN_SECURITY_PIN;
+
+    const { getAdminSessionSecret, getExpectedAdminPin, createAdminSessionToken: createProdToken, validateAdminPin: validateProdPin } = await import('../src/lib/auth-server');
+
+    const prodSecret = getAdminSessionSecret();
+    assert(
+      'Fail-Closed: Missing ADMIN_SESSION_SECRET returns null in production',
+      prodSecret === null,
+      'System strictly refuses to issue tokens with fallback secrets in production'
+    );
+
+    const tokenGenerated = createProdToken();
+    assert(
+      'Fail-Closed: Token generation fails when session secret is absent in production',
+      tokenGenerated === null,
+      'Cannot generate session token in production without configured secret'
+    );
+
+    const prodPin = getExpectedAdminPin();
+    assert(
+      'Fail-Closed: Missing ADMIN_PIN returns null in production',
+      prodPin === null,
+      'System refuses hardcoded PIN fallback in production'
+    );
+
+    const pinValidates = validateProdPin('9829');
+    assert(
+      'Fail-Closed: Hardcoded 9829 PIN rejected in production when ADMIN_PIN env is missing',
+      pinValidates === false,
+      'PIN validation strictly fails closed when environment variable is unset'
+    );
+
+    // Test B: When configured with strong secret and custom PIN in production
+    process.env.ADMIN_SESSION_SECRET = 'a-very-strong-production-session-secret-with-more-than-32-chars-2026';
+    process.env.ADMIN_PIN = '4891';
+
+    const configuredSecret = getAdminSessionSecret();
+    assert(
+      'Configured Secret: Strong production secret accepted',
+      configuredSecret === 'a-very-strong-production-session-secret-with-more-than-32-chars-2026',
+      'Production secret >= 32 characters verified'
+    );
+
+    const validCustomPin = validateProdPin('4891');
+    const invalidDefaultPin = validateProdPin('9829');
+    assert(
+      'Custom PIN Validated: Custom PIN accepted, old default rejected',
+      validCustomPin === true && invalidDefaultPin === false,
+      'Custom ADMIN_PIN verified, default 9829 is rejected'
+    );
+
+    const validToken = createProdToken();
+    assert(
+      'Token Lifecycle: Generated token verifies with configured secret',
+      validToken !== null && verifyAdminSessionToken(validToken),
+      'HMAC token generation and verification succeeded with custom secret'
+    );
+
+  } finally {
+    // Restore environment
+    (process.env as any).NODE_ENV = originalEnv;
+    if (originalSecret) process.env.ADMIN_SESSION_SECRET = originalSecret;
+    else delete process.env.ADMIN_SESSION_SECRET;
+    if (originalPin) process.env.ADMIN_PIN = originalPin;
+    else delete process.env.ADMIN_PIN;
+  }
+
+  // -------------------------------------------------------------
+  // TEST GROUP 12: SUPER-ADMIN SERVER-SIDE PERSISTENCE & MUTATION HARDENING
+  // -------------------------------------------------------------
+  console.log('\n[Group 12: Super-Admin Server-Side Persistence & Quota Management]');
+  const {
+    updateMerchantStatusAction,
+    updateMerchantQuotaAction,
+    updateMerchantPlanAction,
+    getSuperAdminMerchantsAction,
+  } = await import('../src/app/actions/admin');
+
+  // Test A: Unauthorized mutation rejection (when no admin cookie exists)
+  const unauthStatusRes = await updateMerchantStatusAction('merch-nahata', 'suspended');
+  assert(
+    'Super-Admin Auth Barrier: Unauthenticated status change rejected',
+    unauthStatusRes.success === false,
+    'Server action rejects mutation without verified admin session'
+  );
+
+  const unauthQuotaRes = await updateMerchantQuotaAction('merch-nahata', 500);
+  assert(
+    'Super-Admin Auth Barrier: Unauthenticated quota change rejected',
+    unauthQuotaRes.success === false,
+    'Server action rejects quota mutation without verified admin session'
+  );
+
+  // Test B: Input validation tests (invalid status, negative quota)
+  const invalidStatusRes = await updateMerchantStatusAction('merch-nahata', 'deleted' as any);
+  assert(
+    'Super-Admin Validation: Reject invalid status value',
+    invalidStatusRes.success === false,
+    'Only active, pending, suspended allowed'
+  );
+
+  const invalidQuotaRes1 = await updateMerchantQuotaAction('merch-nahata', -100);
+  const invalidQuotaRes2 = await updateMerchantQuotaAction('merch-nahata', 0);
+  const invalidQuotaRes3 = await updateMerchantQuotaAction('merch-nahata', 1.5);
+  assert(
+    'Super-Admin Validation: Reject non-positive or non-integer quota',
+    invalidQuotaRes1.success === false && invalidQuotaRes2.success === false && invalidQuotaRes3.success === false,
+    'Only positive integers up to 100,000 permitted'
+  );
+
+  // Test C: Production fail-closed test for super-admin mutations when Supabase is missing
+  const prevEnv = process.env.NODE_ENV;
+  try {
+    (process.env as any).NODE_ENV = 'production';
+    // When Supabase is not connected in test runner, mutation in production must fail closed
+    const prodQuotaRes = await updateMerchantQuotaAction('merch-nahata', 500);
+    assert(
+      'Super-Admin Fail-Closed: Quota change fails closed in production when DB unavailable',
+      prodQuotaRes.success === false,
+      'Does not silently pretend success without real database persistence'
+    );
+  } finally {
+    (process.env as any).NODE_ENV = prevEnv;
+  }
+
+  // -------------------------------------------------------------
+  // TEST GROUP 13: SERVER-SIDE PRE-ASSIGNED PRIZE PERSISTENCE
+  // -------------------------------------------------------------
+  console.log('[Group 13: Server-Side Pre-Assigned Prize Consistency]');
+  const { getOrAssignSessionPrizeAction } = await import('../src/app/actions/campaign');
+  const session1 = await getOrAssignSessionPrizeAction('client_test_sess_001', 'nahata');
+  assert(
+    'Server Prize Assignment: Returns valid prize for new session',
+    Boolean(session1.prize && session1.prize.id),
+    `Assigned prize: ${session1.prize.title}`
+  );
+
+  // Simulate page refresh with same session ID
+  const sessionRefresh = await getOrAssignSessionPrizeAction('client_test_sess_001', 'nahata');
+  assert(
+    'Server Prize Consistency: Prize remains identical on page refresh',
+    sessionRefresh.prize.id === session1.prize.id,
+    `Prize locked to ${sessionRefresh.prize.id} across reloads`
   );
 
   // -------------------------------------------------------------

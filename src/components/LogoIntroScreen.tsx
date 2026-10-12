@@ -16,6 +16,7 @@ export const LogoIntroScreen: React.FC<LogoIntroScreenProps> = ({
 }) => {
   const handleProceed = () => {
     try {
+      soundEngine.startFestiveBGM();
       soundEngine.playCelebrationChime();
     } catch {}
     onEnter();

@@ -452,17 +452,10 @@ export default function PlatformLandingPage() {
                 <div className="pt-2 border-t border-slate-800 flex items-center justify-between text-xs">
                   <Link
                     href={`/store/${m.slug}`}
-                    className="text-amber-300 hover:text-amber-200 font-bold flex items-center gap-1"
+                    className="text-amber-300 hover:text-amber-200 font-bold flex items-center gap-1 w-full justify-between"
                   >
                     <span>ऑफर पेज देखें</span>
                     <ArrowRight className="w-3 h-3" />
-                  </Link>
-
-                  <Link
-                    href={`/admin?store=${m.slug}`}
-                    className="text-slate-400 hover:text-white"
-                  >
-                    एडमिन
                   </Link>
                 </div>
               </div>

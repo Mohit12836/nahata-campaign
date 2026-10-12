@@ -29,3 +29,41 @@ html, body {
 img, video, svg, canvas, iframe {
   max-width: 100%;
 }
+
+@keyframes logoZoomIntro {
+  0% {
+    transform: scale(0.3);
+    opacity: 0;
+  }
+  45% {
+    transform: scale(1.15);
+    opacity: 1;
+  }
+  70% {
+    transform: scale(0.95);
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes goldenShine {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+.animate-logo-intro {
+  animation: logoZoomIntro 1.2s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+.shine-effect {
+  background: linear-gradient(90deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.4) 50%, rgba(255,255,255,0) 100%);
+  background-size: 200% 100%;
+  animation: goldenShine 2.5s infinite;
+}
+

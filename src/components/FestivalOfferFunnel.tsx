@@ -14,6 +14,9 @@ import { FestivalHeader } from './FestivalHeader';
 import { OfferPrizePreview } from './OfferPrizePreview';
 import { ScratchCard } from './ScratchCard';
 import { SpinWheel } from './SpinWheel';
+import { LogoIntroScreen } from './LogoIntroScreen';
+import { NavratriBlessingScreen } from './NavratriBlessingScreen';
+import { OfferShowcaseScreen } from './OfferShowcaseScreen';
 import { OfferClaimModal } from './OfferClaimModal';
 import { WeeklySaleClubStep } from './WeeklySaleClubStep';
 import { CouponCard } from './CouponCard';
@@ -21,7 +24,10 @@ import { CustomerDashboard } from './CustomerDashboard';
 import { OfferRulesSheet } from './OfferRulesSheet';
 
 export enum FunnelStage {
-  PLAY = 'PLAY',
+  LOGO_INTRO = 'LOGO_INTRO',
+  NAVRATRI_GREETING = 'NAVRATRI_GREETING',
+  OFFER_SHOWCASE = 'OFFER_SHOWCASE',
+  SCRATCH_PLAY = 'SCRATCH_PLAY',
   CLAIM = 'CLAIM',
   WEEKLY_CLUB = 'WEEKLY_CLUB',
   COUPON = 'COUPON',
@@ -39,8 +45,8 @@ export default function FestivalOfferFunnel({
   prizes = INITIAL_PRIZES,
   targetPrize,
 }: FestivalOfferFunnelProps) {
-  // Funnel State Machine: PLAY -> CLAIM -> WEEKLY_CLUB -> COUPON -> DASHBOARD
-  const [stage, setStage] = useState<FunnelStage>(FunnelStage.PLAY);
+  // Funnel State Machine: LOGO_INTRO -> NAVRATRI_GREETING -> OFFER_SHOWCASE -> SCRATCH_PLAY -> CLAIM -> WEEKLY_CLUB -> COUPON -> DASHBOARD
+  const [stage, setStage] = useState<FunnelStage>(FunnelStage.LOGO_INTRO);
   const [gameMode, setGameMode] = useState<'scratch' | 'spin'>('scratch');
   const [wonPrize, setWonPrize] = useState<Prize | null>(null);
   const [wonCoupon, setWonCoupon] = useState<Coupon | null>(null);
@@ -152,7 +158,9 @@ export default function FestivalOfferFunnel({
   return (
     <div
       className={`w-full max-w-md mx-auto bg-gradient-to-b from-[#26030A] via-[#35050D] to-[#120104] text-[#FFF4D8] relative flex flex-col justify-between selection:bg-[#FFC857] selection:text-[#26030A] shadow-2xl ${
-        stage === FunnelStage.PLAY ? 'h-[100dvh] max-h-[100dvh] overflow-hidden' : 'min-h-[100dvh] overflow-y-auto pb-6'
+        stage === FunnelStage.SCRATCH_PLAY || stage === FunnelStage.LOGO_INTRO
+          ? 'h-[100dvh] max-h-[100dvh] overflow-hidden'
+          : 'min-h-[100dvh] overflow-y-auto pb-6'
       }`}
     >
       {/* Ambient Festive Lighting Glow */}
@@ -162,9 +170,40 @@ export default function FestivalOfferFunnel({
       {/* Main Viewport Content */}
       <div className="flex-1 flex flex-col justify-between px-2.5 py-1 z-10 w-full max-w-md mx-auto">
         {/* ========================================================= */}
-        {/* STAGE 1: FESTIVAL ATTRACTION + OFFER + PLAY (Strict 100dvh) */}
+        {/* SCREEN 1: LOGO ZOOM IN/OUT GRAND INTRO                   */}
         {/* ========================================================= */}
-        {stage === FunnelStage.PLAY && (
+        {stage === FunnelStage.LOGO_INTRO && (
+          <LogoIntroScreen
+            storeName={campaign.store_name}
+            onEnter={() => setStage(FunnelStage.NAVRATRI_GREETING)}
+          />
+        )}
+
+        {/* ========================================================= */}
+        {/* SCREEN 2: NAVRATRI SHUBHKAMNAYE & BLESSINGS                */}
+        {/* ========================================================= */}
+        {stage === FunnelStage.NAVRATRI_GREETING && (
+          <NavratriBlessingScreen
+            campaign={campaign}
+            onProceed={() => setStage(FunnelStage.OFFER_SHOWCASE)}
+          />
+        )}
+
+        {/* ========================================================= */}
+        {/* SCREEN 3: OFFER SHOWCASE (DHAMAKA LIST)                   */}
+        {/* ========================================================= */}
+        {stage === FunnelStage.OFFER_SHOWCASE && (
+          <OfferShowcaseScreen
+            campaign={campaign}
+            prizes={prizes}
+            onStartGame={() => setStage(FunnelStage.SCRATCH_PLAY)}
+          />
+        )}
+
+        {/* ========================================================= */}
+        {/* SCREEN 4: LUCKY SCRATCH CARD & SPIN WHEEL PLAY             */}
+        {/* ========================================================= */}
+        {stage === FunnelStage.SCRATCH_PLAY && (
           <div className="flex flex-col justify-between h-full py-0.5 animate-in fade-in duration-300">
             {/* Top Compact Brand Header */}
             <FestivalHeader campaign={campaign} />
@@ -303,7 +342,7 @@ export default function FestivalOfferFunnel({
               onLogout={() => {
                 setWonCoupon(null);
                 setWonPrize(null);
-                setStage(FunnelStage.PLAY);
+                setStage(FunnelStage.LOGO_INTRO);
               }}
             />
           </div>

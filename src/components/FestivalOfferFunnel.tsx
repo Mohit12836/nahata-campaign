@@ -38,17 +38,15 @@ interface FestivalOfferFunnelProps {
   campaign?: Campaign;
   prizes?: Prize[];
   targetPrize?: Prize;
-  initialStage?: FunnelStage;
 }
 
 export default function FestivalOfferFunnel({
   campaign = INITIAL_CAMPAIGN,
   prizes = INITIAL_PRIZES,
   targetPrize,
-  initialStage = FunnelStage.SCRATCH_PLAY,
 }: FestivalOfferFunnelProps) {
-  // Funnel State Machine: Directly opens SCRATCH_PLAY unless specified
-  const [stage, setStage] = useState<FunnelStage>(initialStage);
+  // Funnel State Machine: LOGO_INTRO -> NAVRATRI_GREETING -> OFFER_SHOWCASE -> SCRATCH_PLAY -> CLAIM -> WEEKLY_CLUB -> COUPON -> DASHBOARD
+  const [stage, setStage] = useState<FunnelStage>(FunnelStage.LOGO_INTRO);
   const [gameMode, setGameMode] = useState<'scratch' | 'spin'>('scratch');
   const [wonPrize, setWonPrize] = useState<Prize | null>(null);
   const [wonCoupon, setWonCoupon] = useState<Coupon | null>(null);
@@ -159,7 +157,11 @@ export default function FestivalOfferFunnel({
 
   return (
     <div
-      className="w-full max-w-md mx-auto bg-gradient-to-b from-[#26030A] via-[#35050D] to-[#120104] text-[#FFF4D8] relative flex flex-col justify-between selection:bg-[#FFC857] selection:text-[#26030A] shadow-2xl min-h-[100dvh] overflow-x-hidden"
+      className={`w-full max-w-md mx-auto bg-gradient-to-b from-[#26030A] via-[#35050D] to-[#120104] text-[#FFF4D8] relative flex flex-col justify-between selection:bg-[#FFC857] selection:text-[#26030A] shadow-2xl ${
+        stage === FunnelStage.SCRATCH_PLAY || stage === FunnelStage.LOGO_INTRO
+          ? 'h-[100dvh] max-h-[100dvh] overflow-hidden'
+          : 'min-h-[100dvh] overflow-y-auto pb-6'
+      }`}
     >
       {/* Ambient Festive Lighting Glow */}
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-80 h-64 bg-[#FFC857]/15 blur-3xl pointer-events-none rounded-full" />

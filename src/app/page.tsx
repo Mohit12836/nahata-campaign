@@ -125,16 +125,10 @@ export default function PlatformLandingPage() {
 
           <div className="flex items-center gap-2 sm:gap-3">
             <Link
-              href="/scratch"
-              className="text-xs font-bold text-white bg-gradient-to-r from-rose-600 to-amber-600 hover:brightness-110 px-3 py-1.5 rounded-xl transition-all shadow-md font-black flex items-center gap-1.5 border border-amber-300/40"
-            >
-              <span>🎟️ स्क्रैच & विन</span>
-            </Link>
-            <Link
               href="/store/nahata"
-              className="text-xs font-bold text-amber-950 bg-gradient-to-r from-amber-400 via-yellow-400 to-amber-500 hover:from-amber-300 hover:to-yellow-300 px-3 py-1.5 rounded-xl transition-all shadow-md font-black flex items-center gap-1.5"
+              className="text-xs font-bold text-amber-950 bg-gradient-to-r from-amber-400 via-yellow-400 to-amber-500 hover:from-amber-300 hover:to-yellow-300 px-3.5 py-1.5 rounded-xl transition-all shadow-md font-black flex items-center gap-1.5"
             >
-              <span>🎉 लकी ड्रॉ</span>
+              <span>🎉 लकी ड्रॉ खेलें</span>
             </Link>
           </div>
         </div>

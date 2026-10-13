@@ -22,7 +22,6 @@ import { WeeklySaleClubStep } from './WeeklySaleClubStep';
 import { CouponCard } from './CouponCard';
 import { CustomerDashboard } from './CustomerDashboard';
 import { OfferRulesSheet } from './OfferRulesSheet';
-import { GroupShareScreen } from './GroupShareScreen';
 
 export enum FunnelStage {
   LOGO_INTRO = 'LOGO_INTRO',
@@ -31,11 +30,9 @@ export enum FunnelStage {
   SCRATCH_PLAY = 'SCRATCH_PLAY',
   CLAIM = 'CLAIM',
   WEEKLY_CLUB = 'WEEKLY_CLUB',
-  GROUP_SHARE = 'GROUP_SHARE',
   COUPON = 'COUPON',
   DASHBOARD = 'DASHBOARD',
 }
-
 
 interface FestivalOfferFunnelProps {
   campaign?: Campaign;
@@ -160,11 +157,7 @@ export default function FestivalOfferFunnel({
 
   return (
     <div
-      className={`w-full max-w-md mx-auto bg-gradient-to-b from-[#26030A] via-[#35050D] to-[#120104] text-[#FFF4D8] relative flex flex-col justify-between selection:bg-[#FFC857] selection:text-[#26030A] shadow-2xl ${
-        stage === FunnelStage.SCRATCH_PLAY || stage === FunnelStage.LOGO_INTRO
-          ? 'h-[100dvh] max-h-[100dvh] overflow-hidden'
-          : 'min-h-[100dvh] overflow-y-auto pb-6'
-      }`}
+      className="w-full max-w-md mx-auto bg-gradient-to-b from-[#26030A] via-[#35050D] to-[#120104] text-[#FFF4D8] relative flex flex-col justify-between selection:bg-[#FFC857] selection:text-[#26030A] shadow-2xl min-h-[100dvh] overflow-x-hidden"
     >
       {/* Ambient Festive Lighting Glow */}
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-80 h-64 bg-[#FFC857]/15 blur-3xl pointer-events-none rounded-full" />
@@ -305,22 +298,10 @@ export default function FestivalOfferFunnel({
             <WeeklySaleClubStep
               campaign={campaign}
               coupon={wonCoupon}
-              onContinue={() => setStage(FunnelStage.GROUP_SHARE)}
+              onContinue={() => setStage(FunnelStage.COUPON)}
             />
           </div>
         )}
-
-        {/* ========================================================= */}
-        {/* STAGE 2.8: 5-GROUP SHARE GATE (Unlock Coupon)             */}
-        {/* ========================================================= */}
-        {stage === FunnelStage.GROUP_SHARE && wonCoupon && (
-          <GroupShareScreen
-            coupon={wonCoupon}
-            campaign={campaign}
-            onUnlocked={() => setStage(FunnelStage.COUPON)}
-          />
-        )}
-
 
         {/* ========================================================= */}
         {/* STAGE 3: DIGITAL COUPON + STORE VISIT + SHARING            */}

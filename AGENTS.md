@@ -32,3 +32,26 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 5. **Mandatory 5-Line Task Summary:**
    - Conclude each task with: Task Scope, Files Inspected/Changed, Verification Exit Code & Duration, and Measured Elapsed Breakdown.
 <!-- END:project-execution-protocol -->
+
+<!-- BEGIN:retail-campaign-funnel-rules -->
+## Retail Campaign & Funnel UX Invariants
+
+1. **Strict Single-Viewport Mobile Ergonomics:**
+   - Every funnel step (Intro -> Greeting -> Prize Showcase -> Game -> Claim Form -> Viral Gate -> Coupon Ticket) must comfortably fit mobile viewports (`max-w-sm`, tight vertical padding `py-1` to `py-3`, `max-h-[100dvh]`).
+   - Never let modal cards or coupon tickets exceed the viewport or require awkward scrolling on standard mobile screens (360px–414px width).
+
+2. **Viral Verification & Channel Gating Architecture:**
+   - When mandatory social shares are specified (e.g. 5 WhatsApp shares), show clear progress (`0/5`, `1/5` ... `5/5`) with visual progress bars.
+   - Gated steps (Coupon Code, Next CTA) must stay strictly locked with haptic/visual feedback until both share count and community channel follow requirements are fulfilled.
+   - Persist share progress and channel clicks in `localStorage` keyed by coupon code to prevent customer frustration on refresh.
+
+3. **Direct Merchant WhatsApp Routing & Dashboard Continuity:**
+   - The primary CTA on unlocked coupons must directly generate an encoded `wa.me/<merchant_phone>?text=...` message containing:
+     - Customer name & phone number
+     - Verified unique coupon code
+     - Prize title and store location
+   - Always provide a secondary path leading to the customer's permanent wallet/dashboard.
+
+4. **Production Fail-Safe Authentication & Config:**
+   - Never hardcode blocking fail-closed checks that reject users when optional third-party cloud database variables are unset on deployment platforms (e.g. Vercel). Always provide graceful fallback handling to in-memory CRM + Google Sheets auto-sync.
+<!-- END:retail-campaign-funnel-rules -->

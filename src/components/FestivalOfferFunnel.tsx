@@ -38,15 +38,17 @@ interface FestivalOfferFunnelProps {
   campaign?: Campaign;
   prizes?: Prize[];
   targetPrize?: Prize;
+  initialStage?: FunnelStage;
 }
 
 export default function FestivalOfferFunnel({
   campaign = INITIAL_CAMPAIGN,
   prizes = INITIAL_PRIZES,
   targetPrize,
+  initialStage = FunnelStage.SCRATCH_PLAY,
 }: FestivalOfferFunnelProps) {
-  // Funnel State Machine: LOGO_INTRO -> NAVRATRI_GREETING -> OFFER_SHOWCASE -> SCRATCH_PLAY -> CLAIM -> WEEKLY_CLUB -> COUPON -> DASHBOARD
-  const [stage, setStage] = useState<FunnelStage>(FunnelStage.LOGO_INTRO);
+  // Funnel State Machine: Directly opens SCRATCH_PLAY unless specified
+  const [stage, setStage] = useState<FunnelStage>(initialStage);
   const [gameMode, setGameMode] = useState<'scratch' | 'spin'>('scratch');
   const [wonPrize, setWonPrize] = useState<Prize | null>(null);
   const [wonCoupon, setWonCoupon] = useState<Coupon | null>(null);

@@ -25,7 +25,8 @@ import {
 import { soundEngine } from '@/lib/audio';
 import { claimCampaignPrizeAction } from '@/app/actions/campaign';
 import { INITIAL_CAMPAIGN } from '@/lib/mock-data';
-import { Coupon } from '@/types';
+import { Coupon, Prize } from '@/types';
+import { ScratchCard } from '@/components/ScratchCard';
 
 // Structured coupon probabilities requested by user:
 // 85% -> ₹50 Coupon
@@ -98,24 +99,10 @@ export default function ScratchDirectClient() {
   const [claimedCoupon, setClaimedCoupon] = useState<Coupon | null>(null);
   const [copiedCode, setCopiedCode] = useState(false);
 
-  // Scratch Canvas Refs
-  const canvasRef = useRef<HTMLCanvasElement | null>(null);
-  const isDrawingRef = useRef(false);
-  const lastPointRef = useRef<{ x: number; y: number } | null>(null);
-
-  // Pick random prize on mount
+  // Pick random prize on mount & ensure fresh scratchable card
   useEffect(() => {
     const picked = pickScratchPrize();
     setSelectedPrize(picked);
-
-    // Check if user already claimed before
-    try {
-      const saved = localStorage.getItem('nahata_direct_scratch_coupon');
-      if (saved) {
-        setClaimedCoupon(JSON.parse(saved));
-        setIsScratched(true);
-      }
-    } catch {}
   }, []);
 
   const triggerCelebration = useCallback(() => {
@@ -129,175 +116,6 @@ export default function ScratchDirectClient() {
       });
     } catch {}
   }, []);
-
-  // Initialize Canvas
-  const initCanvas = useCallback(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const ctx = canvas.getContext('2d', { willReadFrequently: true });
-    if (!ctx) return;
-
-    const rect = canvas.getBoundingClientRect();
-    const dpr = window.devicePixelRatio || 1;
-    canvas.width = rect.width * dpr;
-    canvas.height = rect.height * dpr;
-
-    ctx.setTransform(1, 0, 0, 1, 0, 0);
-    ctx.scale(dpr, dpr);
-
-    // Golden metallic foil
-    const grad = ctx.createLinearGradient(0, 0, rect.width, rect.height);
-    grad.addColorStop(0, '#D4AF37');
-    grad.addColorStop(0.25, '#FFF2B2');
-    grad.addColorStop(0.5, '#FFC857');
-    grad.addColorStop(0.75, '#B8860B');
-    grad.addColorStop(1, '#FFE89B');
-
-    ctx.fillStyle = grad;
-    ctx.fillRect(0, 0, rect.width, rect.height);
-
-    // Decorative diagonals
-    ctx.strokeStyle = 'rgba(255, 255, 255, 0.4)';
-    ctx.lineWidth = 1.5;
-    for (let i = -rect.height; i < rect.width + rect.height; i += 22) {
-      ctx.beginPath();
-      ctx.moveTo(i, 0);
-      ctx.lineTo(i + rect.height, rect.height);
-      ctx.stroke();
-    }
-
-    // Border
-    ctx.strokeStyle = '#FFFFFF';
-    ctx.lineWidth = 2.5;
-    ctx.strokeRect(4, 4, rect.width - 8, rect.height - 8);
-
-    // Texts on scratch overlay
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
-
-    ctx.fillStyle = '#3A060F';
-    ctx.font = 'bold 18px system-ui, -apple-system, sans-serif';
-    ctx.fillText('🎟️ लकी स्क्रैच कार्ड', rect.width / 2, rect.height / 2 - 20);
-
-    ctx.fillStyle = '#6B0D1B';
-    ctx.font = 'bold 12.5px system-ui, -apple-system, sans-serif';
-    ctx.fillText('👉 उंगली से यहाँ स्क्रैच करें 👈', rect.width / 2, rect.height / 2 + 8);
-
-    ctx.fillStyle = '#86152B';
-    ctx.font = '600 11px system-ui, -apple-system, sans-serif';
-    ctx.fillText('🎁 हर कूपन में पक्का इनाम छुपा है!', rect.width / 2, rect.height / 2 + 28);
-  }, []);
-
-  useEffect(() => {
-    if (!isScratched) {
-      initCanvas();
-      const onResize = () => {
-        if (!isScratched) initCanvas();
-      };
-      window.addEventListener('resize', onResize);
-      return () => window.removeEventListener('resize', onResize);
-    }
-  }, [initCanvas, isScratched]);
-
-  const handleRevealAll = useCallback(() => {
-    if (isScratched) return;
-    setIsScratched(true);
-    setScratchPercent(100);
-    triggerCelebration();
-  }, [isScratched, triggerCelebration]);
-
-  const checkPercent = useCallback(() => {
-    const canvas = canvasRef.current;
-    if (!canvas || isScratched) return;
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return;
-
-    const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-    const totalPixels = imgData.data.length / 4;
-    let transparent = 0;
-    const stride = 14;
-
-    for (let i = 3; i < imgData.data.length; i += 4 * stride) {
-      if (imgData.data[i] === 0) transparent++;
-    }
-
-    const sampled = totalPixels / stride;
-    const pct = Math.round((transparent / sampled) * 100);
-    setScratchPercent(pct);
-
-    if (pct >= 38 && !isScratched) {
-      handleRevealAll();
-    }
-  }, [isScratched, handleRevealAll]);
-
-  const performScratch = useCallback(
-    (clientX: number, clientY: number) => {
-      if (isScratched) return;
-      const canvas = canvasRef.current;
-      if (!canvas) return;
-      const ctx = canvas.getContext('2d');
-      if (!ctx) return;
-
-      const rect = canvas.getBoundingClientRect();
-      const x = clientX - rect.left;
-      const y = clientY - rect.top;
-
-      ctx.globalCompositeOperation = 'destination-out';
-      ctx.lineWidth = 44;
-      ctx.lineCap = 'round';
-      ctx.lineJoin = 'round';
-
-      if (lastPointRef.current) {
-        ctx.beginPath();
-        ctx.moveTo(lastPointRef.current.x, lastPointRef.current.y);
-        ctx.lineTo(x, y);
-        ctx.stroke();
-      } else {
-        ctx.beginPath();
-        ctx.arc(x, y, 22, 0, Math.PI * 2);
-        ctx.fill();
-      }
-
-      lastPointRef.current = { x, y };
-      checkPercent();
-    },
-    [isScratched, checkPercent]
-  );
-
-  // Mouse Handlers
-  const onMouseDown = (e: React.MouseEvent<HTMLCanvasElement>) => {
-    isDrawingRef.current = true;
-    lastPointRef.current = null;
-    performScratch(e.clientX, e.clientY);
-  };
-  const onMouseMove = (e: React.MouseEvent<HTMLCanvasElement>) => {
-    if (!isDrawingRef.current) return;
-    performScratch(e.clientX, e.clientY);
-  };
-  const onMouseUp = () => {
-    isDrawingRef.current = false;
-    lastPointRef.current = null;
-  };
-
-  // Touch Handlers
-  const onTouchStart = (e: React.TouchEvent<HTMLCanvasElement>) => {
-    e.preventDefault();
-    isDrawingRef.current = true;
-    lastPointRef.current = null;
-    if (e.touches.length > 0) {
-      performScratch(e.touches[0].clientX, e.touches[0].clientY);
-    }
-  };
-  const onTouchMove = (e: React.TouchEvent<HTMLCanvasElement>) => {
-    e.preventDefault();
-    if (!isDrawingRef.current || e.touches.length === 0) return;
-    performScratch(e.touches[0].clientX, e.touches[0].clientY);
-  };
-  const onTouchEnd = (e: React.TouchEvent<HTMLCanvasElement>) => {
-    e.preventDefault();
-    isDrawingRef.current = false;
-    lastPointRef.current = null;
-  };
 
   const toggleSound = () => {
     const nextMuted = soundEngine.toggleMute();
@@ -508,81 +326,28 @@ export default function ScratchDirectClient() {
 
         {/* Scratch Card Section or Claimed Card */}
         {!claimedCoupon ? (
-          <div className="relative w-full max-w-[360px] mx-auto">
-            {/* Outer Golden Frame */}
-            <div className="relative p-2.5 rounded-3xl bg-gradient-to-br from-[#FFC857] via-[#FFB020] to-[#B8860B] shadow-2xl border-2 border-[#FFE89B]">
-              <div className="relative w-full h-[190px] sm:h-[205px] rounded-2xl overflow-hidden bg-gradient-to-br from-[#26030A] via-[#5B0716] to-[#26030A] border border-[#FFC857]/40 flex items-center justify-center p-4">
-                {/* UNDERNEATH: REVEALED PRIZE CARD */}
-                <div className="text-center flex flex-col items-center justify-center space-y-2 w-full animate-in fade-in duration-300">
-                  <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-[#FFC857] to-[#FFE89B] text-[#26030A] flex items-center justify-center shadow-lg animate-bounce">
-                    <Trophy className="w-5 h-5" />
-                  </div>
-
-                  <div className="space-y-1 max-w-[280px]">
-                    <span className="inline-block px-2.5 py-0.5 rounded-full text-[9.5px] font-black uppercase tracking-wide bg-[#FFC857]/20 text-[#FFC857] border border-[#FFC857]/40">
-                      🎉 बधाई हो! आपका लकी इनाम:
-                    </span>
-                    <h3 className="text-lg sm:text-xl font-black text-[#FFF4D8] drop-shadow-md">
-                      {selectedPrize.label}
-                    </h3>
-                    <p className="text-[11px] text-[#E8D9D0] font-medium leading-tight">
-                      {selectedPrize.tagline}
-                    </p>
-                  </div>
-
-                  <span className="inline-flex items-center gap-1 text-[10px] font-bold text-[#17864B] bg-white px-2.5 py-0.5 rounded-full shadow-xs">
-                    <Sparkles className="w-3 h-3 text-[#FFB020]" /> + गिफ्ट हैम्पर निश्चित!
-                  </span>
-                </div>
-
-                {/* OVERLAY: SCRATCH CANVAS */}
-                <canvas
-                  ref={canvasRef}
-                  style={{ touchAction: 'none' }}
-                  className={`absolute inset-0 w-full h-full cursor-pointer transition-opacity duration-300 ${
-                    isScratched ? 'opacity-0 pointer-events-none' : 'opacity-100'
-                  }`}
-                  onMouseDown={onMouseDown}
-                  onMouseMove={onMouseMove}
-                  onMouseUp={onMouseUp}
-                  onMouseLeave={onMouseUp}
-                  onTouchStart={onTouchStart}
-                  onTouchMove={onTouchMove}
-                  onTouchEnd={onTouchEnd}
-                />
-              </div>
-
-              {/* Scratch Progress & Auto Reveal Button */}
-              {!isScratched ? (
-                <div className="mt-2 space-y-1.5">
-                  <div className="flex items-center justify-between text-[10.5px] text-[#26030A] font-black px-1">
-                    <span className="flex items-center gap-1">
-                      <Gift className="w-3.5 h-3.5" /> स्क्रैच प्रगति:
-                    </span>
-                    <div className="w-28 bg-[#26030A]/20 rounded-full h-1.5 overflow-hidden">
-                      <div
-                        className="bg-[#26030A] h-full transition-all duration-150"
-                        style={{ width: `${Math.min(100, scratchPercent * 2.6)}%` }}
-                      />
-                    </div>
-                    <span>{Math.min(100, Math.round(scratchPercent * 2.6))}%</span>
-                  </div>
-
-                  <button
-                    type="button"
-                    onClick={handleRevealAll}
-                    className="w-full py-1.5 px-3 rounded-xl bg-[#26030A]/20 hover:bg-[#26030A]/30 text-[#26030A] text-xs font-black flex items-center justify-center gap-1.5 transition-all border border-[#26030A]/20 active:scale-98"
-                  >
-                    <Wand2 className="w-3.5 h-3.5" />
-                    <span>पूरा कार्ड रिवील करें (Auto Reveal)</span>
-                  </button>
-                </div>
-              ) : (
-                <div className="mt-1.5 text-center text-[10.5px] font-black text-[#26030A] animate-pulse">
-                  ✨ इनाम अनलॉक हो गया! नीचे नाम व मोबाइल दर्ज करके कूपन प्राप्त करें 👇
-                </div>
-              )}
-            </div>
+          <div className="w-full max-w-[360px] mx-auto">
+            <ScratchCard
+              prize={{
+                id: selectedPrize.id,
+                campaign_id: INITIAL_CAMPAIGN.id,
+                title: selectedPrize.label,
+                discount_type: 'percentage',
+                discount_value: selectedPrize.amount,
+                min_order_value: 1000,
+                probability_weight: selectedPrize.probability,
+                total_quantity: 1000,
+                claimed_quantity: 1,
+                is_active: true,
+                terms_and_conditions: `${selectedPrize.tagline} • ₹1,000 की खरीदारी पर ₹50 EXTRA`,
+                badge_color: selectedPrize.color,
+              }}
+              onScratchComplete={() => {
+                setIsScratched(true);
+                setScratchPercent(100);
+                triggerCelebration();
+              }}
+            />
           </div>
         ) : null}
 

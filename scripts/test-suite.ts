@@ -136,6 +136,18 @@ async function runTests() {
     `Selected in-stock prize "${selectedPrize.title}" instead of exhausted prize`
   );
 
+  let rejectsAllExhausted = false;
+  try {
+    selectWinningPrize([mockPrizes[0]]);
+  } catch {
+    rejectsAllExhausted = true;
+  }
+  assert(
+    'All Exhausted Inventory Fails Closed',
+    rejectsAllExhausted,
+    'No exhausted or inactive prize is returned when inventory is unavailable'
+  );
+
   // -------------------------------------------------------------
   // TEST GROUP 4: CONCURRENT CLAIM SIMULATION
   // -------------------------------------------------------------

@@ -559,7 +559,7 @@ async function runTests() {
   const sessionRefresh = await getOrAssignSessionPrizeAction('client_test_sess_001', 'nahata');
   assert(
     'Server Prize Consistency: Prize remains identical on page refresh',
-    sessionRefresh.prize.id === session1.prize.id,
+    Boolean(session1.prize?.id) && sessionRefresh.prize?.id === session1.prize.id,
     `Prize locked to ${sessionRefresh.prize.id} across reloads`
   );
 

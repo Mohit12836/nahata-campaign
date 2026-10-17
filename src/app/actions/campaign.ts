@@ -95,7 +95,7 @@ export async function claimCampaignPrizeAction(input: ClaimPrizeInput): Promise<
           p_city: input.city || 'कुशलगढ़',
           p_category: input.businessCategory || 'घरेलू उपभोक्ता (Family / Home)',
           p_game_type: input.gameType,
-          p_consent: true,
+          p_consent: input.consent,
           p_target_prize_id: input.targetPrizeId || null,
         });
 

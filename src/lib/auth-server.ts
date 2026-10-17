@@ -7,33 +7,40 @@ const ADMIN_SESSION_COOKIE = 'nahata_admin_auth_token';
 const MIN_SECRET_LENGTH = 32;
 
 /**
- * Returns the session secret.
- * In production: strictly requires ADMIN_SESSION_SECRET with >= 32 chars; returns null if missing/weak (fail-closed).
- * In development: allows dev fallback with an explicit warning if unset.
+ * Returns the configured session secret.
+ * Production fails closed when ADMIN_SESSION_SECRET is missing or shorter than 32 characters.
+ * A development-only fallback keeps local work possible without weakening production.
  */
 export const getAdminSessionSecret = (): string | null => {
-  const secret = process.env.ADMIN_SESSION_SECRET;
+  const secret = process.env.ADMIN_SESSION_SECRET?.trim();
 
-  if (secret && secret.trim().length >= MIN_SECRET_LENGTH) {
-    return secret.trim();
+  if (secret && secret.length >= MIN_SECRET_LENGTH) {
+    return secret;
   }
 
-  // Fallback secret so admin login always works seamlessly even without Vercel env configured
+  if (process.env.NODE_ENV === 'production') {
+    return null;
+  }
+
   return 'nahata-general-stores-admin-session-secret-2026-secure-key';
 };
 
 /**
- * Returns the expected admin PIN.
- * Checks ADMIN_PIN or ADMIN_SECURITY_PIN, otherwise defaults to '9829'.
+ * Returns the configured admin PIN.
+ * Production fails closed when neither ADMIN_PIN nor ADMIN_SECURITY_PIN is configured.
+ * The local-development fallback must never be accepted in production.
  */
-export const getExpectedAdminPin = (): string => {
+export const getExpectedAdminPin = (): string | null => {
   const pin = process.env.ADMIN_PIN || process.env.ADMIN_SECURITY_PIN;
 
   if (pin && pin.trim().length > 0) {
     return pin.trim();
   }
 
-  // Default secure PIN for Nahata General Stores
+  if (process.env.NODE_ENV === 'production') {
+    return null;
+  }
+
   return '9829';
 };
 

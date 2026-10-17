@@ -111,7 +111,7 @@ export interface PlayAttempt {
 }
 
 export interface PlayResultResponse {
-  status: 'SUCCESS' | 'ALREADY_PLAYED' | 'ERROR';
+  status: 'SUCCESS' | 'ALREADY_PLAYED' | 'ERROR' | 'EXHAUSTED';
   message: string;
   prize?: Prize;
   coupon?: Coupon;

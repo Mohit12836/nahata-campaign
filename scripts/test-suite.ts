@@ -552,7 +552,7 @@ async function runTests() {
   assert(
     'Server Prize Assignment: Returns valid prize for new session',
     Boolean(session1.prize && session1.prize.id),
-    `Assigned prize: ${session1.prize.title}`
+    `Assigned prize: ${session1.prize?.title ?? 'unavailable'}`
   );
 
   // Simulate page refresh with same session ID
@@ -560,7 +560,7 @@ async function runTests() {
   assert(
     'Server Prize Consistency: Prize remains identical on page refresh',
     Boolean(session1.prize?.id) && sessionRefresh.prize?.id === session1.prize?.id,
-    `Prize locked to ${sessionRefresh.prize.id} across reloads`
+    `Prize locked to ${sessionRefresh.prize?.id ?? 'unavailable'} across reloads`
   );
 
   // -------------------------------------------------------------

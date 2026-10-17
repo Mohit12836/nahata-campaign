@@ -107,6 +107,7 @@ export default function FestivalOfferFunnel({
     phone: string;
     city: string;
     businessCategory: string;
+    consent: boolean;
   }) => {
     setIsSubmitting(true);
     setErrorMessage(null);
@@ -119,7 +120,7 @@ export default function FestivalOfferFunnel({
         city: formData.city,
         businessCategory: formData.businessCategory,
         gameType: gameMode,
-        consent: true,
+        consent: formData.consent,
         targetPrizeId: activePrize.id,
       });
 

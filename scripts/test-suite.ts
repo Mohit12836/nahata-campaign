@@ -415,7 +415,7 @@ async function runTests() {
   const originalPin = process.env.ADMIN_PIN;
 
   try {
-    process.env.NODE_ENV = 'production';
+    Reflect.set(process.env, 'NODE_ENV', 'production');
     delete process.env.ADMIN_SESSION_SECRET;
     delete process.env.ADMIN_PIN;
     delete process.env.ADMIN_SECURITY_PIN;
@@ -478,7 +478,8 @@ async function runTests() {
 
   } finally {
     // Restore environment
-    process.env.NODE_ENV = originalEnv;
+    if (originalEnv === undefined) delete process.env.NODE_ENV;
+    else Reflect.set(process.env, 'NODE_ENV', originalEnv);
     if (originalSecret) process.env.ADMIN_SESSION_SECRET = originalSecret;
     else delete process.env.ADMIN_SESSION_SECRET;
     if (originalPin) process.env.ADMIN_PIN = originalPin;
@@ -540,7 +541,8 @@ async function runTests() {
       'Does not silently pretend success without real database persistence'
     );
   } finally {
-    process.env.NODE_ENV = prevEnv;
+    if (prevEnv === undefined) delete process.env.NODE_ENV;
+    else Reflect.set(process.env, 'NODE_ENV', prevEnv);
   }
 
   // -------------------------------------------------------------

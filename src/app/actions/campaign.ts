@@ -209,7 +209,7 @@ const sessionPrizeStore = new Map<string, Prize>();
 export async function getOrAssignSessionPrizeAction(
   clientSessionId?: string,
   campaignSlug?: string
-): Promise<{ prize: Prize; sessionId: string }> {
+): Promise<{ prize?: Prize; sessionId: string; unavailable?: boolean }> {
   let clientIp = '127.0.0.1';
   try {
     const reqHeaders = await headers();
@@ -220,13 +220,25 @@ export async function getOrAssignSessionPrizeAction(
     ? clientSessionId.trim()
     : `sess_${clientIp.replace(/[^a-zA-Z0-9]/g, '_')}_${campaignSlug || 'nahata'}`;
 
+  const prizes = getStoredPrizes();
+  const availablePrizes = prizes.filter(
+    (prize) => prize.is_active && prize.claimed_quantity < prize.total_quantity
+  );
+
   const existing = sessionPrizeStore.get(effectiveSessionId);
-  if (existing) {
+  if (
+    existing &&
+    availablePrizes.some((prize) => prize.id === existing.id)
+  ) {
     return { prize: existing, sessionId: effectiveSessionId };
   }
 
-  const prizes = getStoredPrizes();
-  const assigned = selectWinningPrize(prizes);
+  sessionPrizeStore.delete(effectiveSessionId);
+  if (availablePrizes.length === 0) {
+    return { sessionId: effectiveSessionId, unavailable: true };
+  }
+
+  const assigned = selectWinningPrize(availablePrizes);
   sessionPrizeStore.set(effectiveSessionId, assigned);
   return { prize: assigned, sessionId: effectiveSessionId };
 }

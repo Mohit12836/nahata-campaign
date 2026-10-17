@@ -71,7 +71,7 @@ export interface Customer {
   business_category: string;
   lead_source: string;
   whatsapp_consent: boolean;
-  consent_timestamp: string;
+  consent_timestamp?: string;
   created_at: string;
 }
 
@@ -111,7 +111,7 @@ export interface PlayAttempt {
 }
 
 export interface PlayResultResponse {
-  status: 'SUCCESS' | 'ALREADY_PLAYED' | 'ERROR';
+  status: 'SUCCESS' | 'ALREADY_PLAYED' | 'ERROR' | 'EXHAUSTED';
   message: string;
   prize?: Prize;
   coupon?: Coupon;

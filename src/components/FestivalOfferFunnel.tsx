@@ -107,6 +107,7 @@ export default function FestivalOfferFunnel({
     phone: string;
     city: string;
     businessCategory: string;
+    consent: boolean;
   }) => {
     setIsSubmitting(true);
     setErrorMessage(null);
@@ -119,13 +120,13 @@ export default function FestivalOfferFunnel({
         city: formData.city,
         businessCategory: formData.businessCategory,
         gameType: gameMode,
-        consent: true,
+        consent: formData.consent,
         targetPrizeId: activePrize.id,
       });
 
       setIsSubmitting(false);
 
-      if (response.status === 'ERROR') {
+      if (response.status === 'ERROR' || response.status === 'EXHAUSTED') {
         setErrorMessage(response.message || 'त्रुटि हुई। कृपया पुनः प्रयास करें।');
         return;
       }

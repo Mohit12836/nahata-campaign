@@ -95,7 +95,7 @@ export async function claimCampaignPrizeAction(input: ClaimPrizeInput): Promise<
           p_city: input.city || 'कुशलगढ़',
           p_category: input.businessCategory || 'घरेलू उपभोक्ता (Family / Home)',
           p_game_type: input.gameType,
-          p_consent: true,
+          p_consent: input.consent,
           p_target_prize_id: input.targetPrizeId || null,
         });
 
@@ -116,7 +116,17 @@ export async function claimCampaignPrizeAction(input: ClaimPrizeInput): Promise<
     }
   }
 
-  // 4. Server-Side Execution (Guaranteed Claim with Google Sheets & CRM Backup)
+  // Production must never issue a coupon from process-local/browser state.
+  // A missing or unavailable central database is an operational error, not a
+  // reason to silently switch to a non-durable fallback.
+  if (!result && process.env.NODE_ENV === 'production') {
+    return {
+      status: 'ERROR',
+      message: 'कूपन सेवा अभी उपलब्ध नहीं है। कृपया कुछ देर बाद पुनः प्रयास करें।',
+    };
+  }
+
+  // Development-only fallback for local UI/testing when Supabase is not configured.
   if (!result) {
     result = executeGamePlay(
       cleanPhone,
@@ -124,7 +134,8 @@ export async function claimCampaignPrizeAction(input: ClaimPrizeInput): Promise<
       input.city,
       input.businessCategory,
       input.gameType,
-      input.targetPrizeId
+      input.targetPrizeId,
+      input.consent
     );
   }
 
@@ -209,7 +220,7 @@ const sessionPrizeStore = new Map<string, Prize>();
 export async function getOrAssignSessionPrizeAction(
   clientSessionId?: string,
   campaignSlug?: string
-): Promise<{ prize: Prize; sessionId: string }> {
+): Promise<{ prize?: Prize; sessionId: string; unavailable?: boolean }> {
   let clientIp = '127.0.0.1';
   try {
     const reqHeaders = await headers();
@@ -220,13 +231,25 @@ export async function getOrAssignSessionPrizeAction(
     ? clientSessionId.trim()
     : `sess_${clientIp.replace(/[^a-zA-Z0-9]/g, '_')}_${campaignSlug || 'nahata'}`;
 
+  const prizes = getStoredPrizes();
+  const availablePrizes = prizes.filter(
+    (prize) => prize.is_active && prize.claimed_quantity < prize.total_quantity
+  );
+
   const existing = sessionPrizeStore.get(effectiveSessionId);
-  if (existing) {
+  if (
+    existing &&
+    availablePrizes.some((prize) => prize.id === existing.id)
+  ) {
     return { prize: existing, sessionId: effectiveSessionId };
   }
 
-  const prizes = getStoredPrizes();
-  const assigned = selectWinningPrize(prizes);
+  sessionPrizeStore.delete(effectiveSessionId);
+  if (availablePrizes.length === 0) {
+    return { sessionId: effectiveSessionId, unavailable: true };
+  }
+
+  const assigned = selectWinningPrize(availablePrizes);
   sessionPrizeStore.set(effectiveSessionId, assigned);
   return { prize: assigned, sessionId: effectiveSessionId };
 }

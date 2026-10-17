@@ -136,6 +136,18 @@ async function runTests() {
     `Selected in-stock prize "${selectedPrize.title}" instead of exhausted prize`
   );
 
+  let rejectsAllExhausted = false;
+  try {
+    selectWinningPrize([mockPrizes[0]]);
+  } catch {
+    rejectsAllExhausted = true;
+  }
+  assert(
+    'All Exhausted Inventory Fails Closed',
+    rejectsAllExhausted,
+    'No exhausted or inactive prize is returned when inventory is unavailable'
+  );
+
   // -------------------------------------------------------------
   // TEST GROUP 4: CONCURRENT CLAIM SIMULATION
   // -------------------------------------------------------------
@@ -403,7 +415,7 @@ async function runTests() {
   const originalPin = process.env.ADMIN_PIN;
 
   try {
-    (process.env as any).NODE_ENV = 'production';
+    Reflect.set(process.env, 'NODE_ENV', 'production');
     delete process.env.ADMIN_SESSION_SECRET;
     delete process.env.ADMIN_PIN;
     delete process.env.ADMIN_SECURITY_PIN;
@@ -466,7 +478,8 @@ async function runTests() {
 
   } finally {
     // Restore environment
-    (process.env as any).NODE_ENV = originalEnv;
+    if (originalEnv === undefined) Reflect.deleteProperty(process.env, 'NODE_ENV');
+    else Reflect.set(process.env, 'NODE_ENV', originalEnv);
     if (originalSecret) process.env.ADMIN_SESSION_SECRET = originalSecret;
     else delete process.env.ADMIN_SESSION_SECRET;
     if (originalPin) process.env.ADMIN_PIN = originalPin;
@@ -500,7 +513,7 @@ async function runTests() {
   );
 
   // Test B: Input validation tests (invalid status, negative quota)
-  const invalidStatusRes = await updateMerchantStatusAction('merch-nahata', 'deleted' as any);
+  const invalidStatusRes = await updateMerchantStatusAction('merch-nahata', 'deleted' as never);
   assert(
     'Super-Admin Validation: Reject invalid status value',
     invalidStatusRes.success === false,
@@ -519,7 +532,7 @@ async function runTests() {
   // Test C: Production fail-closed test for super-admin mutations when Supabase is missing
   const prevEnv = process.env.NODE_ENV;
   try {
-    (process.env as any).NODE_ENV = 'production';
+    Reflect.set(process.env, 'NODE_ENV', 'production');
     // When Supabase is not connected in test runner, mutation in production must fail closed
     const prodQuotaRes = await updateMerchantQuotaAction('merch-nahata', 500);
     assert(
@@ -528,7 +541,8 @@ async function runTests() {
       'Does not silently pretend success without real database persistence'
     );
   } finally {
-    (process.env as any).NODE_ENV = prevEnv;
+    if (prevEnv === undefined) Reflect.deleteProperty(process.env, 'NODE_ENV');
+    else Reflect.set(process.env, 'NODE_ENV', prevEnv);
   }
 
   // -------------------------------------------------------------
@@ -540,15 +554,15 @@ async function runTests() {
   assert(
     'Server Prize Assignment: Returns valid prize for new session',
     Boolean(session1.prize && session1.prize.id),
-    `Assigned prize: ${session1.prize.title}`
+    `Assigned prize: ${session1.prize?.title ?? 'unavailable'}`
   );
 
   // Simulate page refresh with same session ID
   const sessionRefresh = await getOrAssignSessionPrizeAction('client_test_sess_001', 'nahata');
   assert(
     'Server Prize Consistency: Prize remains identical on page refresh',
-    sessionRefresh.prize.id === session1.prize.id,
-    `Prize locked to ${sessionRefresh.prize.id} across reloads`
+    Boolean(session1.prize?.id) && sessionRefresh.prize?.id === session1.prize?.id,
+    `Prize locked to ${sessionRefresh.prize?.id ?? 'unavailable'} across reloads`
   );
 
   // -------------------------------------------------------------

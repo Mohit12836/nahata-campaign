@@ -71,7 +71,7 @@ export interface Customer {
   business_category: string;
   lead_source: string;
   whatsapp_consent: boolean;
-  consent_timestamp: string;
+  consent_timestamp?: string;
   created_at: string;
 }
 

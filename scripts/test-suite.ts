@@ -478,7 +478,7 @@ async function runTests() {
 
   } finally {
     // Restore environment
-    if (originalEnv === undefined) delete process.env.NODE_ENV;
+    if (originalEnv === undefined) Reflect.deleteProperty(process.env, 'NODE_ENV');
     else Reflect.set(process.env, 'NODE_ENV', originalEnv);
     if (originalSecret) process.env.ADMIN_SESSION_SECRET = originalSecret;
     else delete process.env.ADMIN_SESSION_SECRET;
@@ -532,7 +532,7 @@ async function runTests() {
   // Test C: Production fail-closed test for super-admin mutations when Supabase is missing
   const prevEnv = process.env.NODE_ENV;
   try {
-    process.env.NODE_ENV = 'production';
+    Reflect.set(process.env, 'NODE_ENV', 'production');
     // When Supabase is not connected in test runner, mutation in production must fail closed
     const prodQuotaRes = await updateMerchantQuotaAction('merch-nahata', 500);
     assert(
@@ -541,7 +541,7 @@ async function runTests() {
       'Does not silently pretend success without real database persistence'
     );
   } finally {
-    if (prevEnv === undefined) delete process.env.NODE_ENV;
+    if (prevEnv === undefined) Reflect.deleteProperty(process.env, 'NODE_ENV');
     else Reflect.set(process.env, 'NODE_ENV', prevEnv);
   }
 

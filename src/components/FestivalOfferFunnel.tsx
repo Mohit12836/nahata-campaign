@@ -125,7 +125,7 @@ export default function FestivalOfferFunnel({
 
       setIsSubmitting(false);
 
-      if (response.status === 'ERROR') {
+      if (response.status === 'ERROR' || response.status === 'EXHAUSTED') {
         setErrorMessage(response.message || 'त्रुटि हुई। कृपया पुनः प्रयास करें।');
         return;
       }

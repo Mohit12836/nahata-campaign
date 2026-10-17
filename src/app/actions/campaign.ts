@@ -124,7 +124,8 @@ export async function claimCampaignPrizeAction(input: ClaimPrizeInput): Promise<
       input.city,
       input.businessCategory,
       input.gameType,
-      input.targetPrizeId
+      input.targetPrizeId,
+      input.consent
     );
   }
 

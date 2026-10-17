@@ -4,6 +4,7 @@
 -- the coupons table to anonymous table scans.
 drop policy if exists "Public can verify own coupon by code" on public.coupons;
 revoke select on table public.coupons from anon;
+revoke select on table public.coupons from public;
 
 -- Authenticated merchant access remains governed by the tenant-scoped RLS
 -- policies installed by 20261012_vismart_multitenant_cinderblock_rls.sql.

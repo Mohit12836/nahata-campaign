@@ -156,19 +156,20 @@ export const saveStoredCoupons = (coupons: Coupon[]): void => {
 };
 
 export const selectWinningPrize = (prizesList: Prize[]): Prize => {
-  const activePrizes = prizesList.filter((p) => p.is_active && p.claimed_quantity < p.total_quantity);
-  const pool = activePrizes.length > 0 ? activePrizes : prizesList.filter((p) => p.is_active);
-  const safePool = pool.length > 0 ? pool : prizesList;
+  // Never fall back to exhausted or inactive inventory.
+  const pool = prizesList.filter(
+    (p) => p.is_active && p.claimed_quantity < p.total_quantity
+  );
 
-  if (safePool.length === 0) {
-    return INITIAL_PRIZES[0];
+  if (pool.length === 0) {
+    throw new Error('No active prizes with available inventory.');
   }
 
-  const totalWeight = safePool.reduce((acc, p) => acc + (p.probability_weight || 1), 0);
+  const totalWeight = pool.reduce((acc, p) => acc + (p.probability_weight || 1), 0);
   let randomVal = Math.floor(Math.random() * (totalWeight || 1));
-  let selected = safePool[0];
+  let selected = pool[0];
 
-  for (const prize of safePool) {
+  for (const prize of pool) {
     if (randomVal < (prize.probability_weight || 1)) {
       selected = prize;
       break;
@@ -219,7 +220,18 @@ export const executeGamePlay = (
     };
   }
 
-  // 2. Select prize: either target prize (if active & available) or weighted random
+  // 2. Fail closed when all inventory is exhausted; never mint an unavailable prize.
+  const hasAvailablePrize = prizes.some(
+    (p) => p.is_active && p.claimed_quantity < p.total_quantity
+  );
+  if (!hasAvailablePrize) {
+    return {
+      status: 'EXHAUSTED',
+      message: 'क्षमा करें! इस कैंपेन के सभी विशेष इनाम समाप्त हो चुके हैं।',
+    };
+  }
+
+  // Select prize: either target prize (if active & available) or weighted random
   let selectedPrize: Prize | undefined;
   if (targetPrizeId) {
     selectedPrize = prizes.find(

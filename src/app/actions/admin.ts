@@ -130,23 +130,46 @@ export async function getAdminDataAction(): Promise<{
     };
   }
 
-  // Attempt Supabase if available
+  // Single-store MVP: scope every CRM record to the active campaign.
+  // This server action may use a service-role client, which bypasses RLS; query filters
+  // are therefore mandatory and must not rely on tenant RLS alone.
   if (isSupabaseConfigured()) {
     const supabase = getSupabaseServerClient();
     if (supabase) {
       try {
-        const { data: dbCustomers } = await supabase.from('customers').select('*').order('created_at', { ascending: false });
-        const { data: dbCoupons } = await supabase.from('coupons').select('*, prize:prizes(*), customer:customers(*)').order('created_at', { ascending: false });
-        if (dbCustomers && dbCustomers.length > 0) {
-          return {
-            customers: dbCustomers,
-            coupons: dbCoupons || [],
-            campaign: getStoredCampaign(),
-            prizes: getStoredPrizes(),
-          };
-        }
+        const campaign = getStoredCampaign();
+        const { data: dbCoupons, error: couponsError } = await supabase
+          .from('coupons')
+          .select('*, prize:prizes(*), customer:customers(*)')
+          .eq('campaign_id', campaign.id)
+          .order('created_at', { ascending: false });
+
+        if (couponsError) throw couponsError;
+
+        const customerIds = [...new Set(
+          (dbCoupons || [])
+            .map((coupon) => coupon.customer_id)
+            .filter((id): id is string => Boolean(id))
+        )];
+
+        const { data: dbCustomers, error: customersError } = customerIds.length > 0
+          ? await supabase
+              .from('customers')
+              .select('*')
+              .in('id', customerIds)
+              .order('created_at', { ascending: false })
+          : { data: [], error: null };
+
+        if (customersError) throw customersError;
+
+        return {
+          customers: dbCustomers || [],
+          coupons: dbCoupons || [],
+          campaign,
+          prizes: getStoredPrizes(),
+        };
       } catch (dbErr) {
-        console.error('[DATABASE ERROR] Failed to fetch admin data from Supabase:', dbErr);
+        console.error('[DATABASE ERROR] Failed to fetch campaign-scoped admin data from Supabase:', dbErr);
       }
     }
   }

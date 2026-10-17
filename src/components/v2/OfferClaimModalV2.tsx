@@ -12,6 +12,7 @@ interface OfferClaimModalProps {
     phone: string;
     city: string;
     businessCategory: string;
+    consent: boolean;
   }) => void;
   isLoading?: boolean;
 }
@@ -45,7 +46,7 @@ export const OfferClaimModal: React.FC<OfferClaimModalProps> = ({
   const [phone, setPhone] = useState('');
   const [city, setCity] = useState('कुशलगढ़ (स्थानीय)');
   const [businessCategory, setBusinessCategory] = useState('घरेलू उपभोक्ता (Family / Home)');
-  const [consent, setConsent] = useState(true);
+  const [consent, setConsent] = useState(false);
   const [error, setError] = useState('');
 
   const handlePhoneChange = (rawValue: string) => {
@@ -82,6 +83,7 @@ export const OfferClaimModal: React.FC<OfferClaimModalProps> = ({
       phone: cleanPhone,
       city,
       businessCategory,
+      consent,
     });
   };
 

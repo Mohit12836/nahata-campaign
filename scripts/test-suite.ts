@@ -415,7 +415,7 @@ async function runTests() {
   const originalPin = process.env.ADMIN_PIN;
 
   try {
-    (process.env as any).NODE_ENV = 'production';
+    process.env.NODE_ENV = 'production';
     delete process.env.ADMIN_SESSION_SECRET;
     delete process.env.ADMIN_PIN;
     delete process.env.ADMIN_SECURITY_PIN;
@@ -478,7 +478,7 @@ async function runTests() {
 
   } finally {
     // Restore environment
-    (process.env as any).NODE_ENV = originalEnv;
+    process.env.NODE_ENV = originalEnv;
     if (originalSecret) process.env.ADMIN_SESSION_SECRET = originalSecret;
     else delete process.env.ADMIN_SESSION_SECRET;
     if (originalPin) process.env.ADMIN_PIN = originalPin;
@@ -512,7 +512,7 @@ async function runTests() {
   );
 
   // Test B: Input validation tests (invalid status, negative quota)
-  const invalidStatusRes = await updateMerchantStatusAction('merch-nahata', 'deleted' as any);
+  const invalidStatusRes = await updateMerchantStatusAction('merch-nahata', 'deleted' as never);
   assert(
     'Super-Admin Validation: Reject invalid status value',
     invalidStatusRes.success === false,
@@ -531,7 +531,7 @@ async function runTests() {
   // Test C: Production fail-closed test for super-admin mutations when Supabase is missing
   const prevEnv = process.env.NODE_ENV;
   try {
-    (process.env as any).NODE_ENV = 'production';
+    process.env.NODE_ENV = 'production';
     // When Supabase is not connected in test runner, mutation in production must fail closed
     const prodQuotaRes = await updateMerchantQuotaAction('merch-nahata', 500);
     assert(
@@ -540,7 +540,7 @@ async function runTests() {
       'Does not silently pretend success without real database persistence'
     );
   } finally {
-    (process.env as any).NODE_ENV = prevEnv;
+    process.env.NODE_ENV = prevEnv;
   }
 
   // -------------------------------------------------------------

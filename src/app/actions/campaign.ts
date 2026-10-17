@@ -116,7 +116,17 @@ export async function claimCampaignPrizeAction(input: ClaimPrizeInput): Promise<
     }
   }
 
-  // 4. Server-Side Execution (Guaranteed Claim with Google Sheets & CRM Backup)
+  // Production must never issue a coupon from process-local/browser state.
+  // A missing or unavailable central database is an operational error, not a
+  // reason to silently switch to a non-durable fallback.
+  if (!result && process.env.NODE_ENV === 'production') {
+    return {
+      status: 'ERROR',
+      message: 'कूपन सेवा अभी उपलब्ध नहीं है। कृपया कुछ देर बाद पुनः प्रयास करें।',
+    };
+  }
+
+  // Development-only fallback for local UI/testing when Supabase is not configured.
   if (!result) {
     result = executeGamePlay(
       cleanPhone,

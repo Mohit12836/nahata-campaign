@@ -197,7 +197,8 @@ export const executeGamePlay = (
   city: string,
   businessCategory: string,
   gameType: 'scratch' | 'spin',
-  targetPrizeId?: string
+  targetPrizeId?: string,
+  whatsappConsent = false
 ): PlayResultResponse => {
   const cleanPhone = phone.replace(/\D/g, '').slice(-10);
   const customers = getStoredCustomers();
@@ -253,8 +254,8 @@ export const executeGamePlay = (
       city: city || 'कुशलगढ़',
       business_category: businessCategory || 'घरेलू उपभोक्ता (Family / Home)',
       lead_source: `${gameType.toUpperCase()}_CAMPAIGN`,
-      whatsapp_consent: true,
-      consent_timestamp: new Date().toISOString(),
+      whatsapp_consent: whatsappConsent,
+      ...(whatsappConsent ? { consent_timestamp: new Date().toISOString() } : {}),
       created_at: new Date().toISOString(),
     };
     customers.unshift(customer);

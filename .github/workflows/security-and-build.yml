@@ -27,6 +27,9 @@ jobs:
       - name: Credential fail-closed tests
         run: node --experimental-strip-types --test scripts/admin-auth-config.test.mjs
 
+      - name: Multi-tenant public store projection tests
+        run: node --experimental-strip-types --test scripts/public-store.test.mjs
+
       - name: Install locked dependencies
         run: npm ci --no-audit --no-fund
 

@@ -3,39 +3,10 @@ import crypto from 'crypto';
 
 const ADMIN_SESSION_COOKIE = 'nahata_admin_auth_token';
 
-// Minimum entropy length required for production session secret (32 chars)
-const MIN_SECRET_LENGTH = 32;
-
-/**
- * Returns the session secret.
- * In production: strictly requires ADMIN_SESSION_SECRET with >= 32 chars; returns null if missing/weak (fail-closed).
- * In development: allows dev fallback with an explicit warning if unset.
- */
-export const getAdminSessionSecret = (): string | null => {
-  const secret = process.env.ADMIN_SESSION_SECRET;
-
-  if (secret && secret.trim().length >= MIN_SECRET_LENGTH) {
-    return secret.trim();
-  }
-
-  // Fallback secret so admin login always works seamlessly even without Vercel env configured
-  return 'nahata-general-stores-admin-session-secret-2026-secure-key';
-};
-
-/**
- * Returns the expected admin PIN.
- * Checks ADMIN_PIN or ADMIN_SECURITY_PIN, otherwise defaults to '9829'.
- */
-export const getExpectedAdminPin = (): string => {
-  const pin = process.env.ADMIN_PIN || process.env.ADMIN_SECURITY_PIN;
-
-  if (pin && pin.trim().length > 0) {
-    return pin.trim();
-  }
-
-  // Default secure PIN for Nahata General Stores
-  return '9829';
-};
+// Shared credentials are temporary while identity/MFA migration is prepared.
+// Configuration must fail closed if environment values are absent or invalid.
+import { getAdminSessionSecret, getExpectedAdminPin } from './admin-auth-config';
+export { getAdminSessionSecret, getExpectedAdminPin } from './admin-auth-config';
 
 // In-memory sliding window rate limiter for admin login (max 5 attempts per 15 mins per IP)
 const ADMIN_LOGIN_WINDOW_MS = 15 * 60 * 1000;

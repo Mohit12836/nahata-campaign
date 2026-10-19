@@ -6,7 +6,7 @@ import {
   ShieldCheck, Sparkles, Store, Users, Workflow,
 } from 'lucide-react';
 import { isServerAdminAuthenticated } from '@/lib/auth-server';
-import { getSuperAdminMerchantsAction } from '@/app/actions/admin';
+import { getSupabaseServerClient } from '@/lib/supabase-server';
 
 const upcoming = [
   { label: 'Offer Factory', description: 'Templates, campaign drafts & publishing', icon: Sparkles },
@@ -28,9 +28,20 @@ export default async function ControlCenterPage() {
     redirect('/super-admin');
   }
 
-  const result = await getSuperAdminMerchantsAction();
-  const available = result.success;
-  const merchants = available ? result.merchants : [];
+  // Deliberately require a private server key and query the database directly:
+  // never treat browser storage or development mock records as real KPIs.
+  const supabase = process.env.SUPABASE_SERVICE_ROLE_KEY
+    ? getSupabaseServerClient()
+    : null;
+  let merchantData: { id: string; status: string }[] | null = null;
+  let databaseError = false;
+  if (supabase) {
+    const query = await supabase.from('merchants').select('id, status');
+    merchantData = query.data;
+    databaseError = Boolean(query.error);
+  }
+  const available = Boolean(supabase && !databaseError && merchantData);
+  const merchants = available ? (merchantData ?? []) : [];
   const active = merchants.filter((merchant) => merchant.status === 'active').length;
   const pending = merchants.filter((merchant) => merchant.status === 'pending').length;
   const suspended = merchants.filter((merchant) => merchant.status === 'suspended').length;

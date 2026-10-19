@@ -7,34 +7,21 @@ const ADMIN_SESSION_COOKIE = 'nahata_admin_auth_token';
 const MIN_SECRET_LENGTH = 32;
 
 /**
- * Returns the session secret.
- * In production: strictly requires ADMIN_SESSION_SECRET with >= 32 chars; returns null if missing/weak (fail-closed).
- * In development: allows dev fallback with an explicit warning if unset.
+ * No fallback credentials. Missing/weak secrets always disable PIN login.
+ * A proper Supabase Auth + MFA transition is tracked separately.
  */
 export const getAdminSessionSecret = (): string | null => {
-  const secret = process.env.ADMIN_SESSION_SECRET;
-
-  if (secret && secret.trim().length >= MIN_SECRET_LENGTH) {
-    return secret.trim();
-  }
-
-  // Fallback secret so admin login always works seamlessly even without Vercel env configured
-  return 'nahata-general-stores-admin-session-secret-2026-secure-key';
+  const secret = process.env.ADMIN_SESSION_SECRET?.trim();
+  return secret && Buffer.byteLength(secret, 'utf8') >= MIN_SECRET_LENGTH ? secret : null;
 };
 
 /**
- * Returns the expected admin PIN.
- * Checks ADMIN_PIN or ADMIN_SECURITY_PIN, otherwise defaults to '9829'.
+ * Require an explicitly configured admin passcode (>= 8 characters).
+ * Never ship an application-wide default PIN.
  */
-export const getExpectedAdminPin = (): string => {
-  const pin = process.env.ADMIN_PIN || process.env.ADMIN_SECURITY_PIN;
-
-  if (pin && pin.trim().length > 0) {
-    return pin.trim();
-  }
-
-  // Default secure PIN for Nahata General Stores
-  return '9829';
+export const getExpectedAdminPin = (): string | null => {
+  const pin = (process.env.ADMIN_PIN || process.env.ADMIN_SECURITY_PIN)?.trim();
+  return pin && pin.length >= 8 ? pin : null;
 };
 
 // In-memory sliding window rate limiter for admin login (max 5 attempts per 15 mins per IP)

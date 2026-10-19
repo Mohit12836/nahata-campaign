@@ -1,0 +1,27 @@
+name: Foundation checks
+on:
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  verify:
+    name: Lint, types, source policies and build
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+          cache: npm
+      - run: npm ci
+      - run: node --test scripts/foundation.test.mjs
+      - name: Strict lint for touched application files
+        run: npx eslint src/app/control/page.tsx src/lib/auth-server.ts
+      - name: Legacy full-project lint debt (visible but non-blocking)
+        continue-on-error: true
+        run: npm run lint
+      - run: npx tsc --noEmit
+      - run: npm run build

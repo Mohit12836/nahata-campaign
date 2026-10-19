@@ -6,7 +6,21 @@ const currency = (value: number) => new Intl.NumberFormat('en-IN', {
   style: 'currency', currency: 'INR', maximumFractionDigits: 0,
 }).format(value);
 
-export default async function StoreCampaignPage({
+import { Suspense } from 'react';
+
+export default function StoreCampaignPage({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}) {
+  return (
+    <Suspense fallback={<main className="grid min-h-dvh place-items-center bg-[#0b1020] text-amber-200">दुकान के ऑफर लोड हो रहे हैं...</main>}>
+      <StoreCampaignContent params={params} />
+    </Suspense>
+  );
+}
+
+async function StoreCampaignContent({
   params,
 }: {
   params: Promise<{ slug: string }>;

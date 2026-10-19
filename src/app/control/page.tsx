@@ -17,6 +17,9 @@ const upcoming = [
   { label: 'System Health', description: 'Queue, webhooks, logs & recovery', icon: Activity },
 ];
 
+// Auth + tenant-scoped DB are request-time requirements. Avoid static prerender.
+export const instant = false;
+
 export const metadata = {
   title: 'VISMART Control Center',
   robots: { index: false, follow: false },

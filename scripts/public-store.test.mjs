@@ -22,9 +22,9 @@ const prize = {
 };
 const assemble = (changes = {}) => assemblePublicStore(
   changes.slug ?? merchant.slug,
-  changes.merchant ?? merchant,
-  changes.campaign ?? campaign,
-  changes.prizes ?? [prize],
+  Object.hasOwn(changes, 'merchant') ? changes.merchant : merchant,
+  Object.hasOwn(changes, 'campaign') ? changes.campaign : campaign,
+  Object.hasOwn(changes, 'prizes') ? changes.prizes : [prize],
   changes.now ?? NOW,
 );
 

@@ -16,10 +16,6 @@ jobs:
         with:
           node-version: "24"
           cache: npm
-      - name: Resolve missing lockfile package metadata
-        run: |
-          npm view @emnapi/core@1.11.3 version dist.tarball dist.integrity dependencies --json
-          npm view @emnapi/runtime@1.11.3 version dist.tarball dist.integrity dependencies --json
       - run: npm ci
       - run: node --test scripts/foundation.test.mjs
       - run: npm run lint

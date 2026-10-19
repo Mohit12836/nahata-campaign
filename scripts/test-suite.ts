@@ -165,9 +165,14 @@ async function runTests() {
   // TEST GROUP 5: SERVER-SIDE ADMIN AUTHENTICATION
   // -------------------------------------------------------------
   console.log('\n[Group 5: Admin Auth & Session Tokens]');
-  const isCorrectPin = validateAdminPin('9829');
-  const isWrongPin = validateAdminPin('0000');
-  assert('Validate Correct PIN (9829)', isCorrectPin, 'PIN matches expected secret');
+  // Synthetic test credentials only. No real credentials are stored in source.
+  const previousPin = process.env.ADMIN_PIN;
+  const previousSecret = process.env.ADMIN_SESSION_SECRET;
+  process.env.ADMIN_PIN = '314159';
+  process.env.ADMIN_SESSION_SECRET = 'synthetic-test-secret-not-for-production-use-2026';
+  const isCorrectPin = validateAdminPin('314159');
+  const isWrongPin = validateAdminPin('000000');
+  assert('Validate Configured Test PIN', isCorrectPin, 'Synthetic test PIN accepted');
   assert('Reject Wrong PIN (0000)', !isWrongPin, 'Wrong PIN rejected via timing-safe comparison');
 
   const token = createAdminSessionToken();
@@ -175,6 +180,11 @@ async function runTests() {
   const isTamperedTokenValid = token !== null && verifyAdminSessionToken(`${token}_tampered`);
   assert('Create & Verify HMAC Session Token', isTokenValid, 'Token created and verified');
   assert('Reject Tampered Session Token', !isTamperedTokenValid, 'Tampered token rejected');
+  if (previousPin === undefined) delete process.env.ADMIN_PIN;
+  else process.env.ADMIN_PIN = previousPin;
+  if (previousSecret === undefined) delete process.env.ADMIN_SESSION_SECRET;
+  else process.env.ADMIN_SESSION_SECRET = previousSecret;
+
 
   // -------------------------------------------------------------
   // TEST GROUP 6: COUPON REDEMPTION & REPEATED REDEMPTION PREVENTION

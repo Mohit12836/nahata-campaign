@@ -2,7 +2,7 @@ name: Security and Build Checks
 
 on:
   pull_request:
-    branches: [main]
+    branches: [main, security/admin-fail-closed-20261019]
   workflow_dispatch:
 
 permissions:

@@ -23,6 +23,7 @@ Status values: TODO / IN_PROGRESS / IN_PR / VERIFIED / BLOCKED.
 | F-017 | TODO | Analytics with event taxonomy | Counts verified against sampled claim/redemption records |
 | F-018 | TODO | Renewal automation, billing portal and support operations | Merchant can self-serve; owner can safely intervene |
 | F-019 | TODO | Pilot, load/backup/restore and cost budget gates | Paid pilot results, documented baseline and recovery drill |
+| F-020 | TODO | Resolve legacy full-repository ESLint errors | All historical files pass npm run lint; scoped lint stays required meanwhile |
 
 ## Operating rules
 - F-001/F-002 are foundation, not finished multi-tenant identity.

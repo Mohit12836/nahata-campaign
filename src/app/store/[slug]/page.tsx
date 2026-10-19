@@ -1,7 +1,6 @@
 import { notFound } from 'next/navigation';
+import { connection } from 'next/server';
 import { loadPublicStore } from '@/lib/public-store-server';
-
-export const dynamic = 'force-dynamic';
 
 const currency = (value: number) => new Intl.NumberFormat('en-IN', {
   style: 'currency', currency: 'INR', maximumFractionDigits: 0,
@@ -12,6 +11,7 @@ export default async function StoreCampaignPage({
 }: {
   params: Promise<{ slug: string }>;
 }) {
+  await connection(); // Next 16 Cache Components: defer server read to request-time.
   const { slug } = await params;
   const page = await loadPublicStore(slug);
   if (!page) notFound();

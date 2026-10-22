@@ -28,56 +28,118 @@ import { INITIAL_CAMPAIGN } from '@/lib/mock-data';
 import { Coupon, Prize } from '@/types';
 import { ScratchCard } from '@/components/ScratchCard';
 
-// Structured coupon probabilities requested by user:
-// 85% -> ₹50 Coupon
-// 13% -> ₹100 Coupon
-// 2%  -> ₹500 Coupon
+// Exact distribution requested: Total 1,000 coupons
+// 1. ₹1,000 कूपन -> 5 (0.5%)
+// 2. ₹500 कूपन  -> 15 (1.5%)
+// 3. ₹200 कूपन  -> 30 (3.0%)
+// 4. ₹100 कूपन  -> 150 (15.0%)
+// 5. ₹50 + गिफ्ट हैम्पर -> 800 (80.0%)
+// Total: 1,000 Coupons (100%)
 interface DirectPrizeTier {
   id: string;
   amount: number;
-  probability: number;
+  count: number;
+  probabilityPercent: number;
   label: string;
   badge: string;
   tagline: string;
   color: string;
+  type: 'cash_voucher' | 'hamper';
 }
 
 const PRIZE_TIERS: DirectPrizeTier[] = [
   {
-    id: 'prz-scratch-50',
+    id: 'prz-hamper-800',
     amount: 50,
-    probability: 85,
-    label: '₹50 कूपन',
-    badge: '85% ग्राहकों के लिए',
-    tagline: 'खरीदारी पर ₹50 की सीधी छूट + लकी गिफ्ट हैम्पर',
+    count: 800,
+    probabilityPercent: 80,
+    label: '🎁 निश्चित गिफ्ट हैम्पर + ₹50 छूट',
+    badge: '800 ग्राहकों के लिए (80%)',
+    tagline: '₹2,000 की खरीदारी पर निश्चित स्पेशल गिफ्ट हैम्पर + ₹50 की छूट',
     color: 'from-amber-500 via-amber-400 to-yellow-500',
+    type: 'hamper',
   },
   {
     id: 'prz-scratch-100',
     amount: 100,
-    probability: 13,
-    label: '₹100 कूपन',
-    badge: '13% ग्राहकों के लिए',
-    tagline: 'खरीदारी पर ₹100 की विशेष छूट + लकी गिफ्ट हैम्पर',
+    count: 150,
+    probabilityPercent: 15,
+    label: '₹100 खरीदारी वाउचर',
+    badge: '150 ग्राहकों के लिए (15%)',
+    tagline: '₹2,000 की खरीदारी पर ₹100 का स्पेशल सामान डिस्काउंट',
     color: 'from-emerald-500 via-green-500 to-teal-600',
+    type: 'cash_voucher',
+  },
+  {
+    id: 'prz-scratch-200',
+    amount: 200,
+    count: 30,
+    probabilityPercent: 3,
+    label: '₹200 खरीदारी वाउचर',
+    badge: '30 भाग्यशाली ग्राहकों के लिए (3%)',
+    tagline: '₹2,000 की खरीदारी पर ₹200 का शानदार सामान डिस्काउंट',
+    color: 'from-blue-600 via-cyan-500 to-teal-500',
+    type: 'cash_voucher',
   },
   {
     id: 'prz-scratch-500',
     amount: 500,
-    probability: 2,
-    label: '₹500 बम्पर कूपन',
-    badge: '🏆 2% लकी ग्राहकों के लिए',
-    tagline: 'महा-धमाका! ₹500 का भव्य वाउचर + रॉयल गिफ्ट हैम्पर',
+    count: 15,
+    probabilityPercent: 1.5,
+    label: '₹500 बम्पर वाउचर',
+    badge: '15 वीआईपी ग्राहकों के लिए (1.5%)',
+    tagline: '₹2,000 की खरीदारी पर ₹500 का बम्पर सामान डिस्काउंट',
     color: 'from-purple-600 via-pink-500 to-rose-500',
+    type: 'cash_voucher',
+  },
+  {
+    id: 'prz-scratch-1000',
+    amount: 1000,
+    count: 5,
+    probabilityPercent: 0.5,
+    label: '🏆 ₹1,000 का महा-बम्पर वाउचर',
+    badge: '🔥 केवल 5 महा-विजेताओं के लिए (0.5%)',
+    tagline: 'महा-धमाका! ₹2,000 की खरीदारी पर ₹1,000 का सामान वाउचर',
+    color: 'from-rose-600 via-red-500 to-amber-500',
+    type: 'cash_voucher',
   },
 ];
 
-// Weighted selection matching exactly 85% / 13% / 2%
+// Sequential fair rotation + weighted randomized distribution
+// Keeps sequence varying while strictly honoring the 800/150/30/15/5 ratio
 function pickScratchPrize(): DirectPrizeTier {
-  const rand = Math.random() * 100;
-  if (rand < 85) return PRIZE_TIERS[0]; // 85%
-  if (rand < 98) return PRIZE_TIERS[1]; // 13% (85 to 98)
-  return PRIZE_TIERS[2]; // 2% (98 to 100)
+  if (typeof window !== 'undefined') {
+    try {
+      const seqKey = 'nahata_scratch_pool_seq_v3';
+      let currentSeq = parseInt(localStorage.getItem(seqKey) || '0', 10);
+      currentSeq = (currentSeq + 1) % 1000;
+      localStorage.setItem(seqKey, currentSeq.toString());
+
+      // Sequence ratio mapping out of 1000:
+      // Index 0 to 4   -> ₹1,000 (5 coupons)
+      // Index 5 to 19  -> ₹500 (15 coupons)
+      // Index 20 to 49 -> ₹200 (30 coupons)
+      // Index 50 to 199 -> ₹100 (150 coupons)
+      // Index 200 to 999 -> Gift Hamper + ₹50 (800 coupons)
+      // Randomize with random salt so different browsers don't open identical prizes at the same second
+      const randomSeed = Math.floor(Math.random() * 1000);
+      const blendedIndex = (currentSeq * 7 + randomSeed) % 1000;
+
+      if (blendedIndex < 5) return PRIZE_TIERS[4]; // ₹1,000 (5 coupons = 0.5%)
+      if (blendedIndex < 20) return PRIZE_TIERS[3]; // ₹500 (15 coupons = 1.5%)
+      if (blendedIndex < 50) return PRIZE_TIERS[2]; // ₹200 (30 coupons = 3.0%)
+      if (blendedIndex < 200) return PRIZE_TIERS[1]; // ₹100 (150 coupons = 15.0%)
+      return PRIZE_TIERS[0]; // Gift Hamper (800 coupons = 80.0%)
+    } catch {}
+  }
+
+  // Fallback weighted
+  const rand = Math.random() * 1000;
+  if (rand < 5) return PRIZE_TIERS[4];
+  if (rand < 20) return PRIZE_TIERS[3];
+  if (rand < 50) return PRIZE_TIERS[2];
+  if (rand < 200) return PRIZE_TIERS[1];
+  return PRIZE_TIERS[0];
 }
 
 export default function ScratchDirectClient() {
@@ -175,12 +237,12 @@ export default function ScratchDirectClient() {
           title: prizeTitleFormatted,
           discount_type: 'percentage',
           discount_value: selectedPrize.amount,
-          min_order_value: 1000,
-          probability_weight: selectedPrize.probability,
+          min_order_value: 2000,
+          probability_weight: selectedPrize.probabilityPercent,
           total_quantity: 1000,
           claimed_quantity: 1,
           is_active: true,
-          terms_and_conditions: '₹1,000 की खरीदारी पर ₹50 Extra व कूपन लागू + निश्चित गिफ्ट हैम्पर',
+          terms_and_conditions: '₹2,000 की खरीदारी पर मान्य। (नकद नहीं मिलेगा, केवल सामान खरीद में छूट मान्य) + निश्चित गिफ्ट हैम्पर',
           badge_color: selectedPrize.color,
         },
       };
@@ -209,20 +271,23 @@ export default function ScratchDirectClient() {
   const getWhatsAppShareUrl = () => {
     const text = `🎁 *हर खरीदारी पर गिफ्ट हैम्पर!*
 
-🛍️ ₹1,000 की खरीदारी पर ₹50 EXTRA
+🛍️ *₹2,000 की खरीदारी पर गारंटेड उपहार!*
 
-🎟️ *Scratch & Win — हर कूपन में इनाम!*
-- 🎉 ₹50 कूपन — 85% ग्राहकों के लिए
-- 🎁 ₹100 कूपन — 13% ग्राहकों के लिए
-- 🏆 ₹500 कूपन — 2% ग्राहकों के लिए
+🎟️ *Scratch & Win — लकी ड्रॉ कूपन:*
+- 🏆 ₹1,000 वाउचर — 5 ग्राहकों के लिए (0.5%)
+- 🎁 ₹500 वाउचर — 15 ग्राहकों के लिए (1.5%)
+- 🌟 ₹200 वाउचर — 30 ग्राहकों के लिए (3%)
+- 💳 ₹100 वाउचर — 150 ग्राहकों के लिए (15%)
+- 🎁 गिफ्ट हैम्पर (+ ₹50 छूट) — 800 ग्राहकों के लिए (80%)
 
-🎁 *गिफ्ट हैम्पर भी मिलेगा!*
+⚠️ *नियम:* नकद (CASH) नहीं मिलेगा — केवल दुकान से सामान खरीदने पर बिल में डिस्काउंट मान्य होगा।
 
 **Nahata General Stores**
-खरीदारी करें, स्क्रैच करें और इनाम जीतें!
+बस स्टैंड रोड, कुशलगढ़ (राजस्थान)
+खरीदारी करें, स्क्रैच करें और गारंटेड उपहार पाएं!
 
 👇 अपना लकी कार्ड अभी स्क्रैच करें:
-👉 ${typeof window !== 'undefined' ? window.location.href : 'https://nahata-campaign.vercel.app/scratch'}`;
+👉 ${typeof window !== 'undefined' ? window.location.href : 'https://nahata-general-stores.vercel.app/scratch'}`;
 
     return `https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`;
   };
@@ -238,9 +303,10 @@ export default function ScratchDirectClient() {
 👤 *ग्राहक:* ${formData.fullName || 'ग्राहक'}
 📞 *मोबाइल:* ${formData.phone || ''}
 🎁 *जीता गया इनाम:* ${selectedPrize.label} (${selectedPrize.tagline})
-🛍️ *ऑफर:* ₹1,000 की खरीदारी पर ₹50 EXTRA + निश्चित गिफ्ट हैम्पर!
+🛍️ *ऑफर:* ₹2,000 की खरीदारी पर गारंटेड उपहार / डिस्काउंट मान्य!
+⚠️ *शर्त:* नकद (Cash) नहीं मिलेगा, केवल सामान खरीदने पर मान्य।
 
-📍 मैं जल्द ही दुकान पर आकर खरीदारी करके अपने कूपन व गिफ्ट हैम्पर का लाभ उठाऊँगा। कृपया मेरा कूपन रिकॉर्ड में दर्ज कर लें। धन्यवाद!`;
+📍 मैं जल्द ही दुकान पर आकर खरीदारी करके अपने कूपन व गिफ्ट का लाभ उठाऊँगा। कृपया मेरा कूपन रिकॉर्ड में दर्ज कर लें। धन्यवाद!`;
 
     return `https://wa.me/918290447144?text=${encodeURIComponent(text)}`;
   };
@@ -288,39 +354,66 @@ export default function ScratchDirectClient() {
       </header>
 
       {/* Main Container */}
-      <main className="flex-1 w-full max-w-[520px] mx-auto px-3.5 py-4 flex flex-col justify-center space-y-4">
+      <main className="flex-1 w-full max-w-[520px] mx-auto px-3.5 py-4 flex flex-col justify-center space-y-3.5">
         {/* Campaign Announcement Hero Card */}
-        <div className="text-center space-y-2">
+        <div className="text-center space-y-1.5">
           <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-gradient-to-r from-[#FFC857]/20 via-[#FFB020]/30 to-[#FFC857]/20 border border-[#FFC857]/50 text-[#FFE89B] text-xs font-black shadow-inner">
             <Sparkles className="w-3.5 h-3.5 text-[#FFC857] animate-spin" />
-            <span>हर खरीदारी पर गिफ्ट हैम्पर!</span>
+            <span>विशेष धमाका ऑफर • सीमित 1,000 कूपन</span>
           </div>
 
           <h2 className="text-xl sm:text-2xl font-black text-white leading-tight drop-shadow-md">
-            🛍️ ₹1,000 की खरीदारी पर <span className="text-[#FFC857]">₹50 EXTRA</span>
+            🛍️ ₹2,000 की खरीदी पर <span className="text-[#FFC857]">गारंटेड उपहार!</span>
           </h2>
 
           <p className="text-xs text-[#E8D9D0] font-semibold flex items-center justify-center gap-1">
             <PartyPopper className="w-3.5 h-3.5 text-[#FFC857]" />
-            <span>Scratch & Win — हर कूपन में पक्का इनाम!</span>
+            <span>Scratch & Win — हर कार्ड में पक्का उपहार!</span>
           </p>
+
+          {/* Cash warning badge */}
+          <div className="inline-block bg-amber-500/15 border border-amber-400/40 px-3 py-1 rounded-full">
+            <p className="text-[10.5px] font-bold text-amber-300">
+              ⚠️ नकद (CASH) नहीं मिलेगा • केवल दुकान से सामान खरीदने पर मान्य
+            </p>
+          </div>
         </div>
 
-        {/* The 3 Probability Badges directly visible */}
-        <div className="grid grid-cols-3 gap-2 text-center">
-          <div className="p-2 rounded-xl bg-gradient-to-b from-[#26030A] to-[#3A060F] border border-amber-500/40 shadow">
-            <span className="text-base sm:text-lg font-black text-amber-300 block">₹50</span>
-            <span className="text-[9.5px] font-bold text-amber-100 block">85% ग्राहकों को</span>
+        {/* 5-Tier Prize Breakdown Strip */}
+        <div className="bg-[#26030A]/90 p-2.5 rounded-2xl border border-[#FFC857]/30 shadow-lg space-y-1.5">
+          <div className="flex items-center justify-between text-[11px] font-black text-[#FFE89B] px-1">
+            <span className="flex items-center gap-1">
+              <Trophy className="w-3.5 h-3.5 text-[#FFC857]" />
+              <span>कुल 1,000 कूपन वितरण अनुपात</span>
+            </span>
+            <span className="text-[10px] text-amber-300/90 font-semibold">100% पक्का इनाम</span>
           </div>
 
-          <div className="p-2 rounded-xl bg-gradient-to-b from-[#26030A] to-[#123821] border border-emerald-500/40 shadow">
-            <span className="text-base sm:text-lg font-black text-emerald-300 block">₹100</span>
-            <span className="text-[9.5px] font-bold text-emerald-100 block">13% ग्राहकों को</span>
-          </div>
+          <div className="grid grid-cols-5 gap-1.5 text-center">
+            <div className="p-1.5 rounded-xl bg-gradient-to-b from-[#3A060F] to-[#26030A] border border-rose-500/40">
+              <span className="text-xs sm:text-sm font-black text-rose-300 block">₹1,000</span>
+              <span className="text-[9px] font-bold text-rose-200 block">5 कूपन</span>
+            </div>
 
-          <div className="p-2 rounded-xl bg-gradient-to-b from-[#26030A] to-[#3f123c] border border-pink-500/40 shadow">
-            <span className="text-base sm:text-lg font-black text-pink-300 block">₹500</span>
-            <span className="text-[9.5px] font-bold text-pink-100 block">🏆 2% बम्पर</span>
+            <div className="p-1.5 rounded-xl bg-gradient-to-b from-[#3A060F] to-[#26030A] border border-pink-500/40">
+              <span className="text-xs sm:text-sm font-black text-pink-300 block">₹500</span>
+              <span className="text-[9px] font-bold text-pink-200 block">15 कूपन</span>
+            </div>
+
+            <div className="p-1.5 rounded-xl bg-gradient-to-b from-[#3A060F] to-[#26030A] border border-blue-500/40">
+              <span className="text-xs sm:text-sm font-black text-blue-300 block">₹200</span>
+              <span className="text-[9px] font-bold text-blue-200 block">30 कूपन</span>
+            </div>
+
+            <div className="p-1.5 rounded-xl bg-gradient-to-b from-[#3A060F] to-[#26030A] border border-emerald-500/40">
+              <span className="text-xs sm:text-sm font-black text-emerald-300 block">₹100</span>
+              <span className="text-[9px] font-bold text-emerald-200 block">150 कूपन</span>
+            </div>
+
+            <div className="p-1.5 rounded-xl bg-gradient-to-b from-[#3A060F] to-[#26030A] border border-amber-500/40">
+              <span className="text-xs sm:text-sm font-black text-amber-300 block">हैम्पर</span>
+              <span className="text-[9px] font-bold text-amber-200 block">800 कूपन</span>
+            </div>
           </div>
         </div>
 
@@ -334,12 +427,12 @@ export default function ScratchDirectClient() {
                 title: selectedPrize.label,
                 discount_type: 'percentage',
                 discount_value: selectedPrize.amount,
-                min_order_value: 1000,
-                probability_weight: selectedPrize.probability,
+                min_order_value: 2000,
+                probability_weight: selectedPrize.probabilityPercent,
                 total_quantity: 1000,
                 claimed_quantity: 1,
                 is_active: true,
-                terms_and_conditions: `${selectedPrize.tagline} • ₹1,000 की खरीदारी पर ₹50 EXTRA`,
+                terms_and_conditions: `${selectedPrize.tagline} • ₹2,000 की खरीदारी पर मान्य (नकद नहीं मिलेगा, केवल सामान खरीद में)`,
                 badge_color: selectedPrize.color,
               }}
               onScratchComplete={() => {
@@ -461,14 +554,17 @@ export default function ScratchDirectClient() {
             </div>
 
             {/* Key Benefits Recap */}
-            <div className="bg-[#5B0716]/40 p-2.5 rounded-xl border border-[#FFC857]/30 space-y-1 text-xs">
+            <div className="bg-[#5B0716]/40 p-2.5 rounded-xl border border-[#FFC857]/30 space-y-1.5 text-xs">
               <div className="flex items-center gap-1.5 text-amber-200 font-bold">
                 <ShoppingBag className="w-3.5 h-3.5 text-[#FFC857]" />
-                <span>₹1,000 की खरीदारी पर ₹50 EXTRA लाभ</span>
+                <span>₹2,000 की खरीदारी पर मान्य</span>
               </div>
               <div className="flex items-center gap-1.5 text-emerald-300 font-bold">
                 <Gift className="w-3.5 h-3.5 text-emerald-400" />
-                <span>हर खरीदारी पर पक्का गिफ्ट हैम्पर</span>
+                <span>निश्चित गिफ्ट हैम्पर / सामान डिस्काउंट</span>
+              </div>
+              <div className="text-[10px] text-amber-300/90 font-medium bg-black/30 px-2 py-1 rounded-lg">
+                ⚠️ नकद (Cash) नहीं मिलेगा • केवल दुकान से सामान खरीदने पर बिल में कटौती होगी
               </div>
             </div>
 
@@ -504,17 +600,17 @@ export default function ScratchDirectClient() {
             <span>ऑफर विवरण व नियम — Nahata General Stores</span>
           </div>
 
-          <ul className="text-[11px] text-[#E8D9D0] space-y-1 list-disc list-inside font-medium">
-            <li>🎁 **हर खरीदारी पर गिफ्ट हैम्पर!** दुकान पर आने वाले हर ग्राहक को सम्मानपूर्वक गिफ्ट दिया जाएगा।</li>
-            <li>🛍️ **₹1,000 की खरीदारी पर ₹50 EXTRA** डिस्काउंट तुरंत लागू।</li>
-            <li>🎟️ **Scratch & Win:** ₹50 (85%), ₹100 (13%), ₹500 (2% बम्पर इनाम)।</li>
+          <ul className="text-[11px] text-[#E8D9D0] space-y-1.5 list-disc list-inside font-medium">
+            <li>🛍️ **₹2,000 की खरीदी पर गारंटेड उपहार!** हर ग्राहक को निश्चित उपहार दिया जाएगा।</li>
+            <li>🎟️ **1,000 कूपन का वितरण अनुपात:** ₹1000 (5 कूपन), ₹500 (15 कूपन), ₹200 (30 कूपन), ₹100 (150 कूपन), गिफ्ट हैम्पर (800 कूपन)।</li>
+            <li>🚫 **नकद (Cash) नहीं मिलेगा:** यह कूपन नकद में नहीं बदला जा सकता, केवल नाहाटा जनरल स्टोर्स से सामान खरीदने पर बिल में कटौती के लिए मान्य होगा।</li>
             <li>📍 **स्थान:** नाहाटा जनरल स्टोर्स, बस स्टैंड रोड, कुशलगढ़ (राजस्थान)।</li>
             <li>📞 **संपर्क / WhatsApp:** 8290447144 (मनोज भैया)।</li>
           </ul>
 
           <div className="text-center pt-2 border-t border-[#FFC857]/10">
             <p className="text-[10px] text-amber-200/80 font-bold">
-              खरीदारी करें, स्क्रैच करें और इनाम जीतें! • नाहाटा जनरल स्टोर्स
+              खरीदारी करें, स्क्रैच करें और गारंटेड उपहार पाएं! • नाहाटा जनरल स्टोर्स
             </p>
           </div>
         </div>

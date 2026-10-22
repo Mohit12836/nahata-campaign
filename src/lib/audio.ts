@@ -228,6 +228,16 @@ class SoundEngine {
     osc.start(ctx.currentTime);
     osc.stop(ctx.currentTime + 0.09);
   }
+
+  // 6. Tactile Pop Sound
+  public playPop() {
+    this.playTick();
+  }
+
+  // 7. Success Celebration Fanfare
+  public playSuccess() {
+    this.playCelebrationChime();
+  }
 }
 
 export const soundEngine = new SoundEngine();

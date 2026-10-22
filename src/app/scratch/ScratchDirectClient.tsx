@@ -21,6 +21,9 @@ import {
   Copy,
   Check,
   ShieldCheck,
+  ArrowRight,
+  ExternalLink,
+  Bell,
 } from 'lucide-react';
 import { soundEngine } from '@/lib/audio';
 import { claimCampaignPrizeAction } from '@/app/actions/campaign';
@@ -161,6 +164,10 @@ export default function ScratchDirectClient() {
   const [claimedCoupon, setClaimedCoupon] = useState<Coupon | null>(null);
   const [copiedCode, setCopiedCode] = useState(false);
 
+  // Stepper Slide State: 1 = Scratch, 2 = Enter Details, 3 = Follow Channel, 4 = View Coupon & Send to Manoj Bhaiya
+  const [currentSlide, setCurrentSlide] = useState<1 | 2 | 3 | 4>(1);
+  const [hasFollowedChannel, setHasFollowedChannel] = useState(false);
+
   // Pick random prize on mount & ensure fresh scratchable card
   useEffect(() => {
     const picked = pickScratchPrize();
@@ -253,6 +260,7 @@ export default function ScratchDirectClient() {
       } catch {}
 
       triggerCelebration();
+      setCurrentSlide(3);
     } catch {
       setFormError('सर्वर से संपर्क करने में समस्या हुई। कृपया पुनः प्रयास करें।');
     } finally {
@@ -301,6 +309,8 @@ export default function ScratchDirectClient() {
 📞 *मोबाइल:* ${formData.phone || ''}
 🎁 *जीता गया इनाम:* ${selectedPrize.label}
 🛍️ *ऑफर:* ₹1,000 से ऊपर की खरीद पर मान्य!
+
+📢 मैंने नाहाटा स्टोर्स का WhatsApp चैनल भी फॉलो कर लिया है।
 
 📍 मैं जल्द ही दुकान पर आकर खरीदारी करके अपने कूपन का लाभ उठाऊँगा। कृपया मेरा कूपन रिकॉर्ड में दर्ज कर लें। धन्यवाद!`;
 
@@ -351,83 +361,129 @@ export default function ScratchDirectClient() {
 
       {/* Main Container */}
       <main className="flex-1 w-full max-w-[520px] mx-auto px-3.5 py-4 flex flex-col justify-center space-y-3.5">
-        {/* Campaign Announcement Hero Card */}
-        <div className="text-center space-y-2">
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-gradient-to-r from-[#FFC857]/20 via-[#FFB020]/30 to-[#FFC857]/20 border border-[#FFC857]/50 text-[#FFE89B] text-xs font-black shadow-inner">
-            <Sparkles className="w-3.5 h-3.5 text-[#FFC857] animate-spin" />
-            <span>विशेष ग्राहक महोत्सव • लकी कार्ड</span>
-          </div>
-
-          <h2 className="text-2xl sm:text-3xl font-black text-[#FFE89B] leading-tight drop-shadow-md">
-            🛍️ ₹1,000 से ऊपर की खरीद पर <span className="text-white block sm:inline">निश्चित उपहार!</span>
-          </h2>
-
-          <p className="text-xs sm:text-sm text-[#FFF4D8] font-bold flex items-center justify-center gap-1.5">
-            <Gift className="w-4 h-4 text-[#FFC857]" />
-            <span>कार्ड स्क्रैच करें और अपना लकी उपहार तुरंत अनलॉक करें!</span>
-          </p>
-        </div>
-
-        {/* Festive Teaser Ribbon (No explicit ratio counts shown) */}
-        <div className="bg-gradient-to-r from-[#26030A] via-[#3A060F] to-[#26030A] p-2.5 rounded-2xl border border-[#FFC857]/30 shadow-md text-center">
-          <p className="text-[11.5px] font-bold text-amber-200 flex items-center justify-center gap-1.5">
-            <Sparkles className="w-3.5 h-3.5 text-[#FFC857]" />
-            <span>हर स्क्रैच कार्ड में उपहार या वाउचर छुपा है!</span>
-          </p>
-        </div>
-
-        {/* Scratch Card Section or Claimed Card */}
-        {!claimedCoupon ? (
-          <div className="w-full max-w-[360px] mx-auto">
-            <ScratchCard
-              prize={{
-                id: selectedPrize.id,
-                campaign_id: INITIAL_CAMPAIGN.id,
-                title: selectedPrize.label,
-                discount_type: 'percentage',
-                discount_value: selectedPrize.amount,
-                min_order_value: 1000,
-                probability_weight: selectedPrize.probabilityPercent,
-                total_quantity: 1000,
-                claimed_quantity: 1,
-                is_active: true,
-                terms_and_conditions: `${selectedPrize.tagline} • दुकान पर खरीदारी पर लागू`,
-                badge_color: selectedPrize.color,
-              }}
-              onScratchComplete={() => {
-                setIsScratched(true);
-                setScratchPercent(100);
-                triggerCelebration();
-              }}
-            />
-          </div>
-        ) : null}
-
-        {/* Claim Form (Only visible once scratched and not claimed) */}
-        {isScratched && !claimedCoupon && (
-          <div className="w-full max-w-[380px] mx-auto bg-gradient-to-b from-[#FFFDF7] to-[#FFF5E6] text-slate-900 rounded-3xl shadow-2xl border-2 border-[#FFC857] p-4 animate-in fade-in zoom-in-95 duration-300">
-            <div className="text-center space-y-0.5 mb-3">
-              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-black bg-amber-500/15 text-amber-900 border border-amber-400/50">
-                <Sparkles className="w-3 h-3 text-amber-600" /> केवल 1 चरण शेष है!
+        {/* Funnel Step Indicator */}
+        <div className="w-full max-w-[420px] mx-auto bg-[#26030A]/90 p-2 rounded-2xl border border-[#FFC857]/30 shadow-md flex items-center justify-between text-xs">
+          {[
+            { step: 1, label: 'स्क्रैच' },
+            { step: 2, label: 'नाम-नंबर' },
+            { step: 3, label: 'चैनल' },
+            { step: 4, label: 'कूपन' },
+          ].map((item) => (
+            <div
+              key={item.step}
+              className={`flex items-center gap-1.5 font-black px-2.5 py-1 rounded-xl transition-all ${
+                currentSlide === item.step
+                  ? 'bg-[#FFC857] text-[#26030A] shadow-md scale-105'
+                  : currentSlide > item.step
+                  ? 'text-[#10B981]'
+                  : 'text-[#FFE89B]/40'
+              }`}
+            >
+              <span className="w-4 h-4 rounded-full bg-black/20 flex items-center justify-center text-[10px]">
+                {currentSlide > item.step ? '✓' : item.step}
               </span>
-              <h3 className="text-base font-black text-amber-950 leading-tight">
-                अपना कूपन कोड तुरंत प्राप्त करें
+              <span className="text-[11px]">{item.label}</span>
+            </div>
+          ))}
+        </div>
+
+        {/* SLIDE 1: SCRATCH CARD & REVEAL */}
+        {currentSlide === 1 && (
+          <div className="space-y-3.5 animate-in fade-in duration-300">
+            {/* Campaign Announcement Hero Card */}
+            <div className="text-center space-y-2">
+              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-gradient-to-r from-[#FFC857]/20 via-[#FFB020]/30 to-[#FFC857]/20 border border-[#FFC857]/50 text-[#FFE89B] text-xs font-black shadow-inner">
+                <Sparkles className="w-3.5 h-3.5 text-[#FFC857] animate-spin" />
+                <span>विशेष ग्राहक महोत्सव • लकी कार्ड</span>
+              </div>
+
+              <h2 className="text-2xl sm:text-3xl font-black text-[#FFE89B] leading-tight drop-shadow-md">
+                🛍️ ₹1,000 से ऊपर की खरीद पर <span className="text-white block sm:inline">निश्चित उपहार!</span>
+              </h2>
+
+              <p className="text-xs sm:text-sm text-[#FFF4D8] font-bold flex items-center justify-center gap-1.5">
+                <Gift className="w-4 h-4 text-[#FFC857]" />
+                <span>कार्ड स्क्रैच करें और अपना लकी उपहार तुरंत अनलॉक करें!</span>
+              </p>
+            </div>
+
+            {/* Festive Teaser Ribbon */}
+            <div className="bg-gradient-to-r from-[#26030A] via-[#3A060F] to-[#26030A] p-2.5 rounded-2xl border border-[#FFC857]/30 shadow-md text-center">
+              <p className="text-[11.5px] font-bold text-amber-200 flex items-center justify-center gap-1.5">
+                <Sparkles className="w-3.5 h-3.5 text-[#FFC857]" />
+                <span>हर स्क्रैच कार्ड में उपहार या वाउचर छुपा है!</span>
+              </p>
+            </div>
+
+            {/* Scratch Card */}
+            <div className="w-full max-w-[360px] mx-auto">
+              <ScratchCard
+                prize={{
+                  id: selectedPrize.id,
+                  campaign_id: INITIAL_CAMPAIGN.id,
+                  title: selectedPrize.label,
+                  discount_type: 'percentage',
+                  discount_value: selectedPrize.amount,
+                  min_order_value: 1000,
+                  probability_weight: selectedPrize.probabilityPercent,
+                  total_quantity: 1000,
+                  claimed_quantity: 1,
+                  is_active: true,
+                  terms_and_conditions: `${selectedPrize.tagline} • दुकान पर खरीदारी पर लागू`,
+                  badge_color: selectedPrize.color,
+                }}
+                onScratchComplete={() => {
+                  setIsScratched(true);
+                  setScratchPercent(100);
+                  triggerCelebration();
+                }}
+              />
+            </div>
+
+            {/* Proceed to Slide 2 Button (Appears once scratched) */}
+            {isScratched && (
+              <div className="pt-2 animate-in fade-in zoom-in-95 duration-300">
+                <button
+                  type="button"
+                  onClick={() => {
+                    soundEngine.playPop();
+                    setCurrentSlide(2);
+                  }}
+                  className="w-full py-3.5 px-4 rounded-2xl bg-gradient-to-r from-[#FFC857] via-[#FFB020] to-[#E5A010] text-[#26030A] font-black text-sm sm:text-base flex items-center justify-center gap-2 shadow-2xl hover:brightness-110 active:scale-95 transition-all"
+                >
+                  <span>कूपन कोड पाने के लिए आगे बढ़ें</span>
+                  <ArrowRight className="w-5 h-5 animate-pulse" />
+                </button>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* SLIDE 2: CUSTOMER NAME & PHONE NUMBER */}
+        {currentSlide === 2 && (
+          <div className="w-full max-w-[400px] mx-auto bg-gradient-to-b from-[#FFFDF7] to-[#FFF5E6] text-slate-900 rounded-3xl shadow-2xl border-2 border-[#FFC857] p-5 space-y-3.5 animate-in fade-in zoom-in-95 duration-300">
+            <div className="text-center space-y-1">
+              <span className="inline-flex items-center gap-1 px-3 py-0.5 rounded-full text-[10px] font-black bg-amber-500/15 text-amber-900 border border-amber-400/50">
+                <Sparkles className="w-3 h-3 text-amber-600" /> चरण 2: विवरण दर्ज करें
+              </span>
+              <h3 className="text-lg font-black text-amber-950 leading-tight">
+                अपना कूपन कोड प्राप्त करें
               </h3>
-              <p className="text-[10.5px] text-amber-900/80 font-medium">
-                यह कूपन नाहाटा जनरल स्टोर्स पर खरीदारी करते समय मान्य होगा।
+              <p className="text-xs text-amber-900/80 font-medium">
+                जीता गया इनाम: <strong className="text-[#86152B]">{selectedPrize.label}</strong>
               </p>
             </div>
 
             {formError && (
-              <div className="mb-3 p-2 bg-rose-50 border border-rose-200 rounded-xl text-rose-700 text-xs flex items-center gap-1.5">
+              <div className="p-2.5 bg-rose-50 border border-rose-200 rounded-xl text-rose-700 text-xs flex items-center gap-1.5">
                 <AlertCircle className="w-4 h-4 shrink-0 text-rose-600" />
                 <span>{formError}</span>
               </div>
             )}
 
-            <form onSubmit={handleClaimSubmit} className="space-y-2.5">
+            <form onSubmit={handleClaimSubmit} className="space-y-3">
               <div>
-                <label className="block text-[11px] font-bold text-slate-700 mb-0.5">
+                <label className="block text-xs font-bold text-slate-700 mb-1">
                   आपका शुभ नाम *
                 </label>
                 <input
@@ -436,12 +492,12 @@ export default function ScratchDirectClient() {
                   placeholder="उदा. राहुल जैन"
                   value={formData.fullName}
                   onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
-                  className="w-full px-3 py-2 text-sm rounded-xl border border-slate-300 bg-white focus:outline-none focus:ring-2 focus:ring-[#86152B] text-slate-900"
+                  className="w-full px-3.5 py-2.5 text-sm rounded-xl border border-slate-300 bg-white focus:outline-none focus:ring-2 focus:ring-[#86152B] text-slate-900"
                 />
               </div>
 
               <div>
-                <label className="block text-[11px] font-bold text-slate-700 mb-0.5">
+                <label className="block text-xs font-bold text-slate-700 mb-1">
                   व्हाट्सएप मोबाइल नंबर *
                 </label>
                 <input
@@ -453,22 +509,23 @@ export default function ScratchDirectClient() {
                   onChange={(e) =>
                     setFormData({ ...formData, phone: e.target.value.replace(/\D/g, '') })
                   }
-                  className="w-full px-3 py-2 text-sm rounded-xl border border-slate-300 bg-white focus:outline-none focus:ring-2 focus:ring-[#86152B] text-slate-900"
+                  className="w-full px-3.5 py-2.5 text-sm rounded-xl border border-slate-300 bg-white focus:outline-none focus:ring-2 focus:ring-[#86152B] text-slate-900"
                 />
               </div>
 
-              <div className="pt-1">
+              <div className="pt-2">
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="w-full py-2.5 px-4 rounded-xl bg-gradient-to-r from-[#86152B] via-[#A81837] to-[#86152B] hover:brightness-110 text-white font-black text-sm shadow-lg flex items-center justify-center gap-2 active:scale-98 transition-all disabled:opacity-50"
+                  className="w-full py-3 px-4 rounded-xl bg-gradient-to-r from-[#86152B] via-[#A81837] to-[#86152B] hover:brightness-110 text-white font-black text-sm shadow-lg flex items-center justify-center gap-2 active:scale-98 transition-all disabled:opacity-50"
                 >
                   {isSubmitting ? (
-                    <span>कूपन तैयार हो रहा है...</span>
+                    <span>कूपन सुरक्षित हो रहा है...</span>
                   ) : (
                     <>
                       <Gift className="w-4 h-4 text-amber-300" />
-                      <span>कूपन क्लेम करें & WhatsApp पर प्राप्त करें</span>
+                      <span>कूपन सुरक्षित करें & आगे बढ़ें</span>
+                      <ArrowRight className="w-4 h-4" />
                     </>
                   )}
                 </button>
@@ -477,14 +534,69 @@ export default function ScratchDirectClient() {
           </div>
         )}
 
-        {/* Claimed Coupon Success Card */}
-        {claimedCoupon && (
-          <div className="w-full max-w-[400px] mx-auto bg-gradient-to-b from-[#26030A] via-[#3A060F] to-[#1F0207] text-[#FFF4D8] rounded-3xl p-4 border-2 border-[#FFC857] shadow-2xl space-y-3.5 animate-in zoom-in-95 duration-300">
+        {/* SLIDE 3: WHATSAPP CHANNEL FOLLOW GATE */}
+        {currentSlide === 3 && (
+          <div className="w-full max-w-[420px] mx-auto bg-gradient-to-b from-[#26030A] via-[#3A060F] to-[#1F0207] text-[#FFF4D8] rounded-3xl p-5 border-2 border-[#FFC857] shadow-2xl space-y-4 animate-in fade-in zoom-in-95 duration-300 text-center">
+            <div className="space-y-1.5">
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-black bg-[#25D366]/20 text-[#25D366] border border-[#25D366]/40">
+                <Bell className="w-3.5 h-3.5 animate-bounce" /> चरण 3: वीकली ऑफर्स
+              </span>
+              <h3 className="text-xl font-black text-[#FFE89B] leading-tight">
+                रविवार वीकली लकी ड्रॉ & सेल!
+              </h3>
+              <p className="text-xs text-[#E8D9D0] leading-relaxed">
+                नाहाटा स्टोर्स के हर रविवार के वीकली लकी ड्रॉ, बम्पर सेल व नए डिस्काउंट सीधे WhatsApp पर पाने के लिए हमारा चैनल अभी फॉलो करें।
+              </p>
+            </div>
+
+            {/* WhatsApp Channel Follow CTA */}
+            <div className="space-y-2 pt-1">
+              <a
+                href="https://whatsapp.com/channel/0029VbDurpqA89MoAcdMYw3T"
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={() => setHasFollowedChannel(true)}
+                className="w-full py-3.5 px-4 rounded-2xl bg-[#25D366] hover:bg-[#20ba59] text-white font-black text-sm sm:text-base flex items-center justify-center gap-2 shadow-xl active:scale-95 transition-all"
+              >
+                <PhoneCall className="w-5 h-5" />
+                <span>👉 WhatsApp चैनल फॉलो करें</span>
+                <ExternalLink className="w-4 h-4" />
+              </a>
+
+              {hasFollowedChannel && (
+                <div className="p-2 rounded-xl bg-emerald-500/20 border border-emerald-400/40 text-emerald-300 text-xs font-bold flex items-center justify-center gap-1.5 animate-in fade-in">
+                  <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+                  <span>चैनल लिंक ओपन कर ली गई!</span>
+                </div>
+              )}
+            </div>
+
+            {/* Advance to Slide 4 */}
+            <div className="pt-2 border-t border-[#FFC857]/20">
+              <button
+                type="button"
+                onClick={() => {
+                  soundEngine.playSuccess();
+                  triggerCelebration();
+                  setCurrentSlide(4);
+                }}
+                className="w-full py-3 px-4 rounded-2xl bg-gradient-to-r from-[#FFC857] via-[#FFB020] to-[#FFC857] text-[#26030A] font-black text-sm flex items-center justify-center gap-2 shadow-lg hover:brightness-105 active:scale-95 transition-all"
+              >
+                <span>मैंने चैनल फॉलो कर लिया है — कूपन देखें</span>
+                <ArrowRight className="w-4 h-4" />
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* SLIDE 4: UNLOCKED COUPON TICKET & DIRECT WHATSAPP SHARE */}
+        {currentSlide === 4 && claimedCoupon && (
+          <div className="w-full max-w-[420px] mx-auto bg-gradient-to-b from-[#26030A] via-[#3A060F] to-[#1F0207] text-[#FFF4D8] rounded-3xl p-5 border-2 border-[#FFC857] shadow-2xl space-y-4 animate-in zoom-in-95 duration-300">
             <div className="text-center space-y-1">
               <span className="inline-flex items-center gap-1 px-3 py-0.5 rounded-full text-[10px] font-black bg-[#17864B] text-white">
                 <CheckCircle2 className="w-3 h-3" /> कूपन सफलतापूर्वक अनलॉक!
               </span>
-              <h3 className="text-lg font-black text-[#FFE89B]">
+              <h3 className="text-lg sm:text-xl font-black text-[#FFE89B]">
                 {selectedPrize.label}
               </h3>
               <p className="text-[11px] text-[#E8D9D0]">
@@ -493,12 +605,12 @@ export default function ScratchDirectClient() {
             </div>
 
             {/* Coupon Code Pill */}
-            <div className="bg-[#120104] p-3 rounded-2xl border border-dashed border-[#FFC857]/70 flex items-center justify-between">
+            <div className="bg-[#120104] p-3.5 rounded-2xl border border-dashed border-[#FFC857]/70 flex items-center justify-between">
               <div>
                 <span className="text-[9px] uppercase tracking-wider text-[#FFC857] font-bold block">
                   कूपन कोड
                 </span>
-                <span className="text-base font-black tracking-wider text-white font-mono">
+                <span className="text-base sm:text-lg font-black tracking-wider text-white font-mono">
                   {claimedCoupon.code}
                 </span>
               </div>
@@ -530,10 +642,10 @@ export default function ScratchDirectClient() {
                 href={getWhatsAppClaimUrl()}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="w-full py-2.5 px-3 rounded-xl bg-[#17864B] hover:bg-[#157340] text-white font-black text-xs sm:text-sm flex items-center justify-center gap-2 shadow-lg active:scale-98 transition-all"
+                className="w-full py-3 px-3 rounded-xl bg-[#17864B] hover:bg-[#157340] text-white font-black text-xs sm:text-sm flex items-center justify-center gap-2 shadow-lg active:scale-98 transition-all"
               >
                 <PhoneCall className="w-4 h-4" />
-                <span>मनोज भैया को WhatsApp पर कूपन भेजें</span>
+                <span>📲 मनोज भैया को WhatsApp पर कूपन भेजें</span>
               </a>
 
               <a

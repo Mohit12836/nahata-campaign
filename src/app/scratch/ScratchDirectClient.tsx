@@ -29,10 +29,10 @@ import { Coupon, Prize } from '@/types';
 import { ScratchCard } from '@/components/ScratchCard';
 
 // Exact distribution requested: Total 1,000 coupons
-// 1. ₹1,000 का सामान फ्री -> 5 (0.5%)
-// 2. ₹500 का सामान फ्री  -> 15 (1.5%)
-// 3. ₹200 का सामान फ्री  -> 30 (3.0%)
-// 4. ₹100 का सामान फ्री  -> 150 (15.0%)
+// 1. ₹1,000 का वाउचर -> 5 (0.5%)
+// 2. ₹500 का वाउचर  -> 15 (1.5%)
+// 3. ₹200 का वाउचर  -> 30 (3.0%)
+// 4. ₹100 का वाउचर  -> 150 (15.0%)
 // 5. आकर्षक गिफ्ट हैम्पर -> 800 (80.0%)
 // Total: 1,000 Coupons (100%)
 interface DirectPrizeTier {
@@ -64,9 +64,9 @@ const PRIZE_TIERS: DirectPrizeTier[] = [
     amount: 100,
     count: 150,
     probabilityPercent: 15,
-    label: '🛍️ ₹100 का सामान फ्री',
+    label: '🛍️ ₹100 का वाउचर',
     badge: '150 ग्राहकों के लिए',
-    tagline: '₹2,000 से ऊपर की खरीद पर ₹100 का सामान फ्री',
+    tagline: '₹2,000 से ऊपर की खरीद पर ₹100 का वाउचर',
     color: 'from-emerald-500 via-green-500 to-teal-600',
     type: 'cash_voucher',
   },
@@ -75,9 +75,9 @@ const PRIZE_TIERS: DirectPrizeTier[] = [
     amount: 200,
     count: 30,
     probabilityPercent: 3,
-    label: '🛍️ ₹200 का सामान फ्री',
+    label: '🛍️ ₹200 का वाउचर',
     badge: '30 ग्राहकों के लिए',
-    tagline: '₹2,000 से ऊपर की खरीद पर ₹200 का सामान फ्री',
+    tagline: '₹2,000 से ऊपर की खरीद पर ₹200 का वाउचर',
     color: 'from-blue-600 via-cyan-500 to-teal-500',
     type: 'cash_voucher',
   },
@@ -86,9 +86,9 @@ const PRIZE_TIERS: DirectPrizeTier[] = [
     amount: 500,
     count: 15,
     probabilityPercent: 1.5,
-    label: '🎉 ₹500 का सामान फ्री',
+    label: '🎉 ₹500 का वाउचर',
     badge: '15 ग्राहकों के लिए',
-    tagline: '₹2,000 से ऊपर की खरीद पर ₹500 का सामान फ्री',
+    tagline: '₹2,000 से ऊपर की खरीद पर ₹500 का वाउचर',
     color: 'from-purple-600 via-pink-500 to-rose-500',
     type: 'cash_voucher',
   },
@@ -97,9 +97,9 @@ const PRIZE_TIERS: DirectPrizeTier[] = [
     amount: 1000,
     count: 5,
     probabilityPercent: 0.5,
-    label: '🏆 ₹1,000 का सामान फ्री',
+    label: '🏆 ₹1,000 का वाउचर',
     badge: '5 महा-विजेताओं के लिए',
-    tagline: 'महा-धमाका! ₹2,000 से ऊपर की खरीद पर ₹1,000 का सामान फ्री',
+    tagline: 'महा-धमाका! ₹2,000 से ऊपर की खरीद पर ₹1,000 का वाउचर',
     color: 'from-rose-600 via-red-500 to-amber-500',
     type: 'cash_voucher',
   },
@@ -272,13 +272,13 @@ export default function ScratchDirectClient() {
     const text = `🛍️ *₹2,000 से ऊपर की खरीद पर निश्चित उपहार!*
 
 🎟️ *नाहाटा जनरल स्टोर्स — बस स्टैंड रोड, कुशलगढ़ (राजस्थान)*
-कार्ड स्क्रैच करें और पाएं शानदार उपहार या फ्री सामान!
+कार्ड स्क्रैच करें और पाएं शानदार उपहार या वाउचर!
 
 🎁 *इनाम:*
-- 🏆 ₹1,000 का सामान फ्री
-- 🎉 ₹500 का सामान फ्री
-- 🛍️ ₹200 का सामान फ्री
-- 🛍️ ₹100 का सामान फ्री
+- 🏆 ₹1,000 का वाउचर
+- 🎉 ₹500 का वाउचर
+- 🛍️ ₹200 का वाउचर
+- 🛍️ ₹100 का वाउचर
 - 🎁 आकर्षक गिफ्ट हैम्पर
 
 ✨ खरीदारी करें, स्क्रैच करें और अपना लकी उपहार तुरंत अनलॉक करें!
@@ -372,7 +372,7 @@ export default function ScratchDirectClient() {
         <div className="bg-gradient-to-r from-[#26030A] via-[#3A060F] to-[#26030A] p-2.5 rounded-2xl border border-[#FFC857]/30 shadow-md text-center">
           <p className="text-[11.5px] font-bold text-amber-200 flex items-center justify-center gap-1.5">
             <Sparkles className="w-3.5 h-3.5 text-[#FFC857]" />
-            <span>हर स्क्रैच कार्ड में उपहार या फ्री सामान का वाउचर छुपा है!</span>
+            <span>हर स्क्रैच कार्ड में उपहार या वाउचर छुपा है!</span>
           </p>
         </div>
 
@@ -557,8 +557,8 @@ export default function ScratchDirectClient() {
           </div>
 
           <ul className="text-[11px] text-[#E8D9D0] space-y-1.5 list-disc list-inside font-medium">
-            <li>🛍️ **₹2,000 से ऊपर की खरीद पर निश्चित उपहार:** प्रत्येक पात्र खरीदारी पर निश्चित उपहार या फ्री सामान वाउचर मान्य है।</li>
-            <li>🎁 **स्क्रैच कार्ड:** कार्ड स्क्रैच करने पर निकला हुआ उपहार या फ्री सामान तुरंत कूपन कोड के साथ अनलॉक होगा।</li>
+            <li>🛍️ **₹2,000 से ऊपर की खरीद पर निश्चित उपहार:** प्रत्येक पात्र खरीदारी पर निश्चित उपहार या वाउचर मान्य है।</li>
+            <li>🎁 **स्क्रैच कार्ड:** कार्ड स्क्रैच करने पर निकला हुआ उपहार या वाउचर तुरंत कूपन कोड के साथ अनलॉक होगा।</li>
             <li>🏪 **दुकान पर मान्य:** यह कूपन नाहाटा जनरल स्टोर्स से खरीदारी करते समय बिल में तुरंत लागू होगा।</li>
             <li>📍 **स्थान:** नाहाटा जनरल स्टोर्स, बस स्टैंड रोड, कुशलगढ़ (राजस्थान)।</li>
             <li>📞 **संपर्क / WhatsApp:** 8290447144 (मनोज भैया)।</li>

@@ -84,7 +84,9 @@ export const registerMerchantApplication = (
 };
 
 export const getStoredCampaign = (): Campaign => {
-  if (typeof window === 'undefined') return memCampaign;
+  if (typeof window === 'undefined') {
+    return readServerDiskJson('nahata_campaign', memCampaign);
+  }
   try {
     const data = localStorage.getItem(STORAGE_KEYS.CAMPAIGN);
     return data ? JSON.parse(data) : memCampaign;
@@ -95,6 +97,7 @@ export const getStoredCampaign = (): Campaign => {
 
 export const saveStoredCampaign = (campaign: Campaign): void => {
   memCampaign = campaign;
+  writeServerDiskJson('nahata_campaign', campaign);
   if (typeof window === 'undefined') return;
   try {
     localStorage.setItem(STORAGE_KEYS.CAMPAIGN, JSON.stringify(campaign));
@@ -119,8 +122,43 @@ export const saveStoredPrizes = (prizes: Prize[]): void => {
   } catch {}
 };
 
+// Helper for server-side persistence in /tmp (survives warm serverless containers)
+const readServerDiskJson = <T>(key: string, fallback: T): T => {
+  if (typeof window !== 'undefined') return fallback;
+  try {
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    const fs = require('fs');
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    const path = require('path');
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    const os = require('os');
+    const fPath = path.join(os.tmpdir(), `${key}.json`);
+    if (fs.existsSync(fPath)) {
+      const data = fs.readFileSync(fPath, 'utf-8');
+      return JSON.parse(data);
+    }
+  } catch {}
+  return fallback;
+};
+
+const writeServerDiskJson = <T>(key: string, data: T): void => {
+  if (typeof window !== 'undefined') return;
+  try {
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    const fs = require('fs');
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    const path = require('path');
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    const os = require('os');
+    const fPath = path.join(os.tmpdir(), `${key}.json`);
+    fs.writeFileSync(fPath, JSON.stringify(data), 'utf-8');
+  } catch {}
+};
+
 export const getStoredCustomers = (): Customer[] => {
-  if (typeof window === 'undefined') return memCustomers;
+  if (typeof window === 'undefined') {
+    return readServerDiskJson('nahata_customers', memCustomers);
+  }
   try {
     const data = localStorage.getItem(STORAGE_KEYS.CUSTOMERS);
     return data ? JSON.parse(data) : memCustomers;
@@ -131,6 +169,7 @@ export const getStoredCustomers = (): Customer[] => {
 
 export const saveStoredCustomers = (customers: Customer[]): void => {
   memCustomers = customers;
+  writeServerDiskJson('nahata_customers', customers);
   if (typeof window === 'undefined') return;
   try {
     localStorage.setItem(STORAGE_KEYS.CUSTOMERS, JSON.stringify(customers));
@@ -138,7 +177,9 @@ export const saveStoredCustomers = (customers: Customer[]): void => {
 };
 
 export const getStoredCoupons = (): Coupon[] => {
-  if (typeof window === 'undefined') return memCoupons;
+  if (typeof window === 'undefined') {
+    return readServerDiskJson('nahata_coupons', memCoupons);
+  }
   try {
     const data = localStorage.getItem(STORAGE_KEYS.COUPONS);
     return data ? JSON.parse(data) : memCoupons;
@@ -149,6 +190,7 @@ export const getStoredCoupons = (): Coupon[] => {
 
 export const saveStoredCoupons = (coupons: Coupon[]): void => {
   memCoupons = coupons;
+  writeServerDiskJson('nahata_coupons', coupons);
   if (typeof window === 'undefined') return;
   try {
     localStorage.setItem(STORAGE_KEYS.COUPONS, JSON.stringify(coupons));

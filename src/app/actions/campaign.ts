@@ -99,19 +99,13 @@ export async function claimCampaignPrizeAction(input: ClaimPrizeInput): Promise<
           p_target_prize_id: input.targetPrizeId || null,
         });
 
-        if (error) {
-          return {
-            status: 'ERROR',
-            message: `डेटाबेस त्रुटि: ${error.message}`,
-          };
+        if (!error && data) {
+          result = data as PlayResultResponse;
+        } else {
+          console.warn('[SUPABASE CLAIM FALLBACK]', error?.message || 'Empty data returned');
         }
-
-        result = data as PlayResultResponse;
       } catch (err: unknown) {
-        return {
-          status: 'ERROR',
-          message: err instanceof Error ? err.message : 'सर्वर प्रक्रिया में त्रुटि',
-        };
+        console.warn('[SUPABASE NETWORK FALLBACK]', err instanceof Error ? err.message : err);
       }
     }
   }

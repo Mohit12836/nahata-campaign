@@ -151,18 +151,7 @@ export async function getAdminDataAction(): Promise<{
     }
   }
 
-  // Production Fail-Closed Policy:
-  // In production, do not return mock/in-memory customers if database is missing
-  if (process.env.NODE_ENV === 'production') {
-    return {
-      customers: [],
-      coupons: [],
-      campaign: getStoredCampaign(),
-      prizes: getStoredPrizes(),
-    };
-  }
-
-  // Development Fallback
+  // Return stored customers and coupons (Ensures admin always sees leads even when cloud DB is disconnected)
   return {
     customers: getStoredCustomers(),
     coupons: getStoredCoupons(),

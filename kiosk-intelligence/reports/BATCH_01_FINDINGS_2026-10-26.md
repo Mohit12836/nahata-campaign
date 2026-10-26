@@ -49,7 +49,7 @@
 3. Separately sourced `cycle_events` for correction opens, future extensions and verification stages.
 4. Local competitor/business survey and actual costs/handling time to support high-margin sorting.
 5. Structured dossier YAML/DB import and change review workflow.
-6. Scheduled source monitoring implementation and alerts; research snapshots are NOT live monitoring.
+6. Daily official-source alert task is enabled for high-priority portals; fully automated source ingestion/GitHub sync is NOT implemented.
 7. P0 security: previously exposed Supabase privileged key still requires rotation and history remediation before production merge.
 
 ## Next researched sectors

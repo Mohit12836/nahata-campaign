@@ -33,6 +33,7 @@
         "<all_urls>"
       ],
       "js": [
+        "kiosk-error-resolver.js",
         "content.js"
       ],
       "css": [

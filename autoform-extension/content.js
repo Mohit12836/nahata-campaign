@@ -496,6 +496,22 @@
       });
     }
 
+    // 6. Ground Reality Portal Errors (eKYC Outdated, Live Photo, UIDAI Timeout, Payment Pending)
+    if (typeof kioskErrorResolver !== 'undefined' && kioskErrorResolver.detectPageErrors) {
+      const pageErrors = kioskErrorResolver.detectPageErrors(bodyText);
+      pageErrors.forEach(err => {
+        checkpoints.push({
+          type: 'PORTAL_ERROR_ACTION',
+          severity: err.severity,
+          label: err.title,
+          solutionText: err.solutionText,
+          actionButtonText: err.actionButtonText,
+          targetUrl: err.targetUrl,
+          errorId: err.id
+        });
+      });
+    }
+
     return checkpoints;
   }
 

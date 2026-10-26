@@ -432,6 +432,16 @@ const SmartParser = {
       }
     }
 
+    // 6. Email fields MUST contain @ and match email keys only
+    if (combinedTarget.includes('email') || field.type === 'email' || combinedTarget.includes('ईमेल')) {
+      if (!dataValue || typeof dataValue !== 'string' || !dataValue.includes('@')) {
+        return 0;
+      }
+      if (!normKey.includes('email') && !normKey.includes('mail')) {
+        return 0;
+      }
+    }
+
     let score = 0;
     const targetTexts = [
       field.label,

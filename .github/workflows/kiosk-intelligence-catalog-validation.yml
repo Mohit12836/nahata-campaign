@@ -1,0 +1,30 @@
+name: Validate Kiosk Intelligence Catalog
+
+on:
+  pull_request:
+    paths:
+      - 'kiosk-intelligence/catalog/**'
+      - 'kiosk-intelligence/tools/validate_catalog.py'
+      - '.github/workflows/kiosk-intelligence-catalog-validation.yml'
+  push:
+    branches:
+      - 'docs/kiosk-service-intelligence-v1'
+    paths:
+      - 'kiosk-intelligence/catalog/**'
+      - 'kiosk-intelligence/tools/validate_catalog.py'
+      - '.github/workflows/kiosk-intelligence-catalog-validation.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    name: Check CSV schema, IDs and source references
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Validate public research catalogs
+        run: python kiosk-intelligence/tools/validate_catalog.py

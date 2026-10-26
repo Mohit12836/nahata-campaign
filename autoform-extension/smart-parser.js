@@ -223,6 +223,7 @@ const SmartParser = {
       }
     }
 
+    data.__rawText = rawText;
     return data;
   },
 
@@ -346,14 +347,38 @@ const SmartParser = {
           status: 'ready'
         });
       } else {
-        // Field exists on page, but rough data didn't have a value for it
-        mappings.push({
-          field: fieldDescriptor,
-          matchedKey: null,
-          valueToFill: '',
-          confidence: 0,
-          status: 'unmatched'
-        });
+        // Fallback to Dynamic Semantic RAG Vault for unknown/arbitrary government fields
+        let ragMatch = null;
+        let ragEngine = (typeof semanticRagVault !== 'undefined') ? semanticRagVault : null;
+        if (!ragEngine && typeof require === 'function') {
+          try { ragEngine = require('./semantic-rag-vault.js').semanticRagVault; } catch(e) {}
+        }
+
+        if (ragEngine && ragEngine.queryDossier) {
+          const rawSource = extractedData.__rawText || Object.entries(extractedData).map(([k, v]) => `${k}: ${v}`).join('\n');
+          const dossier = ragEngine.ingestToDossier(rawSource);
+          ragMatch = ragEngine.queryDossier(dossier, fieldDescriptor);
+        }
+
+        if (ragMatch && ragMatch.value) {
+          mappings.push({
+            field: fieldDescriptor,
+            matchedKey: ragMatch.sourceConcept || ragMatch.sourceKey || 'rag_semantic',
+            valueToFill: ragMatch.value,
+            confidence: Math.round(ragMatch.confidence * 100),
+            status: 'ready',
+            isRagAugmented: true
+          });
+        } else {
+          // Field exists on page, but rough data didn't have a value for it
+          mappings.push({
+            field: fieldDescriptor,
+            matchedKey: null,
+            valueToFill: '',
+            confidence: 0,
+            status: 'unmatched'
+          });
+        }
       }
     }
 

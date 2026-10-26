@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AutoForm AI - Commercial Pro</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <div class="app-container">
+    <!-- Header -->
+    <header class="app-header">
+      <div class="brand">
+        <div class="brand-icon">⚡</div>
+        <div class="brand-title">AutoForm <span>PRO</span></div>
+      </div>
+      <div class="header-actions">
+        <button id="btnSoundToggle" class="icon-btn" title="Sound Effects (On/Off)">🔔</button>
+        <button id="btnSidePanel" class="icon-btn" title="Open Side Panel (Docked)">📌</button>
+        <button id="btnClearAll" class="icon-btn" title="Clear All">🗑️</button>
+      </div>
+    </header>
+
+    <!-- Page Status -->
+    <div class="page-status">
+      <div>
+        <span class="status-dot"></span>
+        <span id="pageTitle" style="font-weight: 500;">Detecting active page...</span>
+      </div>
+      <span id="fieldsCountBadge" class="fields-badge">0 Fields</span>
+    </div>
+
+    <!-- Rough Data Section -->
+    <div class="section-box">
+      <div class="section-head">
+        <span class="section-label">Rough Data / Profiles</span>
+        <div style="display: flex; gap: 4px; align-items: center;">
+          <button id="btnVoiceInput" class="icon-btn" style="width: auto; padding: 2px 8px; font-size: 11px; gap: 4px;" title="Voice to Text (Speak rough details)">
+            <span id="voiceIcon">🎙️</span> <span id="voiceText">Voice</span>
+          </button>
+          <button id="btnSaveCitizen" class="icon-btn" style="width: auto; padding: 2px 8px; font-size: 11px; background: rgba(249, 115, 22, 0.2); border-color: rgba(249, 115, 22, 0.4); color: #FDBA74;" title="Save current citizen to Kiosk Vault">💾 Save Citizen</button>
+        </div>
+      </div>
+
+      <!-- Kiosk Citizen Fast Search Bar -->
+      <div class="kiosk-search-wrap">
+        <div class="kiosk-input-box">
+          <span class="kiosk-search-icon">🔍</span>
+          <input type="text" id="kioskCitizenSearch" class="kiosk-search-input" placeholder="Search Citizen by Mobile, Samagra, or Name..." autocomplete="off">
+          <button id="btnClearSearch" class="kiosk-clear-btn" style="display: none;">✕</button>
+        </div>
+        <div id="kioskResultsDropdown" class="kiosk-dropdown" style="display: none;"></div>
+      </div>
+
+      <!-- Quick Preset Pills & Profile Selector -->
+      <div class="sample-pills">
+        <button class="pill-btn" data-preset="mponline" style="border-color: rgba(16, 185, 129, 0.4); background: rgba(16, 185, 129, 0.1); color: #34D399;">🏛️ MP Online Citizen</button>
+        <button class="pill-btn" data-preset="applicant">👤 Job Candidate</button>
+        <button class="pill-btn" data-preset="startup">🚀 Startup Profile</button>
+        <button class="pill-btn" data-preset="ecommerce">📦 Order & Address</button>
+        <button class="pill-btn" data-preset="vendor">🏢 Vendor / GST</button>
+      </div>
+
+      <!-- Textarea for raw text -->
+      <textarea id="roughDataInput" class="rough-textarea" placeholder="Yahan kaisa bhi rough data paste karein ya 🎙️ Voice dabakar bole..."></textarea>
+    </div>
+
+    <!-- Sequence Preview Section -->
+    <div class="section-box glow">
+      <div class="section-head">
+        <span class="section-label">Sequence Se Jamaye Gaye Fields (<span id="matchedCount">0</span>)</span>
+        <button id="btnRescan" class="icon-btn" style="width: 22px; height: 22px; font-size: 10px;" title="Rescan Page">🔄</button>
+      </div>
+
+      <div id="sequenceList" class="sequence-container">
+        <div style="text-align: center; color: var(--text-dim); padding: 20px 0; font-size: 11px;">
+          Pehle rough data paste karein ya "Auto-Match" par click karein.
+        </div>
+      </div>
+    </div>
+
+    <!-- Progress Indicator -->
+    <div id="progressContainer" class="progress-container">
+      <div class="progress-text">
+        <span id="progressStatus">Filling in sequence...</span>
+        <span id="progressCount">0 / 0</span>
+      </div>
+      <div class="progress-bar-bg">
+        <div id="progressBar" class="progress-fill"></div>
+      </div>
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="action-grid">
+      <button id="btnMatch" class="btn btn-secondary">⚡ Auto-Match</button>
+      <button id="btnInspect" class="btn btn-secondary">🔍 Inspect Page</button>
+      <button id="btnUndo" class="btn btn-secondary" style="display: none;">↩️ Undo Fill</button>
+      <button id="btnFill" class="btn btn-primary" disabled>
+        <span>🚀 Sequence Se Bharo (Fill Form)</span>
+      </button>
+    </div>
+  </div>
+
+  <script src="audio-sfx.js"></script>
+  <script src="mponline-vault.js"></script>
+  <script src="smart-parser.js"></script>
+  <script src="kiosk-recipes.js"></script>
+  <script src="kiosk-pilot-engine.js"></script>
+  <script src="google-sheet-sync.js"></script>
+  <script src="popup.js"></script>
+</body>
+</html>

@@ -1,0 +1,43 @@
+/* AutoForm AI - In-Page Visual Highlights & Micro-animations */
+
+.autoform-field-active {
+  outline: 2.5px solid #6366F1 !important;
+  outline-offset: 2px !important;
+  box-shadow: 0 0 16px rgba(99, 102, 241, 0.45) !important;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1) !important;
+  background-color: rgba(99, 102, 241, 0.05) !important;
+}
+
+.autoform-field-success {
+  outline: 2px solid #10B981 !important;
+  outline-offset: 2px !important;
+  box-shadow: 0 0 14px rgba(16, 185, 129, 0.35) !important;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1) !important;
+  background-color: rgba(16, 185, 129, 0.04) !important;
+}
+
+.autoform-badge-tooltip {
+  position: absolute;
+  z-index: 2147483647;
+  padding: 4px 8px;
+  background: #0F172A;
+  color: #10B981;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-size: 11px;
+  font-weight: 600;
+  border-radius: 6px;
+  border: 1px solid rgba(16, 185, 129, 0.4);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.35);
+  pointer-events: none;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  opacity: 0;
+  transform: translateY(4px);
+  transition: opacity 0.25s ease, transform 0.25s ease;
+}
+
+.autoform-badge-tooltip.visible {
+  opacity: 1;
+  transform: translateY(0);
+}

@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AutoForm AI - Commercial Interactive Live Playground</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="content.css">
+  <style>
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    :root {
+      --bg: #070B14;
+      --card: rgba(15, 23, 42, 0.75);
+      --border: rgba(255, 255, 255, 0.1);
+      --primary: #6366F1;
+      --primary-hover: #4F46E5;
+      --emerald: #10B981;
+      --amber: #F59E0B;
+      --text: #F8FAFC;
+      --text-muted: #94A3B8;
+      --text-dim: #64748B;
+    }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+      min-height: 100vh;
+      padding: clamp(1.5rem, 4vw, 3.5rem) 1rem 6rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      line-height: 1.6;
+    }
+    .container {
+      width: 100%;
+      max-width: min(100% - 2rem, 880px);
+      margin-inline: auto;
+    }
+    .header-box {
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 5px 14px;
+      border-radius: 999px;
+      background: rgba(99, 102, 241, 0.15);
+      color: #A5B4FC;
+      font-size: 12px;
+      font-weight: 700;
+      margin-bottom: 12px;
+      border: 1px solid rgba(99, 102, 241, 0.3);
+      letter-spacing: 0.5px;
+    }
+    h1 {
+      font-size: clamp(2rem, 4vw, 2.75rem);
+      font-weight: 800;
+      letter-spacing: -0.025em;
+      margin-bottom: 10px;
+    }
+    h1 span {
+      background: linear-gradient(135deg, #818CF8 0%, #34D399 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    p.subtitle {
+      color: var(--text-muted);
+      font-size: 15px;
+      max-width: 600px;
+      margin-inline: auto;
+    }
+
+    .form-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: clamp(1.5rem, 3.5vw, 2.75rem);
+      backdrop-filter: blur(20px);
+      box-shadow: 0 24px 48px -12px rgba(0, 0, 0, 0.5);
+    }
+    .section-title {
+      font-size: 14px;
+      font-weight: 700;
+      color: #A5B4FC;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      margin: 1.5rem 0 1rem;
+      padding-bottom: 6px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .section-title:first-of-type {
+      margin-top: 0;
+    }
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr));
+      gap: 1.25rem;
+    }
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .form-group.full-width {
+      grid-column: 1 / -1;
+    }
+    label {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    input[type="text"],
+    input[type="email"],
+    input[type="tel"],
+    input[type="number"],
+    input[type="url"],
+    input[type="date"],
+    select,
+    textarea {
+      width: 100%;
+      background: rgba(7, 11, 20, 0.7);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 11px 14px;
+      color: var(--text);
+      font-family: inherit;
+      font-size: 13.5px;
+      outline: none;
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    input:focus, select:focus, textarea:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 14px rgba(99, 102, 241, 0.35);
+      background: rgba(15, 23, 42, 0.9);
+    }
+    select option {
+      background: #0F172A;
+      color: #F8FAFC;
+    }
+    .radio-group, .checkbox-group {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 16px;
+      padding: 6px 0;
+    }
+    .radio-item, .checkbox-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+      font-size: 13.5px;
+      user-select: none;
+    }
+    .btn-submit {
+      width: 100%;
+      background: linear-gradient(135deg, var(--primary) 0%, #4F46E5 100%);
+      color: white;
+      padding: 14px;
+      border: none;
+      border-radius: 12px;
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s;
+      margin-top: 1.5rem;
+      box-shadow: 0 8px 24px rgba(99, 102, 241, 0.35);
+    }
+    .btn-submit:hover {
+      filter: brightness(1.1);
+      box-shadow: 0 10px 30px rgba(99, 102, 241, 0.5);
+    }
+    .submitted-preview {
+      margin-top: 1.5rem;
+      padding: 1.25rem;
+      background: rgba(16, 185, 129, 0.08);
+      border: 1px solid rgba(16, 185, 129, 0.3);
+      border-radius: 12px;
+      display: none;
+      font-size: 13px;
+      color: #34D399;
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    /* Floating Interactive Commercial Demo Bar */
+    .demo-floating-dock {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(15, 23, 42, 0.92);
+      border: 1px solid rgba(99, 102, 241, 0.4);
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.6), 0 0 20px rgba(99, 102, 241, 0.25);
+      border-radius: 999px;
+      padding: 8px 14px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      z-index: 10000;
+      backdrop-filter: blur(16px);
+      max-width: 95vw;
+      overflow-x: auto;
+    }
+    .dock-label {
+      font-size: 12px;
+      font-weight: 700;
+      color: #A5B4FC;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      white-space: nowrap;
+      padding-right: 6px;
+      border-right: 1px solid rgba(255, 255, 255, 0.12);
+    }
+    .dock-btn {
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      color: #F8FAFC;
+      font-size: 12px;
+      font-weight: 600;
+      padding: 7px 14px;
+      border-radius: 999px;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .dock-btn:hover {
+      background: var(--primary);
+      border-color: var(--primary);
+      box-shadow: 0 0 14px rgba(99, 102, 241, 0.4);
+      transform: translateY(-1px);
+    }
+    .dock-btn.reset {
+      background: rgba(239, 68, 68, 0.1);
+      border-color: rgba(239, 68, 68, 0.3);
+      color: #FCA5A5;
+    }
+    .dock-btn.reset:hover {
+      background: #EF4444;
+      color: white;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header-box">
+      <div class="badge">⚡ COMMERCIAL TEST BENCH</div>
+      <h1>AutoForm AI <span>Live Playground</span></h1>
+      <p class="subtitle">Real-world messy data ko web forms me sequence ke sath bharne ka live demo. Extension open karke test karein ya neeche floating bar se 1-click me try karein!</p>
+    </div>
+
+    <div class="form-card">
+      <form id="commercialDemoForm">
+        <!-- 1. Personal & Identity -->
+        <div class="section-title">👤 1. Candidate / Personal Details</div>
+        <div class="form-grid">
+          <div class="form-group">
+            <label for="fullName">Full Name *</label>
+            <input type="text" id="fullName" name="fullName" placeholder="e.g. Vikram Singhania" required>
+          </div>
+          <div class="form-group">
+            <label for="email">Email Address *</label>
+            <input type="email" id="email" name="email" placeholder="e.g. vikram@techventures.in" required>
+          </div>
+          <div class="form-group">
+            <label for="phone">Phone / Mobile Number *</label>
+            <input type="tel" id="phone" name="phone" placeholder="e.g. 9876543210" required>
+          </div>
+          <div class="form-group">
+            <label>Gender *</label>
+            <div class="radio-group">
+              <label class="radio-item"><input type="radio" name="gender" value="Male" id="genderMale"> Male</label>
+              <label class="radio-item"><input type="radio" name="gender" value="Female" id="genderFemale"> Female</label>
+              <label class="radio-item"><input type="radio" name="gender" value="Other" id="genderOther"> Other</label>
+            </div>
+          </div>
+        </div>
+
+        <!-- 2. Professional & Job -->
+        <div class="section-title">💼 2. Career & Professional Profile</div>
+        <div class="form-grid">
+          <div class="form-group">
+            <label for="role">Job Role / Designation</label>
+            <select id="role" name="role">
+              <option value="">-- Select Role --</option>
+              <option value="Senior Full Stack Developer">Senior Full Stack Developer</option>
+              <option value="Enterprise SaaS Specialist">Enterprise SaaS Specialist</option>
+              <option value="Frontend Engineer">Frontend Engineer</option>
+              <option value="Backend Engineer">Backend Engineer</option>
+              <option value="Product Manager">Product Manager</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="experience">Years of Experience</label>
+            <input type="text" id="experience" name="experience" placeholder="e.g. 8 years">
+          </div>
+          <div class="form-group">
+            <label for="skills">Key Skills & Stack</label>
+            <input type="text" id="skills" name="skills" placeholder="e.g. React, Next.js, TypeScript, Python">
+          </div>
+          <div class="form-group">
+            <label for="website">Portfolio / Website URL</label>
+            <input type="url" id="website" name="website" placeholder="https://vikramsingh.dev">
+          </div>
+          <div class="form-group">
+            <label for="linkedin">LinkedIn Profile URL</label>
+            <input type="url" id="linkedin" name="linkedin" placeholder="https://linkedin.com/in/username">
+          </div>
+        </div>
+
+        <!-- 3. Location & Address -->
+        <div class="section-title">📍 3. Location & Logistics</div>
+        <div class="form-grid">
+          <div class="form-group">
+            <label for="city">City</label>
+            <input type="text" id="city" name="city" placeholder="e.g. Bengaluru">
+          </div>
+          <div class="form-group">
+            <label for="state">State</label>
+            <select id="state" name="state">
+              <option value="">-- Select State --</option>
+              <option value="Karnataka">Karnataka</option>
+              <option value="Maharashtra">Maharashtra</option>
+              <option value="Gujarat">Gujarat</option>
+              <option value="Delhi">Delhi</option>
+              <option value="Tamil Nadu">Tamil Nadu</option>
+              <option value="Telangana">Telangana</option>
+              <option value="Uttar Pradesh">Uttar Pradesh</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="pincode">Pincode / Postal Code</label>
+            <input type="text" id="pincode" name="pincode" placeholder="e.g. 560001">
+          </div>
+        </div>
+
+        <!-- 4. Bio & Declarations -->
+        <div class="section-title">📝 4. Summary & Verification</div>
+        <div class="form-grid">
+          <div class="form-group full-width">
+            <label for="about">About / Professional Bio</label>
+            <textarea id="about" name="about" rows="3" placeholder="Brief summary of background and achievements..."></textarea>
+          </div>
+          <div class="form-group full-width">
+            <label class="checkbox-item">
+              <input type="checkbox" id="terms" name="terms">
+              <span>I confirm that the rough details submitted above are accurate, genuine, and verified.</span>
+            </label>
+          </div>
+        </div>
+
+        <button type="submit" class="btn-submit">Submit Form & Verify Payload</button>
+      </form>
+
+      <div id="submittedPreview" class="submitted-preview"></div>
+    </div>
+  </div>
+
+  <!-- Interactive Floating Demo Dock -->
+  <div class="demo-floating-dock">
+    <div class="dock-label">⚡ 1-Click Test Demo:</div>
+    <button class="dock-btn" id="dockBtnCandidate">👤 Job Candidate</button>
+    <button class="dock-btn" id="dockBtnStartup">🚀 Startup Profile</button>
+    <button class="dock-btn reset" id="dockBtnReset">🔄 Clear Form</button>
+  </div>
+
+  <script src="audio-sfx.js"></script>
+  <script src="smart-parser.js"></script>
+  <script src="content.js"></script>
+  <script>
+    // Form submission listener
+    document.getElementById('commercialDemoForm').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const formData = new FormData(e.target);
+      const data = {};
+      for (const [key, val] of formData.entries()) {
+        data[key] = val;
+      }
+      const preview = document.getElementById('submittedPreview');
+      preview.style.display = 'block';
+      preview.innerHTML = `<strong>🎉 PAYLOAD VERIFIED & SUBMITTED SUCCESSFULLY!</strong><br><pre style="margin-top: 8px; font-size: 12px; white-space: pre-wrap;">${JSON.stringify(data, null, 2)}</pre>`;
+      if (window.SoundEngine) SoundEngine.playCompleteChime();
+    });
+
+    // In-page 1-Click Interactive Demo Buttons
+    document.getElementById('dockBtnCandidate').addEventListener('click', async () => {
+      const roughData = `
+        Candidate: Vikram Singhania
+        Email: vikram.singh@techventures.in
+        Phone: 9876543210
+        Gender: Male
+        Role: Senior Full Stack Developer
+        Years of Experience: 8 years
+        City: Bengaluru
+        State: Karnataka
+        Pincode: 560001
+        Portfolio: https://vikramsingh.dev
+        LinkedIn: https://linkedin.com/in/vikramsingh
+        Skills: React, Next.js, TypeScript, Tailwind, Python
+        About: 8 years building scalable enterprise software and AI applications.
+        Terms: Yes, I agree to the declaration.
+      `;
+      await runInPageFillDemo(roughData);
+    });
+
+    document.getElementById('dockBtnStartup').addEventListener('click', async () => {
+      const roughData = `
+        Candidate: Priya Mehta
+        Email: priya@zenflow.io
+        Phone: 9812345678
+        Gender: Female
+        Role: Enterprise SaaS Specialist
+        Years of Experience: 10 years
+        City: Bengaluru
+        State: Karnataka
+        Pincode: 560103
+        Portfolio: https://zenflow.io
+        LinkedIn: https://linkedin.com/in/priyamehta
+        Skills: Enterprise Architecture, B2B SaaS, Cloud Automation
+        About: Founder at ZenFlow Technologies building autonomous workflow systems.
+        Terms: True
+      `;
+      await runInPageFillDemo(roughData);
+    });
+
+    document.getElementById('dockBtnReset').addEventListener('click', () => {
+      document.getElementById('commercialDemoForm').reset();
+      document.getElementById('submittedPreview').style.display = 'none';
+      if (window.SoundEngine) SoundEngine.playTick();
+    });
+
+    async function runInPageFillDemo(roughText) {
+      if (window.SoundEngine) SoundEngine.playTick();
+      const fields = window.__AutoForm__.scanPageFormFields();
+      const parsed = window.SmartParser.parseRoughData(roughText);
+      const matches = window.SmartParser.matchFields(fields, parsed);
+      await window.__AutoForm__.executeSequentialFill(matches, 100);
+      if (window.SoundEngine) SoundEngine.playCompleteChime();
+    }
+  </script>
+</body>
+</html>

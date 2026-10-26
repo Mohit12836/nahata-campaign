@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AutoForm AI - Kiosk Pilot Mission Control</title>
+  <link rel="stylesheet" href="popup.css">
+  <style>
+    body {
+      width: 100%;
+      min-height: 100vh;
+      max-height: 100vh;
+    }
+    .sequence-container {
+      max-height: calc(100vh - 460px);
+      min-height: 140px;
+    }
+    .rough-textarea {
+      height: 90px;
+    }
+
+    /* Kiosk Pilot Console Styles */
+    .pilot-card {
+      background: linear-gradient(135deg, rgba(30, 41, 59, 0.95), rgba(15, 23, 42, 0.98));
+      border: 1px solid rgba(56, 189, 248, 0.3);
+      border-radius: 12px;
+      padding: 12px;
+      margin-bottom: 12px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+    }
+    .pilot-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+    .pilot-title {
+      font-size: 12px;
+      font-weight: 700;
+      color: #38BDF8;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .pilot-badge {
+      font-size: 10px;
+      font-weight: 600;
+      padding: 2px 8px;
+      border-radius: 10px;
+      background: rgba(16, 185, 129, 0.2);
+      color: #34D399;
+      border: 1px solid rgba(16, 185, 129, 0.4);
+    }
+    .pilot-current-box {
+      background: rgba(15, 23, 42, 0.6);
+      border: 1px dashed rgba(148, 163, 184, 0.25);
+      border-radius: 8px;
+      padding: 8px 10px;
+      margin-bottom: 10px;
+      font-size: 11px;
+    }
+    .pilot-btn-row {
+      display: grid;
+      grid-template-columns: 1.5fr 1fr 1fr;
+      gap: 6px;
+    }
+    .btn-pilot-launch {
+      background: linear-gradient(135deg, #0284C7, #2563EB);
+      color: #FFF;
+      font-weight: 700;
+      font-size: 11px;
+      padding: 8px 6px;
+      border-radius: 8px;
+      border: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      transition: all 0.2s;
+    }
+    .btn-pilot-launch:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(37, 99, 235, 0.4);
+    }
+    .btn-pilot-hold {
+      background: rgba(234, 88, 12, 0.2);
+      border: 1px solid rgba(234, 88, 12, 0.5);
+      color: #FB923C;
+      font-weight: 600;
+      font-size: 11px;
+      padding: 8px 6px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .btn-pilot-hold:hover {
+      background: rgba(234, 88, 12, 0.3);
+    }
+    .btn-pilot-wa {
+      background: rgba(34, 197, 94, 0.2);
+      border: 1px solid rgba(34, 197, 94, 0.5);
+      color: #4ADE80;
+      font-weight: 600;
+      font-size: 11px;
+      padding: 8px 6px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .btn-pilot-wa:hover {
+      background: rgba(34, 197, 94, 0.3);
+    }
+
+    /* Held Queue Tray */
+    .held-tray {
+      background: rgba(15, 23, 42, 0.8);
+      border: 1px solid rgba(245, 158, 11, 0.3);
+      border-radius: 8px;
+      padding: 8px;
+      margin-bottom: 12px;
+      display: none;
+    }
+    .held-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 6px 8px;
+      background: rgba(30, 41, 59, 0.5);
+      border-radius: 6px;
+      margin-bottom: 4px;
+      font-size: 11px;
+    }
+    .btn-resume {
+      background: #10B981;
+      color: white;
+      border: none;
+      padding: 3px 8px;
+      border-radius: 4px;
+      font-size: 10px;
+      cursor: pointer;
+      font-weight: 600;
+    }
+  </style>
+</head>
+<body>
+  <div class="app-container">
+    <!-- Header -->
+    <header class="app-header">
+      <div class="brand">
+        <div class="brand-icon">⚡</div>
+        <div class="brand-title">AutoForm <span>KIOSK PILOT</span></div>
+      </div>
+      <div class="header-actions">
+        <button id="btnSoundToggle" class="icon-btn" title="Sound Effects (On/Off)">🔔</button>
+        <button id="btnClearAll" class="icon-btn" title="Clear All">🗑️</button>
+      </div>
+    </header>
+
+    <!-- Kiosk Pilot Mission Control Box -->
+    <div class="pilot-card">
+      <div class="pilot-header">
+        <span class="pilot-title">🎯 1-Click Pilot Control</span>
+        <span id="pilotQueueBadge" class="pilot-badge">Queue: 0 Pending</span>
+      </div>
+
+      <div id="pilotCurrentBox" class="pilot-current-box">
+        <div style="color: #94A3B8;">वर्तमान आवेदक: <strong id="pilotCurrentName" style="color: #F8FAFC;">कोई नहीं (कतार खाली)</strong></div>
+        <div style="display: flex; justify-content: space-between; margin-top: 4px; color: #64748B; font-size: 10px;">
+          <span id="pilotCurrentService">सर्विस: ऑटो-डिटेक्ट</span>
+          <span id="pilotCurrentOtpStatus">OTP: 0 आवश्यक</span>
+        </div>
+      </div>
+
+      <div class="pilot-btn-row">
+        <button id="btnPilotLaunchNext" class="btn-pilot-launch" title="सीधे सही सरकारी साइट खोलकर पूरा फॉर्म 1 क्लिक में भरें">
+          <span>🚀 Launch Next</span>
+        </button>
+        <button id="btnPilotHoldNext" class="btn-pilot-hold" title="अगर ग्राहक OTP नहीं दे रहा तो होल्ड करें और अगला उठाएं">
+          <span>⏸️ Hold & Next</span>
+        </button>
+        <button id="btnPilotWhatsApp" class="btn-pilot-wa" title="ग्राहक को व्हाट्सएप पर OTP भेजने का तुरंत मैसेज भेजें">
+          <span>💬 Ping WA</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Active Held Applicants Tray (अटके हुए फॉर्म्स) -->
+    <div id="heldQueueTray" class="held-tray">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+        <span style="font-size: 11px; font-weight: 700; color: #FBBF24;">⏸️ Held Forms (Waiting OTP / Customer)</span>
+        <span id="heldCountBadge" style="font-size: 10px; color: #94A3B8;">0 Held</span>
+      </div>
+      <div id="heldListContainer"></div>
+    </div>
+
+    <!-- Page Status -->
+    <div class="page-status">
+      <div>
+        <span class="status-dot"></span>
+        <span id="pageTitle" style="font-weight: 500;">Active Tab Form Ready</span>
+      </div>
+      <span id="fieldsCountBadge" class="fields-badge">0 Fields</span>
+    </div>
+
+    <!-- Rough Data Section -->
+    <div class="section-box">
+      <div class="section-head">
+        <span class="section-label">Rough Data / Profiles</span>
+        <div style="display: flex; gap: 4px; align-items: center;">
+          <button id="btnVoiceInput" class="icon-btn" style="width: auto; padding: 2px 8px; font-size: 11px; gap: 4px;" title="Voice to Text (Speak rough details)">
+            <span id="voiceIcon">🎙️</span> <span id="voiceText">Voice</span>
+          </button>
+          <button id="btnSaveCitizen" class="icon-btn" style="width: auto; padding: 2px 8px; font-size: 11px; background: rgba(249, 115, 22, 0.2); border-color: rgba(249, 115, 22, 0.4); color: #FDBA74;" title="Save current citizen to Kiosk Vault">💾 Save Citizen</button>
+        </div>
+      </div>
+
+      <!-- Kiosk Citizen Fast Search Bar -->
+      <div class="kiosk-search-wrap">
+        <div class="kiosk-input-box">
+          <span class="kiosk-search-icon">🔍</span>
+          <input type="text" id="kioskCitizenSearch" class="kiosk-search-input" placeholder="Search Citizen by Mobile, Samagra, or Name..." autocomplete="off">
+          <button id="btnClearSearch" class="kiosk-clear-btn" style="display: none;">✕</button>
+        </div>
+        <div id="kioskResultsDropdown" class="kiosk-dropdown" style="display: none;"></div>
+      </div>
+
+      <!-- Quick Preset Pills -->
+      <div class="sample-pills">
+        <button class="pill-btn" data-preset="mponline" style="border-color: rgba(16, 185, 129, 0.4); background: rgba(16, 185, 129, 0.1); color: #34D399;">🏛️ MP Online Citizen</button>
+        <button class="pill-btn" data-preset="applicant">👤 Job Candidate</button>
+        <button class="pill-btn" data-preset="startup">🚀 Startup Profile</button>
+        <button class="pill-btn" data-preset="ecommerce">📦 Order & Address</button>
+        <button class="pill-btn" data-preset="vendor">🏢 Vendor / GST</button>
+      </div>
+
+      <!-- Textarea for raw text -->
+      <textarea id="roughDataInput" class="rough-textarea" placeholder="Yahan kaisa bhi rough data paste karein ya 🎙️ Voice dabakar bole..."></textarea>
+    </div>
+
+    <!-- Sequence Preview Section -->
+    <div class="section-box glow">
+      <div class="section-head">
+        <span class="section-label">Sequence Se Jamaye Gaye Fields (<span id="matchedCount">0</span>)</span>
+        <button id="btnRescan" class="icon-btn" style="width: 22px; height: 22px; font-size: 10px;" title="Rescan Page">🔄</button>
+      </div>
+
+      <div id="sequenceList" class="sequence-container">
+        <div style="text-align: center; color: var(--text-dim); padding: 20px 0; font-size: 11px;">
+          Pehle rough data paste karein ya "Auto-Match" par click karein.
+        </div>
+      </div>
+    </div>
+
+    <!-- Progress Indicator -->
+    <div id="progressContainer" class="progress-container">
+      <div class="progress-text">
+        <span id="progressStatus">Filling in sequence...</span>
+        <span id="progressCount">0 / 0</span>
+      </div>
+      <div class="progress-bar-bg">
+        <div id="progressBar" class="progress-fill"></div>
+      </div>
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="action-grid">
+      <button id="btnMatch" class="btn btn-secondary">⚡ Auto-Match</button>
+      <button id="btnInspect" class="btn btn-secondary">🔍 Inspect Page</button>
+      <button id="btnUndo" class="btn btn-secondary" style="display: none;">↩️ Undo Fill</button>
+      <button id="btnFill" class="btn btn-primary" disabled>
+        <span>🚀 Sequence Se Bharo (Fill Form)</span>
+      </button>
+    </div>
+  </div>
+
+  <script src="audio-sfx.js"></script>
+  <script src="mponline-vault.js"></script>
+  <script src="smart-parser.js"></script>
+  <script src="kiosk-recipes.js"></script>
+  <script src="kiosk-pilot-engine.js"></script>
+  <script src="google-sheet-sync.js"></script>
+  <script src="sidepanel.js"></script>
+</body>
+</html>

@@ -1,0 +1,545 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MPOnline Citizen & Vyapam Recruitment Portal — Simulation Bench</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Noto+Sans+Devanagari:wght@400;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="content.css">
+  <style>
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    :root {
+      --bg: #070B14;
+      --card: rgba(15, 23, 42, 0.8);
+      --border: rgba(255, 255, 255, 0.1);
+      --mponline-orange: #F97316;
+      --mponline-blue: #3B82F6;
+      --emerald: #10B981;
+      --text: #F8FAFC;
+      --text-muted: #94A3B8;
+    }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Plus Jakarta Sans', 'Noto Sans Devanagari', sans-serif;
+      min-height: 100vh;
+      padding: clamp(1.5rem, 4vw, 3rem) 1rem 6rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      line-height: 1.6;
+    }
+    .container {
+      width: 100%;
+      max-width: min(100% - 2rem, 900px);
+      margin-inline: auto;
+    }
+    .header-box {
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+    .mponline-header-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 16px;
+      border-radius: 999px;
+      background: rgba(249, 115, 22, 0.15);
+      color: #FB923C;
+      font-size: 13px;
+      font-weight: 700;
+      margin-bottom: 12px;
+      border: 1px solid rgba(249, 115, 22, 0.35);
+    }
+    h1 {
+      font-size: clamp(1.8rem, 3.8vw, 2.6rem);
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      margin-bottom: 8px;
+    }
+    h1 span {
+      background: linear-gradient(135deg, #FB923C 0%, #38BDF8 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    p.subtitle {
+      color: var(--text-muted);
+      font-size: 14.5px;
+    }
+
+    .portal-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: clamp(1.5rem, 3.5vw, 2.5rem);
+      backdrop-filter: blur(20px);
+      box-shadow: 0 24px 48px -12px rgba(0, 0, 0, 0.5);
+    }
+    .section-header {
+      font-size: 13.5px;
+      font-weight: 700;
+      color: #FDBA74;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      margin: 1.5rem 0 1rem;
+      padding-bottom: 6px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .section-header:first-of-type {
+      margin-top: 0;
+    }
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr));
+      gap: 1.25rem;
+    }
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .form-group.full-width {
+      grid-column: 1 / -1;
+    }
+    label {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+    input[type="text"],
+    input[type="email"],
+    input[type="tel"],
+    input[type="number"],
+    input[type="date"],
+    select,
+    textarea {
+      width: 100%;
+      background: rgba(7, 11, 20, 0.7);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 10px 14px;
+      color: var(--text);
+      font-family: inherit;
+      font-size: 13.5px;
+      outline: none;
+      transition: all 0.2s;
+    }
+    input:focus, select:focus, textarea:focus {
+      border-color: var(--mponline-orange);
+      box-shadow: 0 0 14px rgba(249, 115, 22, 0.3);
+      background: rgba(15, 23, 42, 0.9);
+    }
+    select option {
+      background: #0F172A;
+      color: #F8FAFC;
+    }
+    .radio-group, .checkbox-group {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 16px;
+      padding: 6px 0;
+    }
+    .radio-item, .checkbox-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+      font-size: 13.5px;
+    }
+    .btn-submit {
+      width: 100%;
+      background: linear-gradient(135deg, var(--mponline-orange) 0%, #EA580C 100%);
+      color: white;
+      padding: 14px;
+      border: none;
+      border-radius: 12px;
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s;
+      margin-top: 1.5rem;
+      box-shadow: 0 8px 24px rgba(249, 115, 22, 0.35);
+    }
+    .btn-submit:hover {
+      filter: brightness(1.1);
+      box-shadow: 0 10px 30px rgba(249, 115, 22, 0.5);
+    }
+    .submitted-preview {
+      margin-top: 1.5rem;
+      padding: 1.25rem;
+      background: rgba(16, 185, 129, 0.08);
+      border: 1px solid rgba(16, 185, 129, 0.3);
+      border-radius: 12px;
+      display: none;
+      font-size: 12.5px;
+      color: #34D399;
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    /* Floating MPOnline Assistant Bar */
+    .mponline-dock {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(15, 23, 42, 0.94);
+      border: 1px solid rgba(249, 115, 22, 0.5);
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.6), 0 0 24px rgba(249, 115, 22, 0.25);
+      border-radius: 999px;
+      padding: 8px 16px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      z-index: 10000;
+      backdrop-filter: blur(16px);
+      max-width: 95vw;
+      overflow-x: auto;
+    }
+    .dock-title {
+      font-size: 12px;
+      font-weight: 700;
+      color: #FDBA74;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      white-space: nowrap;
+      padding-right: 8px;
+      border-right: 1px solid rgba(255, 255, 255, 0.12);
+    }
+    .dock-btn {
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      color: #F8FAFC;
+      font-size: 12px;
+      font-weight: 600;
+      padding: 7px 14px;
+      border-radius: 999px;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all 0.2s;
+    }
+    .dock-btn:hover {
+      background: var(--mponline-orange);
+      border-color: var(--mponline-orange);
+      box-shadow: 0 0 14px rgba(249, 115, 22, 0.4);
+      transform: translateY(-1px);
+    }
+    .dock-btn.clear {
+      background: rgba(239, 68, 68, 0.12);
+      border-color: rgba(239, 68, 68, 0.3);
+      color: #FCA5A5;
+    }
+    .dock-btn.clear:hover {
+      background: #EF4444;
+      color: white;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header-box">
+      <div class="mponline-header-badge">🏛️ MPONLINE KIOSK SIMULATION BENCH</div>
+      <h1>MPOnline & Vyapam <span>Smart Auto-Fill</span></h1>
+      <p class="subtitle">समग्र आईडी, MPESB प्रोफाइल, जाति, मूल निवासी, 10वीं/12वीं अंकसूची और आधार का सम्पूर्ण ऑटोमेशन टेस्ट बेंच</p>
+    </div>
+
+    <div class="portal-card">
+      <form id="mponlineForm">
+        
+        <!-- 1. Citizen Identity & Samagra -->
+        <div class="section-header">🆔 1. समग्र एवं नागरिक पहचान (Citizen Identity)</div>
+        <div class="form-grid">
+          <div class="form-group">
+            <label for="samagraMember">सदस्य समग्र आईडी (9 Digit Member ID) *</label>
+            <input type="text" id="samagraMember" name="samagraMember" placeholder="9 अंकों की सदस्य समग्र आईडी" maxlength="9" required>
+          </div>
+          <div class="form-group">
+            <label for="samagraFamily">परिवार समग्र आईडी (8 Digit Family ID) *</label>
+            <input type="text" id="samagraFamily" name="samagraFamily" placeholder="8 अंकों की परिवार समग्र आईडी" maxlength="8" required>
+          </div>
+          <div class="form-group">
+            <label for="mpesbProfile">MPESB / Vyapam प्रोफाइल पंजीयन क्रमांक</label>
+            <input type="text" id="mpesbProfile" name="mpesbProfile" placeholder="e.g. 8392019284">
+          </div>
+          <div class="form-group">
+            <label for="aadhaar">आधार कार्ड नंबर (12 Digit UID) *</label>
+            <input type="text" id="aadhaar" name="aadhaar" placeholder="12 अंकों का आधार नंबर" maxlength="14" required>
+          </div>
+          <div class="form-group">
+            <label for="pan">पैन कार्ड नंबर (PAN)</label>
+            <input type="text" id="pan" name="pan" placeholder="e.g. ABCPJ1234F" maxlength="10">
+          </div>
+        </div>
+
+        <!-- 2. Personal & Parents Details -->
+        <div class="section-header">👤 2. व्यक्तिगत एवं अभिभावक विवरण (Personal & Family)</div>
+        <div class="form-grid">
+          <div class="form-group">
+            <label for="fullName">आवेदक का नाम (अंग्रेजी में) *</label>
+            <input type="text" id="fullName" name="fullName" placeholder="Applicant Name in English" required>
+          </div>
+          <div class="form-group">
+            <label for="nameHindi">आवेदक का नाम (हिन्दी में)</label>
+            <input type="text" id="nameHindi" name="nameHindi" placeholder="आवेदक का नाम हिन्दी में">
+          </div>
+          <div class="form-group">
+            <label for="fatherName">पिता का नाम (Father's Name) *</label>
+            <input type="text" id="fatherName" name="fatherName" placeholder="Father's Full Name" required>
+          </div>
+          <div class="form-group">
+            <label for="motherName">माता का नाम (Mother's Name) *</label>
+            <input type="text" id="motherName" name="motherName" placeholder="Mother's Full Name" required>
+          </div>
+          <div class="form-group">
+            <label for="dob">जन्म दिनांक (Date of Birth) *</label>
+            <input type="date" id="dob" name="dob" required>
+          </div>
+          <div class="form-group">
+            <label>लिंग (Gender) *</label>
+            <div class="radio-group">
+              <label class="radio-item"><input type="radio" name="gender" value="Male" id="genderMale"> Male (पुरुष)</label>
+              <label class="radio-item"><input type="radio" name="gender" value="Female" id="genderFemale"> Female (महिला)</label>
+              <label class="radio-item"><input type="radio" name="gender" value="Other" id="genderOther"> Other</label>
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="phone">मोबाइल नंबर (Mobile Number) *</label>
+            <input type="tel" id="phone" name="phone" placeholder="10 अंकों का मोबाइल नंबर" maxlength="10" required>
+          </div>
+          <div class="form-group">
+            <label for="email">ईमेल आईडी (Email ID)</label>
+            <input type="email" id="email" name="email" placeholder="e.g. citizen@example.com">
+          </div>
+        </div>
+
+        <!-- 3. Reservation, Category & Certificates -->
+        <div class="section-header">📜 3. श्रेणी एवं प्रमाण पत्र (Category & Certificates)</div>
+        <div class="form-grid">
+          <div class="form-group">
+            <label for="category">वर्ग / श्रेणी (Category) *</label>
+            <select id="category" name="category" required>
+              <option value="">-- वर्ग चुनें --</option>
+              <option value="General">General / अनारक्षित (UR)</option>
+              <option value="OBC">OBC / अन्य पिछड़ा वर्ग</option>
+              <option value="SC">SC / अनुसूचित जाति</option>
+              <option value="ST">ST / अनुसूचित जनजाति</option>
+              <option value="EWS">EWS / आर्थिक रूप से कमजोर</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="casteCertNo">जाति प्रमाण पत्र क्रमांक (Caste Certificate No)</label>
+            <input type="text" id="casteCertNo" name="casteCertNo" placeholder="e.g. RS/420/01/2021">
+          </div>
+          <div class="form-group">
+            <label for="domicileCertNo">मूल निवासी प्रमाण पत्र क्रमांक (Domicile Cert No)</label>
+            <input type="text" id="domicileCertNo" name="domicileCertNo" placeholder="मूल निवासी प्रमाण पत्र क्रमांक">
+          </div>
+          <div class="form-group">
+            <label for="incomeAnnual">वार्षिक पारिवारिक आय (Annual Income in ₹)</label>
+            <input type="text" id="incomeAnnual" name="incomeAnnual" placeholder="e.g. 150000">
+          </div>
+        </div>
+
+        <!-- 4. Address & District in Madhya Pradesh -->
+        <div class="section-header">📍 4. मध्य प्रदेश का स्थाई पता (Address in MP)</div>
+        <div class="form-grid">
+          <div class="form-group">
+            <label for="state">राज्य (State) *</label>
+            <select id="state" name="state" required>
+              <option value="Madhya Pradesh" selected>Madhya Pradesh (मध्य प्रदेश)</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="district">जिला (District in MP) *</label>
+            <select id="district" name="district" required>
+              <option value="">-- जिला चुनें --</option>
+              <option value="Indore">Indore (इन्दौर)</option>
+              <option value="Bhopal">Bhopal (भोपाल)</option>
+              <option value="Jabalpur">Jabalpur (जबलपुर)</option>
+              <option value="Gwalior">Gwalior (ग्वालियर)</option>
+              <option value="Ujjain">Ujjain (उज्जैन)</option>
+              <option value="Sagar">Sagar (सागर)</option>
+              <option value="Rewa">Rewa (रीवा)</option>
+              <option value="Satna">Satna (सतना)</option>
+              <option value="Dhar">Dhar (धार)</option>
+              <option value="Dewas">Dewas (देवास)</option>
+              <option value="Khargone">Khargone (खरगोन)</option>
+              <option value="Khandwa">Khandwa (खंडवा)</option>
+              <option value="Sehore">Sehore (सीहोर)</option>
+              <option value="Chhindwara">Chhindwara (छिंदवाड़ा)</option>
+              <option value="Ratlam">Ratlam (रतलाम)</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="city">तहसील / शहर (Tehsil / City)</label>
+            <input type="text" id="city" name="city" placeholder="e.g. Indore">
+          </div>
+          <div class="form-group">
+            <label for="pincode">पिनकोड (Pincode) *</label>
+            <input type="text" id="pincode" name="pincode" placeholder="e.g. 452001" maxlength="6" required>
+          </div>
+          <div class="form-group full-width">
+            <label for="address">पूर्ण पता (Full Address)</label>
+            <textarea id="address" name="address" rows="2" placeholder="मकान नंबर, वार्ड, मोहल्ला, ग्राम/कॉलोनी..."></textarea>
+          </div>
+        </div>
+
+        <!-- 5. Education Records -->
+        <div class="section-header">🎓 5. शैक्षणिक योग्यता (10th / 12th Marksheet)</div>
+        <div class="form-grid">
+          <div class="form-group">
+            <label for="roll10th">10वीं रोल नंबर (High School Roll No)</label>
+            <input type="text" id="roll10th" name="roll10th" placeholder="10वीं का रोल नंबर">
+          </div>
+          <div class="form-group">
+            <label for="board10th">10वीं बोर्ड</label>
+            <input type="text" id="board10th" name="board10th" placeholder="e.g. MP Board Bhopal">
+          </div>
+          <div class="form-group">
+            <label for="roll12th">12वीं रोल नंबर (Higher Secondary Roll No)</label>
+            <input type="text" id="roll12th" name="roll12th" placeholder="12वीं का रोल नंबर">
+          </div>
+          <div class="form-group">
+            <label for="board12th">12वीं बोर्ड</label>
+            <input type="text" id="board12th" name="board12th" placeholder="e.g. MP Board Bhopal">
+          </div>
+        </div>
+
+        <!-- 6. Bank Details (DBT) -->
+        <div class="section-header">🏦 6. बैंक खाता विवरण (DBT / Ladli Behna / Scholarship)</div>
+        <div class="form-grid">
+          <div class="form-group">
+            <label for="bankAccount">बैंक खाता क्रमांक (Account No)</label>
+            <input type="text" id="bankAccount" name="bankAccount" placeholder="खाता नंबर">
+          </div>
+          <div class="form-group">
+            <label for="ifsc">IFSC कोड</label>
+            <input type="text" id="ifsc" name="ifsc" placeholder="e.g. SBIN0001234">
+          </div>
+        </div>
+
+        <!-- Declaration -->
+        <div class="form-group full-width" style="margin-top: 1.25rem;">
+          <label class="checkbox-item">
+            <input type="checkbox" id="terms" name="terms" required>
+            <span>मैं यह प्रमाणित करता/करती हूँ कि आवेदन में दी गई समस्त जानकारी सत्य एवं सही है। (Declaration)</span>
+          </label>
+        </div>
+
+        <button type="submit" class="btn-submit">आवेदन सबमिट करें (Submit MPOnline Payload)</button>
+      </form>
+
+      <div id="submittedPreview" class="submitted-preview"></div>
+    </div>
+  </div>
+
+  <!-- Floating Kiosk 1-Click Action Dock -->
+  <div class="mponline-dock">
+    <div class="dock-title">🏛️ MPOnline Kiosk 1-Click:</div>
+    <button class="dock-btn" id="dockBtnMohitJain">👤 Load Mohit Jain Profile</button>
+    <button class="dock-btn" id="dockBtnStudent">🎓 Load Student MPESB Profile</button>
+    <button class="dock-btn clear" id="dockBtnClear">🔄 Clear</button>
+  </div>
+
+  <script src="audio-sfx.js"></script>
+  <script src="mponline-vault.js"></script>
+  <script src="smart-parser.js"></script>
+  <script src="content.js"></script>
+  <script>
+    // Form submission listener
+    document.getElementById('mponlineForm').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const formData = new FormData(e.target);
+      const data = {};
+      for (const [key, val] of formData.entries()) {
+        data[key] = val;
+      }
+      const preview = document.getElementById('submittedPreview');
+      preview.style.display = 'block';
+      preview.innerHTML = `<strong>🏛️ MPONLINE PORTAL PAYLOAD VERIFIED & SUBMITTED:</strong><br><pre style="margin-top: 8px; font-size: 12px; white-space: pre-wrap;">${JSON.stringify(data, null, 2)}</pre>`;
+      if (window.SoundEngine) SoundEngine.playCompleteChime();
+    });
+
+    // 1-Click In-Page Kiosk Demonstrations
+    document.getElementById('dockBtnMohitJain').addEventListener('click', async () => {
+      const roughText = `
+        आवेदक का नाम: मोहित जैन (Mohit Jain)
+        पिता का नाम: रमेश जैन (Ramesh Jain)
+        माता का नाम: विमला जैन (Vimala Jain)
+        मोबाइल नंबर: 6263879076
+        ईमेल: anukrupa12836@gmail.com
+        जन्म दिनांक: 15/08/1995
+        लिंग: Male
+        समग्र सदस्य आईडी: 182736459
+        समग्र परिवार आईडी: 72819364
+        MPESB प्रोफाइल पंजीयन: 8392019284
+        आधार नंबर: 928374628192
+        पैन नंबर: ABCPJ1234F
+        वर्ग / श्रेणी: General
+        मूल निवासी: मध्य प्रदेश
+        जिला: Indore
+        तहसील: Indore
+        पिनकोड: 452001
+        पता: 124, तिलक नगर, मुख्य मार्ग, इंदौर, मध्य प्रदेश
+        10वीं रोल नंबर: 19827364 | MP Board Bhopal
+        12वीं रोल नंबर: 21928374 | MP Board Bhopal
+        बैंक खाता नंबर: 918273645019
+        IFSC: SBIN0001234
+        घोषणा: सहमत सत्य
+      `;
+      await runKioskFill(roughText);
+    });
+
+    document.getElementById('dockBtnStudent').addEventListener('click', async () => {
+      const roughText = `
+        Candidate: Priya Sharma
+        Father Name: Suresh Sharma
+        Mother Name: Geeta Sharma
+        Mobile: 9826012345
+        DOB: 20/07/2001
+        Gender: Female
+        Samagra Sadasya ID: 192837465
+        Samagra Parivar ID: 81928374
+        MPESB Vyapam Profile: 9182736450
+        Aadhaar: 817263549182
+        Category: OBC
+        Caste Certificate No: RS/420/01/2021
+        District: Bhopal
+        Pincode: 462001
+        Address: MP Nagar Zone 2, Bhopal
+        10th Roll No: 20182736
+        12th Roll No: 22192837
+        Account No: 5010023456789
+        IFSC: HDFC0001234
+        Terms: True
+      `;
+      await runKioskFill(roughText);
+    });
+
+    document.getElementById('dockBtnClear').addEventListener('click', () => {
+      document.getElementById('mponlineForm').reset();
+      document.getElementById('submittedPreview').style.display = 'none';
+      if (window.SoundEngine) SoundEngine.playTick();
+    });
+
+    async function runKioskFill(roughText) {
+      if (window.SoundEngine) SoundEngine.playTick();
+      const fields = window.__AutoForm__.scanPageFormFields();
+      const parsed = window.SmartParser.parseRoughData(roughText);
+      const matches = window.SmartParser.matchFields(fields, parsed);
+      await window.__AutoForm__.executeSequentialFill(matches, 70);
+      if (window.SoundEngine) SoundEngine.playCompleteChime();
+    }
+  </script>
+</body>
+</html>

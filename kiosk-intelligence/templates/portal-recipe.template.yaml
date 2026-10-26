@@ -1,0 +1,34 @@
+# TEMPLATE ONLY. Never automate a portal unless permitted and empirically tested.
+schema_version: "1.0"
+recipe_id: "DEMO-RECIPE-001"
+service_id: "DEMO-SERVICE-001"
+recipe_version: 1
+portal_id: null
+official_domain: null
+status: DRAFT              # DRAFT | NEEDS_REVIEW | VERIFIED | RETIRED
+automation_allowed: null   # true/false only after confirming terms/authority
+automation_basis_source_id: null
+prerequisite_service_ids: []
+steps:
+  - step_id: start
+    sequence: 1
+    stage: registration
+    official_url: null
+    source_id: null
+    action_type: OPEN_PAGE
+    required_field_concepts: []
+    conditional_document_codes: []
+    expected_checkpoint_types: []  # OTP, CAPTCHA, biometric, payment, etc. are variable
+    manual_approval_required: true
+    success_indicator: null
+    error_scenarios: []
+    safe_resume_strategy: RECHECK_SESSION
+    last_live_test_at: null
+submission_rules:
+  require_human_confirmation: true
+  only_mark_completed_on_official_reference: true
+  allow_captcha_bypass: false
+  allow_otp_bypass: false
+verified_by: null
+verified_at: null
+source_ids: []

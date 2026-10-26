@@ -27,8 +27,8 @@ class SemanticRAGVault {
       subCaste: ['subcaste', 'sub-caste', 'उपजाति', 'जाति का नाम'],
       casteCertNo: ['caste certificate', 'जाति प्रमाण पत्र', 'अनुप्रमाणन क्रमांक', 'rs/'],
       domicileCertNo: ['domicile', 'मूल निवासी', 'स्थानीय निवासी प्रमाण'],
-      incomeCertNo: ['income cert', 'आय प्रमाण पत्र', 'वार्षिक आय प्रमाण'],
-      annualIncome: ['annual income', 'आय', 'वार्षिक आय', 'कुल पारिवारिक आय'],
+      incomeCertNo: ['income certificate', 'income cert', 'आय प्रमाण पत्र', 'आय प्रमाण पत्र क्रमांक', 'वार्षिक आय प्रमाण पत्र'],
+      annualIncome: ['annual income', 'पारिवारिक आय', 'वार्षिक आय', 'कुल पारिवारिक आय', 'कुल वार्षिक आय', 'income in rs'],
 
       // 4. Welfare & Schemes
       sambalNo: ['sambal', 'संबल', 'संबल 2.0', 'संबल कार्ड', 'श्रमिक पंजीयन'],
@@ -184,6 +184,65 @@ class SemanticRAGVault {
   }
 
   /**
+   * Precise Value Sanitizer: Extracts exact form-acceptable values
+   * E.g. "142/2 पटवारी हल्का 12" -> khasra: "142/2", halka: "12"
+   * E.g. "85000 रुपये" -> income: "85000"
+   * E.g. "O Positive (O+)" -> bloodGroup: "O+"
+   */
+  sanitizePreciseEntityValue(conceptKey, rawVal, vault) {
+    if (!rawVal || typeof rawVal !== 'string') return rawVal;
+    const cleanStr = rawVal.trim();
+
+    // 1. Khasra / Land Revenue
+    if (conceptKey === 'khasraNo') {
+      // Extract Khasra survey number: "142/2", "142/2/1", "54", "124-क"
+      const khasraMatch = cleanStr.match(/\b\d+(?:[\/\-][\d\u0900-\u097Fa-zA-Z]+)?\b/);
+      // Check if Patwari Halka or Village is present in same string
+      const halkaMatch = cleanStr.match(/(?:हल्का|पटवारी\s*हल्का|halka)[\s:]*([0-9\u0900-\u097Fa-zA-Z]+)/i);
+      if (halkaMatch && vault) {
+        vault.semanticIndex['patwariHalka'] = halkaMatch[1].trim();
+      }
+      return khasraMatch ? khasraMatch[0] : cleanStr;
+    }
+
+    // 2. Annual Family Income (Government forms strictly need numbers only)
+    if (conceptKey === 'annualIncome') {
+      const numMatch = cleanStr.replace(/,/g, '').match(/\b\d{3,9}\b/);
+      return numMatch ? numMatch[0] : cleanStr;
+    }
+
+    // 3. Blood Group
+    if (conceptKey === 'bloodGroup') {
+      const bgMatch = cleanStr.match(/\b(A|B|AB|O)\s*(?:[\+\-]|Positive|Negative|पॉजिटिव|नेगेटिव)?\b/i);
+      if (bgMatch) {
+        const type = bgMatch[1].toUpperCase();
+        const isNeg = /negative|नेगेटिव|\-/i.test(cleanStr);
+        return type + (isNeg ? '-' : '+');
+      }
+      return cleanStr;
+    }
+
+    // 4. Aadhaar
+    if (conceptKey === 'aadhaar') {
+      return cleanStr.replace(/\D/g, '');
+    }
+
+    // 5. Phone / Mobile
+    if (conceptKey === 'phone') {
+      const phoneDigits = cleanStr.replace(/\D/g, '');
+      return phoneDigits.length === 10 ? phoneDigits : (phoneDigits.slice(-10) || cleanStr);
+    }
+
+    // 6. 10th / 12th Roll Number
+    if (conceptKey === 'roll10th' || conceptKey === 'roll12th') {
+      const rollMatch = cleanStr.match(/\b\d{6,12}\b/);
+      return rollMatch ? rollMatch[0] : cleanStr;
+    }
+
+    return cleanStr;
+  }
+
+  /**
    * Index raw entries into semantic clusters
    */
   indexConcepts(vault) {
@@ -200,7 +259,7 @@ class SemanticRAGVault {
       });
 
       if (bestMatch) {
-        vault.semanticIndex[conceptKey] = bestMatch;
+        vault.semanticIndex[conceptKey] = this.sanitizePreciseEntityValue(conceptKey, bestMatch, vault);
       }
     }
   }
@@ -210,12 +269,19 @@ class SemanticRAGVault {
    */
   calculateSimilarity(tokensA, synonymsList) {
     if (!tokensA || tokensA.length === 0) return 0;
+
+    const hasCertA = tokensA.some(t => t.includes('cert') || t.includes('प्रमाण') || t.includes('पत्र'));
     
     // Check direct substring or token match in synonyms, ignoring generic stopwords
     for (const token of tokensA) {
       if (this.stopwords && this.stopwords.has(token)) continue; // Never match purely on stopword!
 
       for (const syn of synonymsList) {
+        const isCertSyn = syn.includes('cert') || syn.includes('प्रमाण');
+        // If one is certificate and other is not, forbid matching
+        if (isCertSyn && !hasCertA) continue;
+        if (!isCertSyn && hasCertA) continue;
+
         const synTokens = this.tokenize(syn);
         for (const sToken of synTokens) {
           if (this.stopwords && this.stopwords.has(sToken)) continue;

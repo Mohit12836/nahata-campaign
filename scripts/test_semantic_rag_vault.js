@@ -43,9 +43,11 @@ async function runRAGTests() {
   console.log('--- 1. Ingestion of Arbitrary Citizen Knowledge ---');
   const dossier = rag.ingestToDossier(rawCitizenText);
   assert(dossier.rawEntries.length >= 10, 'Ingested 10+ arbitrary raw entities into dossier');
-  assert(dossier.semanticIndex.khasraNo === '142/2 पटवारी हल्का 12', 'Khasra No indexed semantically');
+  assert(dossier.semanticIndex.khasraNo === '142/2', 'Khasra No extracted cleanly as 142/2 (without trailing text)');
+  assert(dossier.semanticIndex.patwariHalka === '12', 'Sub-entity Patwari Halka isolated as 12');
   assert(dossier.semanticIndex.sambalNo === 'SB/2022/98124', 'Sambal Card No indexed semantically');
-  assert(dossier.semanticIndex.bloodGroup.includes('O+'), 'Blood Group indexed semantically');
+  assert(dossier.semanticIndex.bloodGroup === 'O+', 'Blood Group sanitized cleanly to standard O+');
+  assert(dossier.semanticIndex.annualIncome === '85000', 'Annual Income sanitized strictly to numeric 85000');
 
   // TEST 2: Querying Unknown / Dynamic New Portal Fields via RAG
   console.log('\n--- 2. RAG Query on Completely New Government Portals ---');
@@ -59,7 +61,7 @@ async function runRAGTests() {
     cleanName: 'txtkhasra'
   };
   const matchA = rag.queryDossier(dossier, fieldBhulekh);
-  assert(matchA && matchA.value === '142/2 पटवारी हल्का 12', 'RAG successfully retrieved Khasra number for MP Bhulekh');
+  assert(matchA && matchA.value === '142/2', 'RAG successfully retrieved clean Khasra number (142/2) for MP Bhulekh');
   assert(matchA.confidence >= 0.8, 'RAG confidence high for Khasra field');
 
   // Case B: Sambal 2.0 Portal asking for Sambal Shramik Registration
@@ -82,7 +84,7 @@ async function runRAGTests() {
     cleanName: 'bloodgroupselect'
   };
   const matchC = rag.queryDossier(dossier, fieldBlood);
-  assert(matchC && matchC.value.includes('O+'), 'RAG retrieved Blood Group for Driving License portal');
+  assert(matchC && matchC.value === 'O+', 'RAG retrieved standardized Blood Group O+');
 
   // Case D: Revenue Certificate asking for Annual Family Income
   const fieldIncome = {
@@ -93,24 +95,26 @@ async function runRAGTests() {
     cleanName: 'familyincome'
   };
   const matchD = rag.queryDossier(dossier, fieldIncome);
-  assert(matchD && matchD.value === '85000 रुपये', 'RAG retrieved Annual Income for E-District');
+  assert(matchD && matchD.value === '85000', 'RAG retrieved numeric Annual Income (85000) for E-District');
 
-  // TEST 3: End-to-End Parser Integration (SmartParser + RAG Fallback)
+  // TEST 3: End-to-End SmartParser + RAG Fallback Test
   console.log('\n--- 3. End-to-End SmartParser + RAG Fallback Test ---');
   const parsed = SmartFormParser.parseRoughData(rawCitizenText);
   const testDomFields = [
     { id: 'txtName', label: 'Candidate Name', selector: '#txtName' },
     { id: 'txtKhasra', label: 'खसरा रकबा क्रमांक', selector: '#txtKhasra' },
     { id: 'txtSambal', label: 'संबल पंजीयन नंबर', selector: '#txtSambal' },
-    { id: 'txtBlood', label: 'Blood Group', selector: '#txtBlood' }
+    { id: 'txtBlood', label: 'Blood Group', selector: '#txtBlood' },
+    { id: 'txtIncome', label: 'वार्षिक पारिवारिक आय', selector: '#txtIncome' }
   ];
 
   const mappings = SmartFormParser.matchFields(testDomFields, parsed);
-  assert(mappings.length === 4, 'Mapped all 4 fields including standard and RAG fields');
+  assert(mappings.length === 5, 'Mapped all 5 fields including standard and RAG fields');
   assert(mappings[0].valueToFill.includes('Mohit Jain'), 'Standard field mapped Name');
-  assert(mappings[1].valueToFill === '142/2 पटवारी हल्का 12', 'RAG augmented Khasra field in sequence');
+  assert(mappings[1].valueToFill === '142/2', 'RAG augmented Khasra field as exact 142/2');
   assert(mappings[2].valueToFill === 'SB/2022/98124', 'RAG augmented Sambal field in sequence');
-  assert(mappings[3].valueToFill.includes('O+'), 'RAG augmented Blood Group field in sequence');
+  assert(mappings[3].valueToFill === 'O+', 'RAG augmented Blood Group as exact O+');
+  assert(mappings[4].valueToFill === '85000', 'RAG augmented Income as clean numeric 85000');
 
   console.log('\n======================================================');
   console.log(`🏁 RAG TEST SUMMARY: ${passedTests} PASSED, ${failedTests} FAILED`);

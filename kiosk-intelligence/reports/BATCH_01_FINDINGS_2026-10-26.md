@@ -1,24 +1,24 @@
 # Research Batch 01 — 26 October 2026
 
 ## Actual deliveries
-- **87** official-source-linked service discovery records, across **19** sectors (see catalog/services.csv).
+- **103** official-source-linked service discovery records, across **20** sectors (see catalog/services.csv).
 - **30** official and official government-aggregator source links, captured in catalog/sources.csv. They are research links and need per-service authoritative verification; some page links require login or are reference/staging only.
 - **17** stage-date records for MPESB and NSP, not 17 distinct programmes; some services have more than one stage row.
 - **14** service dossiers with sourced observations, safe preliminary operator steps, missing requirements and risks.
 - **Zero** fee/profit forecasts published as established local facts, because Jaora/Ratlam observed sales/cost evidence has not been collected.
-- All 87 service rows intentionally have `NEEDS_REVIEW` until eligibility, required documents, legal assistance/automation scope, final URLs, current fees and SOP are reviewed. Service existence is sourced, production automation is **not** verified.
+- All 103 service rows intentionally have `NEEDS_REVIEW` until eligibility, required documents, legal assistance/automation scope, final URLs, current fees and SOP are reviewed. Service existence is sourced, production automation is **not** verified.
 
 ## Officially published windows needing attention (date-only; do not assume a midnight cutoff)
 
 | Service ID | Stage | Opens | Ends | Evidence |
 | --- | --- | --- | --- | --- |
 | IN-MP-ESB-001 | Group-3 reopened application | 2026-10-13 | **2026-10-27** | SRC-001 |
-| IN-MP-ESB-001 | correction window | 2026-10-13 *review exact correction start* | **2026-10-28** | SRC-001 |
+| IN-MP-ESB-001 | correction window | **NOT VERIFIED** | **2026-10-28** | SRC-001 |
 | IN-NAT-NSP-008 | PM-USP CSSS **renewal only** | 2026-06-01 | **2026-10-31** | SRC-003 |
 | IN-NAT-NSP-006 | PM YASASVI Top Class School | 2026-10-22 | **2026-11-30** | SRC-003 |
 | Most other selected NSP rows | scheme-specific applications | See `form-cycles.csv` | **2026-10-31** | SRC-003 |
 
-**Important:** the MPESB correction start date shown is a placeholder inferred from reopening, not an independently published correction start. Correct this data before marking fully VERIFIED. All NSP dates are scheme-/stage-specific and need continued checking for extensions.
+**Important:** the MPESB correction opening date is not confirmed; it is intentionally blank in the CSV. The correction closing date requires ongoing verification. All NSP dates are scheme-/stage-specific and need continued checking for extensions.
 
 ## Grounded process findings
 

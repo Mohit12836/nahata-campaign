@@ -1,6 +1,6 @@
 # Form Date & Portal Monitoring — Initial Watchlist
 
-Monitoring has **NOT been deployed as an always-running crawler** as of this research commit. This file is a proposed monitored-source registry and alert policy; a separate scheduled task can send notifications where configured.
+**A daily ChatGPT condition-based watch is now enabled** for official MPESB, NSP, MP eServices, MP Pharmacy Council and MP e-Uparjan changes. It can notify when changes/deadlines are confirmed. **This is NOT a crawler, database ingestion job, continuous surveillance, or automatic GitHub data sync.** The remaining sources here are a proposed monitoring registry. Web monitoring may fail or miss updates, so check official notices before consequential submission.
 
 ## Daily during live form cycles
 | Priority | Source ID | Check for |

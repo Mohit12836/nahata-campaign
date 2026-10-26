@@ -1,0 +1,40 @@
+# TEMPLATE ONLY; replace placeholders only after official-source verification.
+schema_version: "1.0"
+service_id: "DEMO-SERVICE-001"
+record_type: service
+name_hi: null
+name_en: null
+aliases_hi: []
+aliases_en: []
+department: null
+authority_official_url: null
+sector_ids: []
+audience_ids: []
+area_ids: []
+tags: []
+service_type: null                  # registration | renewal | correction | download | licence | other
+eligibility:
+  rules: []                        # {rule_id, applies_if, requirement, source_id}
+  last_verified_at: null
+documents:                         # Each item: code, required_if, alternatives, format, max_size, source_id
+  - code: null
+    required_if: null
+    accepted_alternatives: []
+    formats: []
+    max_size_kb: null
+    source_id: null
+pricing:
+  official_government_fee_inr: null
+  permitted_assistance_fee_inr: null
+  fee_source_id: null
+  fee_verified_at: null
+portal_recipe_ids: []
+source_ids: []
+verification:
+  status: CANDIDATE              # CANDIDATE | DRAFT | NEEDS_REVIEW | VERIFIED | RETIRED
+  last_checked_at: null
+  verified_by: null
+  verification_notes: null
+version: 1
+valid_from: null
+superseded_by: null

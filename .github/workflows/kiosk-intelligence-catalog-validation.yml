@@ -9,6 +9,7 @@ on:
   push:
     branches:
       - 'docs/kiosk-service-intelligence-v1'
+      - 'research/services-*'
     paths:
       - 'kiosk-intelligence/catalog/**'
       - 'kiosk-intelligence/tools/validate_catalog.py'

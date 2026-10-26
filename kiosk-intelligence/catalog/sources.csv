@@ -1,1 +1,31 @@
 source_id,publisher,source_type,official_url,title,published_at,checked_at,content_hash,authoritative_for,verification_status
+SRC-001,MP Employees Selection Board,official_exam_dashboard,https://esb.mp.gov.in/student_dashboard.htm,MPESB Student Dashboard 2026,,2026-10-26,,service existence / listed action,NEEDS_REVIEW
+SRC-002,MP Employees Selection Board,official_rulebook_index,https://esb.mp.gov.in/rulebooks/rule_books.htm,MPESB 2026 Rulebooks,,2026-10-26,,service existence / listed action,NEEDS_REVIEW
+SRC-003,National Scholarship Portal,official_scheme_calendar,https://scholarships.gov.in/All-Scholarships,NSP Academic Year 2026-27 Schemes,,2026-10-26,,service existence / listed action,NEEDS_REVIEW
+SRC-004,National Scholarship Portal,official_student_instructions,https://scholarships.gov.in/Students,NSP Student Application and OTR,,2026-10-26,,service existence / listed action,NEEDS_REVIEW
+SRC-005,MP Government eServices,official_service_catalog,https://www.services.mp.gov.in/eservice/eServices?srvs=21,MP eServices Listings,,2026-10-26,,service existence / listed action,NEEDS_REVIEW
+SRC-006,PM Kisan Government of India,official_portal,https://pmkisan.gov.in/,PM Kisan Farmers Corner,,2026-10-26,,service existence / listed action,NEEDS_REVIEW
+SRC-007,Ministry of Labour eShram,official_faq,https://eshram.gov.in/faqs,e-Shram official FAQs,,2026-10-26,,service existence / listed action,NEEDS_REVIEW
+SRC-008,Election Commission of India,official_forms,https://voters.eci.gov.in/home/forms,ECI Voter Forms,,2026-10-26,,service existence / listed action,NEEDS_REVIEW
+SRC-009,Passport Seva MEA,official_process,https://www.passportindia.gov.in/psp/Apply,Passport Seva Apply,,2026-10-26,,service existence / listed action,NEEDS_REVIEW
+SRC-010,Passport Seva MEA,official_reissue_process,https://www.passportindia.gov.in/psp/ApplyReissue,Passport Seva Reissue,,2026-10-26,,service existence / listed action,NEEDS_REVIEW
+SRC-011,FSSAI FoSCoS,official_fees,https://foscos.fssai.gov.in/fee/Reg,FoSCoS Fees and Service Actions,,2026-10-26,,service existence / listed action,NEEDS_REVIEW
+SRC-012,Ministry of MSME,official_registration_rules,https://www.udyamregistration.gov.in/Important.aspx,Udyam Registration Rules and Free Fee Notice,,2026-10-26,,service existence / listed action,NEEDS_REVIEW
+SRC-013,EPFO,official_member_portal,https://unifiedportal-mem.epfindia.gov.in/memberinterface/,EPFO Member Services and UMANG Notice,,2026-10-26,,service existence / listed action,NEEDS_REVIEW
+SRC-014,NTA,official_exams,https://nta.ac.in/,National Testing Agency Exams,,2026-10-26,,service existence / listed action,NEEDS_REVIEW
+SRC-015,MoRTH Parivahan,official_forms,https://parivahan.gov.in/parivahan/sites/default/files/DownloadForm/cmvr/FORM-2.pdf,CMVR Form 2 services (manual/PDF review pending),,2026-10-26,,service existence / listed action,NEEDS_REVIEW
+SRC-016,MoRTH Parivahan,staging_service_listing,https://www.staging.parivahan.gov.in/parivahan/en/content/other-services-page,VAHAN Service Categories (staging not production URL),,2026-10-26,,service existence / listed action,NEEDS_REVIEW
+SRC-017,GST Network,official_tutorial,https://tutorial.gst.gov.in/userguide/registration/Non-Core_Fields.htm,GST Registration Non-Core Amendment,,2026-10-26,,service existence / listed action,NEEDS_REVIEW
+SRC-018,GST Network,official_return_tutorial,https://tutorial.gst.gov.in/userguide/returns/GSTR3B.htm,GST GSTR-3B Guide,,2026-10-26,,service existence / listed action,NEEDS_REVIEW
+SRC-019,Income Tax Department,official_faq,https://www.incometax.gov.in/iec/foportal/help/e-filing-generate-instant-e-pan-faq?mobile-app=1,Instant ePAN and Physical PAN FAQs,,2026-10-26,,service existence / listed action,NEEDS_REVIEW
+SRC-020,MP Employees Selection Board,official_schedule,https://esb.mp.gov.in/Exams_Schedule/exams_schedule_ESB26.htm,2026 MPESB Examination Schedule,,2026-10-26,,service existence / listed action,NEEDS_REVIEW
+SRC-021,Passport Seva MEA,official_faq,https://www.passportindia.gov.in/psp/FaqWhereToApply,Passport Seva Service FAQ,,2026-10-26,,service existence / listed action,NEEDS_REVIEW
+SRC-022,MP Pharmacy Council via MPOnline,official_portal_notice,https://pharmacy.mponline.gov.in/portal/services/pharmacy/Samagra.aspx,Pharmacist Fresh Registration and Correction Prerequisites,,2026-10-26,,service existence only,NEEDS_REVIEW
+SRC-023,National Government Services Portal,government_service_listing,https://services.india.gov.in/service/detail/apply-for-new-drug-retail-whole-sales-license-madhya-pradesh,MP Drug Retail/Wholesale New Licence listing,,2026-10-26,,service existence only,NEEDS_REVIEW
+SRC-024,National Portal of India,government_service_listing,https://www.india.gov.in/services/details/apply-for-renew-drug-retail-sales-license-madhya-pradesh,MP Drug Retail Renewal listing,,2026-10-26,,service existence only,NEEDS_REVIEW
+SRC-025,Madhya Pradesh eServices,government_service_listing,https://www.services.mp.gov.in/eservice/eServices?srvs=21,MP Agriculture Input Licensing Services,,2026-10-26,,service existence only,NEEDS_REVIEW
+SRC-026,Government of MP CM Helpline,government_service_guidance,https://cmhelpline.mp.gov.in/Schmedetail.aspx?Schemeid=664,MP Fertilizer Sale Authorization Renewal Guidance,,2026-10-26,,service existence only,NEEDS_REVIEW
+SRC-027,MP e-Uparjan,official_portal,https://mpeuparjan.nic.in/Home.aspx,MP e-Uparjan Kharif and Rabi 2026-27,,2026-10-26,,service existence only,NEEDS_REVIEW
+SRC-028,National Government Services Portal,government_service_listing,https://services.india.gov.in/service/detail/issuing-chemical-fertilizer-sales-licenses-madhya-pradesh,MP Fertilizer Sales Licence,,2026-10-26,,service existence only,NEEDS_REVIEW
+SRC-029,National Government Services Portal,government_service_listing,https://services.india.gov.in/service/detail/issue-of-seed-sale-licenses-madhya-pradesh,MP Seed Sale Licence,,2026-10-26,,service existence only,NEEDS_REVIEW
+SRC-030,National Government Services Portal,government_service_listing,https://services.india.gov.in/service/detail/issuance-of-chemical-pesticide-sales-licenses-new-madhya-pradesh,MP Pesticide Sale Licence,,2026-10-26,,service existence only,NEEDS_REVIEW

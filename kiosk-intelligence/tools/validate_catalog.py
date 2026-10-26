@@ -29,6 +29,9 @@ def err(msg: str) -> None:
 
 def iso_datetime(value: str) -> bool:
     try:
+        if len(value) == 10 and value[4] == "-" and value[7] == "-":
+            dt.date.fromisoformat(value)
+            return True  # Official notices often specify the DATE only; do not invent a closing time.
         parsed = dt.datetime.fromisoformat(value.replace("Z", "+00:00"))
         return parsed.tzinfo is not None
     except ValueError:
@@ -51,7 +54,9 @@ for kind, (filename, id_col, required_cols) in FILES.items():
     seen: set[str] = set()
     for rowno, row in enumerate(rows, start=2):
         ident = (row.get(id_col) or "").strip()
-        if not ident:
+        if kind == "cycles":
+            ident = ident + "::" + (row.get("stage") or "").strip()
+        if not (row.get(id_col) or "").strip():
             err(f"{filename}:{rowno} missing {id_col}")
         if ident in seen:
             err(f"{filename}:{rowno} duplicate {id_col}={ident}")
@@ -97,7 +102,7 @@ for row in tables.get("cycles", []):
     for col in ("start_at", "end_at"):
         value = (row.get(col) or "").strip()
         if value and not iso_datetime(value):
-            err(f"cycle {cid}: {col} needs ISO 8601 date/time with offset")
+            err(f"cycle {cid}: {col} needs ISO date (YYYY-MM-DD) or ISO date/time with offset")
     if (row.get("start_at") or row.get("end_at")) and not source:
         err(f"cycle {cid}: source required for dates")
 

@@ -1,6 +1,6 @@
 # Kiosk Service Intelligence — START HERE
 
-**Status: RESEARCH BATCH 01 (NOT PRODUCTION-VERIFIED).** As of 2026-10-26: 87 sourced candidate service records, 30 public source links, 17 application-stage date records, 14 draft service dossiers. All service rows remain NEEDS_REVIEW; operational SOPs and local margins are not certified.
+**Status: RESEARCH BATCH 01 (NOT PRODUCTION-VERIFIED).** As of 2026-10-26: 103 sourced candidate service records, 30 public source links, 17 application-stage date records, 14 draft service dossiers. All service rows remain NEEDS_REVIEW; operational SOPs and local margins are not certified.
 
 **Read next:** [Research Batch 01 Findings](./reports/BATCH_01_FINDINGS_2026-10-26.md) · [Priority Backlog](./reports/PRIORITY_BACKLOG.md) · [Monitoring Watchlist](./reports/MONITORING_WATCHLIST.md) · [Draft dossiers](./dossiers/README.md)
 

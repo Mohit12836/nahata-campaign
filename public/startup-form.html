@@ -39,21 +39,7 @@
       --text-sub: #475569;
       --danger: #EF4444;
 
-      /* Elevated 3D Shadow Layers (Ubhra Hua Effect) */
-      --shadow-raised: 
-        0 20px 35px -10px rgba(2, 44, 34, 0.25),
-        0 10px 15px -5px rgba(2, 44, 34, 0.15),
-        0 0 0 1px rgba(255, 255, 255, 0.8);
-
-      --shadow-floating:
-        0 30px 60px -15px rgba(2, 44, 34, 0.45),
-        0 12px 24px -8px rgba(6, 78, 59, 0.25),
-        0 0 0 1px rgba(167, 243, 208, 0.8),
-        0 0 25px rgba(52, 211, 153, 0.2);
-
-      --shadow-input:
-        0 2px 4px rgba(15, 23, 42, 0.03),
-        inset 0 1px 2px rgba(15, 23, 42, 0.02);
+      --shadow-input: 0 2px 5px rgba(15, 23, 42, 0.04), inset 0 1px 2px rgba(15, 23, 42, 0.02);
     }
 
     html, body {
@@ -80,98 +66,67 @@
       inset: 0;
       overflow: hidden;
       z-index: -2;
-      background: linear-gradient(135deg, #022C22 0%, #064E3B 35%, #065F46 70%, #022C22 100%);
+      background: linear-gradient(135deg, #011C15 0%, #064E3B 35%, #047857 70%, #022C22 100%);
       pointer-events: none;
     }
 
     /* Waving Aurora Wave 1 */
     .aurora-wave-1 {
       position: absolute;
-      top: -20%;
+      top: -25%;
       left: -20%;
       width: 140%;
-      height: 100%;
-      background: radial-gradient(ellipse at 40% 40%, rgba(52, 211, 153, 0.55) 0%, rgba(16, 185, 129, 0.3) 40%, rgba(6, 78, 59, 0) 75%);
-      filter: blur(70px);
-      opacity: 0.85;
-      animation: waveDrift1 11s ease-in-out infinite alternate;
+      height: 110%;
+      background: radial-gradient(ellipse at 40% 40%, rgba(52, 211, 153, 0.6) 0%, rgba(16, 185, 129, 0.35) 40%, rgba(6, 78, 59, 0) 75%);
+      filter: blur(75px);
+      opacity: 0.9;
+      animation: waveDrift1 10s ease-in-out infinite alternate;
       will-change: transform;
     }
 
     /* Waving Aurora Wave 2 */
     .aurora-wave-2 {
       position: absolute;
-      bottom: -20%;
+      bottom: -25%;
       right: -20%;
       width: 140%;
-      height: 100%;
-      background: radial-gradient(ellipse at 60% 60%, rgba(110, 231, 183, 0.45) 0%, rgba(5, 150, 105, 0.35) 45%, rgba(2, 44, 34, 0) 75%);
-      filter: blur(80px);
-      opacity: 0.9;
-      animation: waveDrift2 15s ease-in-out infinite alternate;
+      height: 110%;
+      background: radial-gradient(ellipse at 60% 60%, rgba(110, 231, 183, 0.5) 0%, rgba(5, 150, 105, 0.4) 45%, rgba(2, 44, 34, 0) 75%);
+      filter: blur(85px);
+      opacity: 0.95;
+      animation: waveDrift2 14s ease-in-out infinite alternate;
       will-change: transform;
     }
 
-    /* Shimmering Center Light Beam (Chamakti hui light) */
+    /* Shimmering Center Light Beam */
     .aurora-shimmer-beam {
       position: absolute;
       top: 15%;
       left: 10%;
       width: 80%;
       height: 70%;
-      background: radial-gradient(circle at 50% 50%, rgba(167, 243, 208, 0.28) 0%, rgba(16, 185, 129, 0.15) 35%, transparent 65%);
-      filter: blur(55px);
-      animation: shimmerPulse 6s ease-in-out infinite alternate;
+      background: radial-gradient(circle at 50% 50%, rgba(167, 243, 208, 0.35) 0%, rgba(52, 211, 153, 0.2) 35%, transparent 65%);
+      filter: blur(60px);
+      animation: shimmerPulse 5s ease-in-out infinite alternate;
       will-change: opacity, transform;
     }
 
-    /* Subtle Animated Light Rays / Grid */
-    .aurora-mesh-overlay {
-      position: absolute;
-      inset: 0;
-      background: 
-        radial-gradient(circle at 20% 30%, rgba(255, 255, 255, 0.08) 0%, transparent 8%),
-        radial-gradient(circle at 80% 70%, rgba(255, 255, 255, 0.06) 0%, transparent 10%);
-      opacity: 0.7;
-    }
-
     @keyframes waveDrift1 {
-      0% {
-        transform: translate3d(-5%, -4%, 0) rotate(-4deg) scale(1);
-      }
-      50% {
-        transform: translate3d(8%, 6%, 0) rotate(5deg) scale(1.12);
-      }
-      100% {
-        transform: translate3d(-3%, 10%, 0) rotate(-3deg) scale(1.05);
-      }
+      0% { transform: translate3d(-6%, -5%, 0) rotate(-5deg) scale(1); }
+      50% { transform: translate3d(9%, 7%, 0) rotate(6deg) scale(1.15); }
+      100% { transform: translate3d(-4%, 11%, 0) rotate(-4deg) scale(1.08); }
     }
 
     @keyframes waveDrift2 {
-      0% {
-        transform: translate3d(6%, 5%, 0) rotate(4deg) scale(1.05);
-      }
-      50% {
-        transform: translate3d(-8%, -6%, 0) rotate(-5deg) scale(1.18);
-      }
-      100% {
-        transform: translate3d(4%, -10%, 0) rotate(3deg) scale(1);
-      }
+      0% { transform: translate3d(7%, 6%, 0) rotate(5deg) scale(1.06); }
+      50% { transform: translate3d(-9%, -7%, 0) rotate(-6deg) scale(1.2); }
+      100% { transform: translate3d(5%, -11%, 0) rotate(4deg) scale(1.02); }
     }
 
     @keyframes shimmerPulse {
-      0% {
-        opacity: 0.45;
-        transform: scale(0.92);
-      }
-      50% {
-        opacity: 0.85;
-        transform: scale(1.08);
-      }
-      100% {
-        opacity: 0.55;
-        transform: scale(0.96);
-      }
+      0% { opacity: 0.5; transform: scale(0.92); }
+      50% { opacity: 0.95; transform: scale(1.1); }
+      100% { opacity: 0.6; transform: scale(0.97); }
     }
 
     /* Container */
@@ -182,68 +137,38 @@
       z-index: 1;
     }
 
-    /* ==========================================================================
-       CASCADE DROP-DOWN ENTRANCE ANIMATIONS (Upar Se Girte Hue Cards)
-       ========================================================================== */
-    @keyframes dropInFromTop {
-      0% {
-        opacity: 0;
-        transform: translateY(-40px) scale(0.96);
-      }
-      60% {
-        opacity: 0.95;
-        transform: translateY(6px) scale(1.008);
-      }
-      100% {
-        opacity: 1;
-        transform: translateY(0) scale(1);
-      }
-    }
-
-    .animate-drop-1 {
-      animation: dropInFromTop 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
-      animation-delay: 0.05s;
-    }
-    .animate-drop-2 {
-      animation: dropInFromTop 0.55s cubic-bezier(0.16, 1, 0.3, 1) both;
-      animation-delay: 0.12s;
-    }
-    .animate-drop-3 {
-      animation: dropInFromTop 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
-      animation-delay: 0.18s;
-    }
-
     /* Header Section */
     .form-header {
       text-align: center;
-      margin-bottom: clamp(1rem, 2.5vw, 1.5rem);
+      margin-bottom: clamp(1rem, 2.5vw, 1.4rem);
+      animation: dropInFromTop 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
     }
     .badge-pill {
       display: inline-flex;
       align-items: center;
       gap: 0.5rem;
       padding: 0.4rem 1rem;
-      background: rgba(255, 255, 255, 0.92);
+      background: rgba(255, 255, 255, 0.94);
       backdrop-filter: blur(12px);
       border: 1px solid rgba(167, 243, 208, 0.9);
       border-radius: 999px;
       font-size: 0.8rem;
       font-weight: 700;
       color: #065F46;
-      box-shadow: 0 4px 15px rgba(2, 44, 34, 0.3);
+      box-shadow: 0 6px 18px rgba(2, 44, 34, 0.35);
       margin-bottom: 0.65rem;
     }
     .badge-pill .pulse-dot {
-      width: 8px;
-      height: 8px;
-      background: var(--emerald-accent);
+      width: 9px;
+      height: 9px;
+      background: #10B981;
       border-radius: 50%;
-      box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.35);
-      animation: dotPulse 1.8s infinite;
+      box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.35);
+      animation: dotGlow 1.6s infinite;
     }
-    @keyframes dotPulse {
+    @keyframes dotGlow {
       0%, 100% { transform: scale(1); opacity: 1; }
-      50% { transform: scale(1.3); opacity: 0.7; }
+      50% { transform: scale(1.35); opacity: 0.7; }
     }
 
     .main-title {
@@ -254,24 +179,26 @@
       letter-spacing: -0.025em;
       line-height: 1.2;
       margin-bottom: 0.35rem;
-      text-shadow: 0 2px 8px rgba(2, 44, 34, 0.5);
+      text-shadow: 0 2px 12px rgba(2, 44, 34, 0.6);
     }
     .sub-title {
       font-size: clamp(0.85rem, 1.5vw, 0.95rem);
       color: #D1FAE5;
       line-height: 1.45;
-      text-shadow: 0 1px 4px rgba(2, 44, 34, 0.4);
+      text-shadow: 0 1px 6px rgba(2, 44, 34, 0.5);
     }
 
-    /* Elevated Stepper Card (Ubhra Hua) */
+    /* Stepper Card */
     .stepper-card {
-      background: rgba(255, 255, 255, 0.95);
+      background: rgba(255, 255, 255, 0.96);
       backdrop-filter: blur(10px);
       border-radius: 18px;
       padding: 0.85rem 1.15rem;
       margin-bottom: 1.15rem;
-      box-shadow: var(--shadow-raised);
-      border: 1px solid rgba(167, 243, 208, 0.8);
+      box-shadow: 0 15px 30px -10px rgba(2, 44, 34, 0.3), 0 0 0 1px rgba(255, 255, 255, 0.9);
+      border: 1px solid rgba(167, 243, 208, 0.85);
+      animation: dropInFromTop 0.55s cubic-bezier(0.16, 1, 0.3, 1) both;
+      animation-delay: 0.08s;
     }
     .stepper-header {
       display: flex;
@@ -288,11 +215,16 @@
     .stepper-count {
       color: #047857;
       background: #ECFDF5;
-      padding: 0.2rem 0.6rem;
-      border-radius: 6px;
-      font-size: 0.75rem;
-      font-weight: 700;
-      border: 1px solid #A7F3D0;
+      padding: 0.2rem 0.65rem;
+      border-radius: 8px;
+      font-size: 0.775rem;
+      font-weight: 800;
+      border: 1.5px solid #A7F3D0;
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .stepper-count.pop {
+      transform: scale(1.22);
+      background: #D1FAE5;
     }
     .progress-bar-bg {
       width: 100%;
@@ -306,17 +238,62 @@
       width: 25%;
       background: linear-gradient(90deg, #10B981 0%, #059669 100%);
       border-radius: 999px;
-      transition: width 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+      transition: width 0.45s cubic-bezier(0.16, 1, 0.3, 1);
+      box-shadow: 0 0 10px rgba(16, 185, 129, 0.5);
     }
 
-    /* Main Elevated Form Card (Ubhra Hua 3D Look) */
-    .main-form-card {
-      background: var(--card-white);
-      border-radius: 24px;
-      padding: clamp(1.2rem, 3.5vw, 2rem);
-      box-shadow: var(--shadow-floating);
-      border: 1.5px solid rgba(167, 243, 208, 0.9);
+    /* ==========================================================================
+       BORDER PAR CHALTI HUI LIGHT (Border Beam Glow Rotating Effect)
+       ========================================================================== */
+    .beam-card-outer {
       position: relative;
+      border-radius: 26px;
+      overflow: hidden;
+      padding: 3px; /* Border thickness for the running beam */
+      box-shadow: 
+        0 30px 65px -15px rgba(2, 44, 34, 0.55),
+        0 15px 30px -10px rgba(6, 78, 59, 0.3),
+        0 0 35px rgba(52, 211, 153, 0.35);
+      animation: dropInFromTop 0.65s cubic-bezier(0.16, 1, 0.3, 1) both;
+      animation-delay: 0.15s;
+    }
+
+    /* Continuous Rotating Conic Laser Light */
+    .running-border-beam {
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: conic-gradient(
+        from 0deg,
+        transparent 0deg,
+        transparent 210deg,
+        rgba(16, 185, 129, 0.4) 260deg,
+        #10B981 300deg,
+        #34D399 330deg,
+        #A7F3D0 348deg,
+        #FFFFFF 355deg,
+        transparent 360deg
+      );
+      animation: rotateBorderBeam 3.6s linear infinite;
+      will-change: transform;
+      z-index: 0;
+    }
+
+    @keyframes rotateBorderBeam {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    /* Main Elevated Form Card (Ubhra Hua 3D Look Inside the Beam) */
+    .main-form-card {
+      position: relative;
+      background: var(--card-white);
+      border-radius: 23px;
+      padding: clamp(1.2rem, 3.5vw, 2rem);
+      z-index: 1;
+      overflow: hidden;
     }
 
     /* Card Top Header */
@@ -379,17 +356,26 @@
       font-size: 0.925rem;
       color: var(--text-main);
       box-shadow: var(--shadow-input);
-      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+      transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
       outline: none;
     }
     .form-input:focus {
       background: var(--card-white);
-      border-color: var(--border-focus);
-      box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.18);
+      border-color: #10B981;
+      transform: translateY(-2px);
+      box-shadow: 
+        0 8px 18px -4px rgba(16, 185, 129, 0.18),
+        0 0 0 4px rgba(52, 211, 153, 0.22);
     }
     .form-input.is-invalid {
       border-color: var(--danger);
       background: #FEF2F2;
+      animation: shakeInput 0.3s ease;
+    }
+    @keyframes shakeInput {
+      0%, 100% { transform: translateX(0); }
+      25% { transform: translateX(-4px); }
+      75% { transform: translateX(4px); }
     }
     textarea.form-input {
       min-height: 80px;
@@ -406,25 +392,30 @@
       display: none;
     }
 
-    /* Visual Upload Zone (Ubhra Hua) */
+    /* Visual Upload Zone */
     .upload-tile {
       background: #F8FAFC;
-      border: 2px dashed #93C5FD;
-      border-color: #A7F3D0;
+      border: 2px dashed #A7F3D0;
       border-radius: 16px;
       padding: 1.15rem 1rem;
       text-align: center;
       cursor: pointer;
-      transition: all 0.25s ease;
+      transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
       box-shadow: inset 0 1px 3px rgba(15, 23, 42, 0.02);
     }
     .upload-tile:hover {
-      background: var(--primary-soft);
-      border-color: var(--primary);
+      background: #ECFDF5;
+      border-color: #059669;
+      transform: translateY(-2px);
+      box-shadow: 0 8px 18px -4px rgba(16, 185, 129, 0.15);
     }
     .upload-tile svg {
-      color: var(--primary);
+      color: #059669;
       margin-bottom: 0.35rem;
+      transition: transform 0.25s ease;
+    }
+    .upload-tile:hover svg {
+      transform: scale(1.12);
     }
     .upload-title {
       font-size: 0.85rem;
@@ -464,12 +455,12 @@
       justify-content: center;
       gap: 0.45rem;
       font-family: inherit;
-      font-size: 0.925rem;
-      font-weight: 600;
-      padding: 0.85rem 1.6rem;
+      font-size: 0.95rem;
+      font-weight: 700;
+      padding: 0.88rem 1.6rem;
       border-radius: 14px;
       cursor: pointer;
-      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+      transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
       border: none;
       text-decoration: none;
     }
@@ -477,7 +468,7 @@
       transform: translateY(-2px);
     }
     .btn:active {
-      transform: scale(0.98);
+      transform: scale(0.95);
     }
 
     .btn-ghost {
@@ -495,18 +486,18 @@
       flex: 1;
     }
     .btn-solid-primary:hover {
-      box-shadow: 0 6px 20px rgba(16, 185, 129, 0.5);
+      box-shadow: 0 8px 22px rgba(16, 185, 129, 0.55);
     }
 
     .btn-solid-submit {
       background: linear-gradient(135deg, #059669 0%, #047857 100%);
       color: #FFFFFF;
-      box-shadow: 0 4px 14px rgba(5, 150, 105, 0.4);
+      box-shadow: 0 4px 14px rgba(5, 150, 105, 0.45);
       flex: 1;
       font-size: 1rem;
     }
     .btn-solid-submit:hover {
-      box-shadow: 0 6px 20px rgba(5, 150, 105, 0.5);
+      box-shadow: 0 8px 22px rgba(5, 150, 105, 0.6);
     }
 
     /* Review Ticket Card */
@@ -557,21 +548,75 @@
       gap: 0.5rem;
     }
 
-    /* Slide Switcher Animation */
+    /* ==========================================================================
+       TACTILE STEP TRANSITIONS (Animation Lagna Chahiye - Feel The Motion)
+       ========================================================================== */
     .step-section {
       display: none;
     }
     .step-section.active {
       display: block;
-      animation: dropInFromTop 0.4s cubic-bezier(0.16, 1, 0.3, 1) both;
+      animation: springSlideIn 0.45s cubic-bezier(0.16, 1, 0.3, 1) both;
+    }
+    .step-section.slide-back {
+      animation: springSlideBack 0.45s cubic-bezier(0.16, 1, 0.3, 1) both;
+    }
+
+    @keyframes springSlideIn {
+      0% {
+        opacity: 0;
+        transform: translate3d(40px, 0, 0) scale(0.97);
+        filter: blur(4px);
+      }
+      65% {
+        opacity: 0.95;
+        transform: translate3d(-4px, 0, 0) scale(1.005);
+        filter: blur(0);
+      }
+      100% {
+        opacity: 1;
+        transform: translate3d(0, 0, 0) scale(1);
+      }
+    }
+
+    @keyframes springSlideBack {
+      0% {
+        opacity: 0;
+        transform: translate3d(-40px, 0, 0) scale(0.97);
+        filter: blur(4px);
+      }
+      65% {
+        opacity: 0.95;
+        transform: translate3d(4px, 0, 0) scale(1.005);
+        filter: blur(0);
+      }
+      100% {
+        opacity: 1;
+        transform: translate3d(0, 0, 0) scale(1);
+      }
+    }
+
+    @keyframes dropInFromTop {
+      0% {
+        opacity: 0;
+        transform: translateY(-40px) scale(0.96);
+      }
+      60% {
+        opacity: 0.95;
+        transform: translateY(6px) scale(1.008);
+      }
+      100% {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
     }
 
     /* Success Overlay Modal */
     .modal-backdrop {
       position: fixed;
       inset: 0;
-      background: rgba(2, 44, 34, 0.75);
-      backdrop-filter: blur(8px);
+      background: rgba(2, 44, 34, 0.8);
+      backdrop-filter: blur(10px);
       display: none;
       align-items: center;
       justify-content: center;
@@ -587,10 +632,11 @@
       text-align: center;
       box-shadow: 0 25px 50px -12px rgba(2, 44, 34, 0.45);
       animation: dropInFromTop 0.4s cubic-bezier(0.16, 1, 0.3, 1) both;
+      border: 2px solid #A7F3D0;
     }
     .modal-check-icon {
-      width: 64px;
-      height: 64px;
+      width: 66px;
+      height: 66px;
       background: #ECFDF5;
       color: #10B981;
       border-radius: 50%;
@@ -598,11 +644,17 @@
       align-items: center;
       justify-content: center;
       margin-bottom: 1rem;
-      box-shadow: 0 0 0 8px rgba(16, 185, 129, 0.2);
+      box-shadow: 0 0 0 10px rgba(16, 185, 129, 0.2);
+      animation: popCheck 0.45s cubic-bezier(0.16, 1, 0.3, 1) both;
+    }
+    @keyframes popCheck {
+      0% { transform: scale(0.5); opacity: 0; }
+      70% { transform: scale(1.2); }
+      100% { transform: scale(1); opacity: 1; }
     }
     .modal-heading {
       font-family: 'Outfit', sans-serif;
-      font-size: 1.5rem;
+      font-size: 1.55rem;
       font-weight: 700;
       color: var(--text-main);
       margin-bottom: 0.45rem;
@@ -628,7 +680,7 @@
       }
       .btn {
         width: 100%;
-        min-height: 48px;
+        min-height: 50px;
       }
     }
   </style>
@@ -643,12 +695,11 @@
     <div class="aurora-wave-1"></div>
     <div class="aurora-wave-2"></div>
     <div class="aurora-shimmer-beam"></div>
-    <div class="aurora-mesh-overlay"></div>
   </div>
 
   <div class="app-container">
     <!-- Header: Upar Se Drop Hote Hue Animation -->
-    <header class="form-header animate-drop-1">
+    <header class="form-header">
       <div class="badge-pill">
         <span class="pulse-dot"></span>
         SKYBRIDGE STARTUP EBOOK – 2027
@@ -657,8 +708,8 @@
       <p class="sub-title">An Online Free Showcase for Your Startup, Products & Videos</p>
     </header>
 
-    <!-- Stepper Card (Ubhra Hua Raised Card) -->
-    <div class="stepper-card animate-drop-2">
+    <!-- Stepper Card -->
+    <div class="stepper-card">
       <div class="stepper-header">
         <span id="stepperStepTitle" class="stepper-step-title">Step 1: Startup & Founder Info</span>
         <span id="stepperCount" class="stepper-count">1 / 4</span>
@@ -668,247 +719,253 @@
       </div>
     </div>
 
-    <!-- Main Card (Cascading Drop Animation + Raised 3D Shadow) -->
-    <div class="main-form-card animate-drop-3">
-      <form id="startupRegistrationForm" target="sheet_sink" action="https://docs.google.com/forms/d/e/1FAIpQLSdZ422oZNc5DhMR9ZtIUC4uEaCLBHB3GT6-UHJjHzwF8MmrAg/formResponse" method="POST" onsubmit="onFormSubmitInitiated(event)">
+    <!-- Main Card Enclosed in Running Border Light Beam -->
+    <div class="beam-card-outer">
+      <!-- Border par chalti hui laser beam -->
+      <div class="running-border-beam"></div>
 
-        <!-- ================= STEP 1: IDENTITY ================= -->
-        <div class="step-section active" id="stepView1">
-          <div class="card-top">
-            <div class="step-tag">Step 01 / 04</div>
-            <h2 class="card-heading">Startup Profile & Founder</h2>
-            <p class="card-caption">Enter your business identity and registered founder details</p>
-          </div>
+      <!-- Main Content Card -->
+      <div class="main-form-card">
+        <form id="startupRegistrationForm" target="sheet_sink" action="https://docs.google.com/forms/d/e/1FAIpQLSdZ422oZNc5DhMR9ZtIUC4uEaCLBHB3GT6-UHJjHzwF8MmrAg/formResponse" method="POST" onsubmit="onFormSubmitInitiated(event)">
 
-          <div class="form-group-stack">
-            <div class="form-control">
-              <label for="f_startup_name">Startup / Company Name <span class="req-star">*</span></label>
-              <input type="text" id="f_startup_name" name="entry.2005620554" class="form-input" placeholder="e.g. Acme Tech Innovations Pvt Ltd" required>
-              <span class="error-hint" id="err_startup">Please enter your startup name</span>
+          <!-- ================= STEP 1: IDENTITY ================= -->
+          <div class="step-section active" id="stepView1">
+            <div class="card-top">
+              <div class="step-tag">Step 01 / 04</div>
+              <h2 class="card-heading">Startup Profile & Founder</h2>
+              <p class="card-caption">Enter your business identity and registered founder details</p>
             </div>
 
-            <div class="form-control">
-              <label for="f_founder_name">Startup Founder Name <span class="req-star">*</span></label>
-              <input type="text" id="f_founder_name" name="entry.1045781291" class="form-input" placeholder="e.g. Rajesh Sharma" required>
-              <span class="error-hint" id="err_founder">Founder name is required</span>
-            </div>
-
-            <div class="form-control">
-              <label for="f_sector">Startup Sector <span class="req-star">*</span></label>
-              <select id="f_sector" name="entry.1166974658" class="form-input" required>
-                <option value="">-- Select Your Startup Industry --</option>
-                <option value="AgriTech (Agriculture)">AgriTech (Agriculture)</option>
-                <option value="AI & DeepTech (Artificial Intelligence)">AI & DeepTech (Artificial Intelligence)</option>
-                <option value="AutoTech & Electric Vehicles (EV)">AutoTech & Electric Vehicles (EV)</option>
-                <option value="BioTech & Life Sciences">BioTech & Life Sciences</option>
-                <option value="CleanTech & Renewable Energy">CleanTech & Renewable Energy</option>
-                <option value="Construction & Real Estate Tech (PropTech)">Construction & Real Estate Tech (PropTech)</option>
-                <option value="Cybersecurity & Data Privacy">Cybersecurity & Data Privacy</option>
-                <option value="D2C & E-Commerce (Direct-to-Consumer)">D2C & E-Commerce (Direct-to-Consumer)</option>
-                <option value="Drone Technology">Drone Technology</option>
-                <option value="EdTech (Education Technology)">EdTech (Education Technology)</option>
-                <option value="Enterprise Software & SaaS">Enterprise Software & SaaS</option>
-                <option value="FinTech (Financial Technology)">FinTech (Financial Technology)</option>
-                <option value="FoodTech & Cloud Kitchens">FoodTech & Cloud Kitchens</option>
-                <option value="Gaming & Esports">Gaming & Esports</option>
-                <option value="HealthTech & MedTech">HealthTech & MedTech</option>
-                <option value="HRTech (Human Resources)">HRTech (Human Resources)</option>
-                <option value="Logistics & Supply Chain Tech">Logistics & Supply Chain Tech</option>
-                <option value="Media & Entertainment (Creator Economy)">Media & Entertainment (Creator Economy)</option>
-                <option value="Retail Tech">Retail Tech</option>
-                <option value="SpaceTech">SpaceTech</option>
-                <option value="Travel & Hospitality Tech">Travel & Hospitality Tech</option>
-                <option value="Web3, Blockchain & Crypto">Web3, Blockchain & Crypto</option>
-              </select>
-              <span class="error-hint" id="err_sec">Please select your startup sector</span>
-            </div>
-          </div>
-
-          <div class="action-bar">
-            <div></div>
-            <button type="button" class="btn btn-solid-primary" onclick="validateStep(1, 2)">
-              Next: Location & Contact →
-            </button>
-          </div>
-        </div>
-
-        <!-- ================= STEP 2: LOCATION & CONTACT ================= -->
-        <div class="step-section" id="stepView2">
-          <div class="card-top">
-            <div class="step-tag">Step 02 / 04</div>
-            <h2 class="card-heading">Contact & Location</h2>
-            <p class="card-caption">Where is your startup based and how can prospects reach you?</p>
-          </div>
-
-          <div class="form-group-stack">
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem;">
+            <div class="form-group-stack">
               <div class="form-control">
-                <label for="f_phone">Contact No. <span class="req-star">*</span></label>
-                <input type="tel" id="f_phone" name="entry.1274261628" class="form-input" placeholder="10-digit Mobile" maxlength="10" required>
-                <span class="error-hint" id="err_phone">10-digit number required</span>
+                <label for="f_startup_name">Startup / Company Name <span class="req-star">*</span></label>
+                <input type="text" id="f_startup_name" name="entry.2005620554" class="form-input" placeholder="e.g. Acme Tech Innovations Pvt Ltd" required>
+                <span class="error-hint" id="err_startup">Please enter your startup name</span>
               </div>
 
               <div class="form-control">
-                <label for="f_email">Email Address <span class="req-star">*</span></label>
-                <input type="email" id="f_email" name="entry.313469564" class="form-input" placeholder="founder@company.com" required>
-                <span class="error-hint" id="err_email">Valid email required</span>
-              </div>
-            </div>
-
-            <div class="form-control">
-              <label for="f_address">Startup Registered Address <span class="req-star">*</span></label>
-              <textarea id="f_address" name="entry.1407004089" class="form-input" placeholder="Office / Factory Address" required></textarea>
-              <span class="error-hint" id="err_addr">Address is required</span>
-            </div>
-
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem;">
-              <div class="form-control">
-                <label for="f_city">City <span class="req-star">*</span></label>
-                <input type="text" id="f_city" name="entry.839337160" class="form-input" placeholder="e.g. Indore, Mumbai" required>
-                <span class="error-hint" id="err_city">City required</span>
+                <label for="f_founder_name">Startup Founder Name <span class="req-star">*</span></label>
+                <input type="text" id="f_founder_name" name="entry.1045781291" class="form-input" placeholder="e.g. Rajesh Sharma" required>
+                <span class="error-hint" id="err_founder">Founder name is required</span>
               </div>
 
               <div class="form-control">
-                <label for="f_pincode">Pincode <span class="req-star">*</span></label>
-                <input type="text" id="f_pincode" name="entry.1611784293" class="form-input" placeholder="e.g. 452001" maxlength="6" required>
-                <span class="error-hint" id="err_pin">6-digit PIN required</span>
+                <label for="f_sector">Startup Sector <span class="req-star">*</span></label>
+                <select id="f_sector" name="entry.1166974658" class="form-input" required>
+                  <option value="">-- Select Your Startup Industry --</option>
+                  <option value="AgriTech (Agriculture)">AgriTech (Agriculture)</option>
+                  <option value="AI & DeepTech (Artificial Intelligence)">AI & DeepTech (Artificial Intelligence)</option>
+                  <option value="AutoTech & Electric Vehicles (EV)">AutoTech & Electric Vehicles (EV)</option>
+                  <option value="BioTech & Life Sciences">BioTech & Life Sciences</option>
+                  <option value="CleanTech & Renewable Energy">CleanTech & Renewable Energy</option>
+                  <option value="Construction & Real Estate Tech (PropTech)">Construction & Real Estate Tech (PropTech)</option>
+                  <option value="Cybersecurity & Data Privacy">Cybersecurity & Data Privacy</option>
+                  <option value="D2C & E-Commerce (Direct-to-Consumer)">D2C & E-Commerce (Direct-to-Consumer)</option>
+                  <option value="Drone Technology">Drone Technology</option>
+                  <option value="EdTech (Education Technology)">EdTech (Education Technology)</option>
+                  <option value="Enterprise Software & SaaS">Enterprise Software & SaaS</option>
+                  <option value="FinTech (Financial Technology)">FinTech (Financial Technology)</option>
+                  <option value="FoodTech & Cloud Kitchens">FoodTech & Cloud Kitchens</option>
+                  <option value="Gaming & Esports">Gaming & Esports</option>
+                  <option value="HealthTech & MedTech">HealthTech & MedTech</option>
+                  <option value="HRTech (Human Resources)">HRTech (Human Resources)</option>
+                  <option value="Logistics & Supply Chain Tech">Logistics & Supply Chain Tech</option>
+                  <option value="Media & Entertainment (Creator Economy)">Media & Entertainment (Creator Economy)</option>
+                  <option value="Retail Tech">Retail Tech</option>
+                  <option value="SpaceTech">SpaceTech</option>
+                  <option value="Travel & Hospitality Tech">Travel & Hospitality Tech</option>
+                  <option value="Web3, Blockchain & Crypto">Web3, Blockchain & Crypto</option>
+                </select>
+                <span class="error-hint" id="err_sec">Please select your startup sector</span>
               </div>
             </div>
 
-            <div class="form-control">
-              <label for="f_state">State <span class="req-star">*</span></label>
-              <select id="f_state" name="entry.757390368" class="form-input" required>
-                <option value="">-- Select State --</option>
-                <option value="Madhya Pradesh">Madhya Pradesh</option>
-                <option value="Andhra Pradesh">Andhra Pradesh</option>
-                <option value="Arunachal Pradesh">Arunachal Pradesh</option>
-                <option value="Assam">Assam</option>
-                <option value="Bihar">Bihar</option>
-                <option value="Chhattisgarh">Chhattisgarh</option>
-                <option value="Delhi">Delhi</option>
-                <option value="Goa">Goa</option>
-                <option value="Gujarat">Gujarat</option>
-                <option value="Haryana">Haryana</option>
-                <option value="Himachal Pradesh">Himachal Pradesh</option>
-                <option value="Jharkhand">Jharkhand</option>
-                <option value="Karnataka">Karnataka</option>
-                <option value="Kerala">Kerala</option>
-                <option value="Maharashtra">Maharashtra</option>
-                <option value="Manipur">Manipur</option>
-                <option value="Meghalaya">Meghalaya</option>
-                <option value="Mizoram">Mizoram</option>
-                <option value="Nagaland">Nagaland</option>
-                <option value="Odisha">Odisha</option>
-                <option value="Punjab">Punjab</option>
-                <option value="Rajasthan">Rajasthan</option>
-                <option value="Sikkim">Sikkim</option>
-                <option value="Tamil Nadu">Tamil Nadu</option>
-                <option value="Telangana">Telangana</option>
-                <option value="Tripura">Tripura</option>
-                <option value="Uttar Pradesh">Uttar Pradesh</option>
-                <option value="Uttarakhand">Uttarakhand</option>
-                <option value="West Bengal">West Bengal</option>
-              </select>
-              <span class="error-hint" id="err_state">State required</span>
+            <div class="action-bar">
+              <div></div>
+              <button type="button" class="btn btn-solid-primary" onclick="validateStep(1, 2, 'forward')">
+                Next: Location & Contact →
+              </button>
             </div>
           </div>
 
-          <div class="action-bar">
-            <button type="button" class="btn btn-ghost" onclick="navigateToStep(1)">← Back</button>
-            <button type="button" class="btn btn-solid-primary" onclick="validateStep(2, 3)">
-              Next: Media & Links →
-            </button>
-          </div>
-        </div>
-
-        <!-- ================= STEP 3: MEDIA & LINKS ================= -->
-        <div class="step-section" id="stepView3">
-          <div class="card-top">
-            <div class="step-tag">Step 03 / 04</div>
-            <h2 class="card-heading">Online Media & Showcase</h2>
-            <p class="card-caption">Attach your founder photo, product drive link and video reel</p>
-          </div>
-
-          <div class="form-group-stack">
-            <div class="form-control">
-              <label for="f_website">Website / Portfolio / Instagram Link</label>
-              <input type="url" id="f_website" name="entry.343882862" class="form-input" placeholder="https://yourstartup.com or instagram.com/page">
+          <!-- ================= STEP 2: LOCATION & CONTACT ================= -->
+          <div class="step-section" id="stepView2">
+            <div class="card-top">
+              <div class="step-tag">Step 02 / 04</div>
+              <h2 class="card-heading">Contact & Location</h2>
+              <p class="card-caption">Where is your startup based and how can prospects reach you?</p>
             </div>
 
-            <div class="form-control">
-              <label>Founder Headshot / Photo</label>
-              <div class="upload-tile" onclick="document.getElementById('input_founder_img').click()">
-                <svg width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
-                <div class="upload-title">Choose Founder Photo</div>
-                <div class="upload-caption">JPG or PNG (Clear professional picture)</div>
-                <div id="chip_founder_img" class="selected-file-chip">✓ File Attached</div>
+            <div class="form-group-stack">
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem;">
+                <div class="form-control">
+                  <label for="f_phone">Contact No. <span class="req-star">*</span></label>
+                  <input type="tel" id="f_phone" name="entry.1274261628" class="form-input" placeholder="10-digit Mobile" maxlength="10" required>
+                  <span class="error-hint" id="err_phone">10-digit number required</span>
+                </div>
+
+                <div class="form-control">
+                  <label for="f_email">Email Address <span class="req-star">*</span></label>
+                  <input type="email" id="f_email" name="entry.313469564" class="form-input" placeholder="founder@company.com" required>
+                  <span class="error-hint" id="err_email">Valid email required</span>
+                </div>
               </div>
-              <input type="file" id="input_founder_img" style="display:none;" accept="image/*" onchange="markFileAttached(this, 'chip_founder_img')">
+
+              <div class="form-control">
+                <label for="f_address">Startup Registered Address <span class="req-star">*</span></label>
+                <textarea id="f_address" name="entry.1407004089" class="form-input" placeholder="Office / Factory Address" required></textarea>
+                <span class="error-hint" id="err_addr">Address is required</span>
+              </div>
+
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem;">
+                <div class="form-control">
+                  <label for="f_city">City <span class="req-star">*</span></label>
+                  <input type="text" id="f_city" name="entry.839337160" class="form-input" placeholder="e.g. Indore, Mumbai" required>
+                  <span class="error-hint" id="err_city">City required</span>
+                </div>
+
+                <div class="form-control">
+                  <label for="f_pincode">Pincode <span class="req-star">*</span></label>
+                  <input type="text" id="f_pincode" name="entry.1611784293" class="form-input" placeholder="e.g. 452001" maxlength="6" required>
+                  <span class="error-hint" id="err_pin">6-digit PIN required</span>
+                </div>
+              </div>
+
+              <div class="form-control">
+                <label for="f_state">State <span class="req-star">*</span></label>
+                <select id="f_state" name="entry.757390368" class="form-input" required>
+                  <option value="">-- Select State --</option>
+                  <option value="Madhya Pradesh">Madhya Pradesh</option>
+                  <option value="Andhra Pradesh">Andhra Pradesh</option>
+                  <option value="Arunachal Pradesh">Arunachal Pradesh</option>
+                  <option value="Assam">Assam</option>
+                  <option value="Bihar">Bihar</option>
+                  <option value="Chhattisgarh">Chhattisgarh</option>
+                  <option value="Delhi">Delhi</option>
+                  <option value="Goa">Goa</option>
+                  <option value="Gujarat">Gujarat</option>
+                  <option value="Haryana">Haryana</option>
+                  <option value="Himachal Pradesh">Himachal Pradesh</option>
+                  <option value="Jharkhand">Jharkhand</option>
+                  <option value="Karnataka">Karnataka</option>
+                  <option value="Kerala">Kerala</option>
+                  <option value="Maharashtra">Maharashtra</option>
+                  <option value="Manipur">Manipur</option>
+                  <option value="Meghalaya">Meghalaya</option>
+                  <option value="Mizoram">Mizoram</option>
+                  <option value="Nagaland">Nagaland</option>
+                  <option value="Odisha">Odisha</option>
+                  <option value="Punjab">Punjab</option>
+                  <option value="Rajasthan">Rajasthan</option>
+                  <option value="Sikkim">Sikkim</option>
+                  <option value="Tamil Nadu">Tamil Nadu</option>
+                  <option value="Telangana">Telangana</option>
+                  <option value="Tripura">Tripura</option>
+                  <option value="Uttar Pradesh">Uttar Pradesh</option>
+                  <option value="Uttarakhand">Uttarakhand</option>
+                  <option value="West Bengal">West Bengal</option>
+                </select>
+                <span class="error-hint" id="err_state">State required</span>
+              </div>
             </div>
 
-            <div class="form-control">
-              <label for="f_video_reel">2–3 Minute Video Reel Link (YouTube, Drive or Instagram)</label>
-              <input type="text" id="f_video_reel" class="form-input" placeholder="Paste video link for product showcase">
+            <div class="action-bar">
+              <button type="button" class="btn btn-ghost" onclick="navigateToStep(1, 'back')">← Back</button>
+              <button type="button" class="btn btn-solid-primary" onclick="validateStep(2, 3, 'forward')">
+                Next: Media & Links →
+              </button>
             </div>
           </div>
 
-          <div class="action-bar">
-            <button type="button" class="btn btn-ghost" onclick="navigateToStep(2)">← Back</button>
-            <button type="button" class="btn btn-solid-primary" onclick="validateStep(3, 4)">
-              Next: Review & Submit →
-            </button>
-          </div>
-        </div>
+          <!-- ================= STEP 3: MEDIA & LINKS ================= -->
+          <div class="step-section" id="stepView3">
+            <div class="card-top">
+              <div class="step-tag">Step 03 / 04</div>
+              <h2 class="card-heading">Online Media & Showcase</h2>
+              <p class="card-caption">Attach your founder photo, product drive link and video reel</p>
+            </div>
 
-        <!-- ================= STEP 4: REVIEW & CONFIRM ================= -->
-        <div class="step-section" id="stepView4">
-          <div class="card-top">
-            <div class="step-tag">Step 04 / 04</div>
-            <h2 class="card-heading">Review & Confirm</h2>
-            <p class="card-caption">All data directly saves into the official Google Sheet</p>
-          </div>
+            <div class="form-group-stack">
+              <div class="form-control">
+                <label for="f_website">Website / Portfolio / Instagram Link</label>
+                <input type="url" id="f_website" name="entry.343882862" class="form-input" placeholder="https://yourstartup.com or instagram.com/page">
+              </div>
 
-          <div class="summary-ticket">
-            <div class="ticket-entry">
-              <span class="ticket-label">Startup Name:</span>
-              <span class="ticket-val" id="sum_startup">-</span>
+              <div class="form-control">
+                <label>Founder Headshot / Photo</label>
+                <div class="upload-tile" onclick="document.getElementById('input_founder_img').click()">
+                  <svg width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                  <div class="upload-title">Choose Founder Photo</div>
+                  <div class="upload-caption">JPG or PNG (Clear professional picture)</div>
+                  <div id="chip_founder_img" class="selected-file-chip">✓ File Attached</div>
+                </div>
+                <input type="file" id="input_founder_img" style="display:none;" accept="image/*" onchange="markFileAttached(this, 'chip_founder_img')">
+              </div>
+
+              <div class="form-control">
+                <label for="f_video_reel">2–3 Minute Video Reel Link (YouTube, Drive or Instagram)</label>
+                <input type="text" id="f_video_reel" class="form-input" placeholder="Paste video link for product showcase">
+              </div>
             </div>
-            <div class="ticket-entry">
-              <span class="ticket-label">Founder:</span>
-              <span class="ticket-val" id="sum_founder">-</span>
-            </div>
-            <div class="ticket-entry">
-              <span class="ticket-label">Sector:</span>
-              <span class="ticket-val" id="sum_sec">-</span>
-            </div>
-            <div class="ticket-entry">
-              <span class="ticket-label">Contact:</span>
-              <span class="ticket-val" id="sum_contact">-</span>
-            </div>
-            <div class="ticket-entry">
-              <span class="ticket-label">Email:</span>
-              <span class="ticket-val" id="sum_email">-</span>
-            </div>
-            <div class="ticket-entry">
-              <span class="ticket-label">City & State:</span>
-              <span class="ticket-val" id="sum_location">-</span>
+
+            <div class="action-bar">
+              <button type="button" class="btn btn-ghost" onclick="navigateToStep(2, 'back')">← Back</button>
+              <button type="button" class="btn btn-solid-primary" onclick="validateStep(3, 4, 'forward')">
+                Next: Review & Submit →
+              </button>
             </div>
           </div>
 
-          <div class="cloud-sync-badge">
-            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-            <div><strong>Live Sheet Connected:</strong> आपका डाटा सबमिट होते ही बिना रीडायरेक्ट के सीधे Google Sheet में सुरक्षित दर्ज हो जाएगा।</div>
+          <!-- ================= STEP 4: REVIEW & CONFIRM ================= -->
+          <div class="step-section" id="stepView4">
+            <div class="card-top">
+              <div class="step-tag">Step 04 / 04</div>
+              <h2 class="card-heading">Review & Confirm</h2>
+              <p class="card-caption">All data directly saves into the official Google Sheet</p>
+            </div>
+
+            <div class="summary-ticket">
+              <div class="ticket-entry">
+                <span class="ticket-label">Startup Name:</span>
+                <span class="ticket-val" id="sum_startup">-</span>
+              </div>
+              <div class="ticket-entry">
+                <span class="ticket-label">Founder:</span>
+                <span class="ticket-val" id="sum_founder">-</span>
+              </div>
+              <div class="ticket-entry">
+                <span class="ticket-label">Sector:</span>
+                <span class="ticket-val" id="sum_sec">-</span>
+              </div>
+              <div class="ticket-entry">
+                <span class="ticket-label">Contact:</span>
+                <span class="ticket-val" id="sum_contact">-</span>
+              </div>
+              <div class="ticket-entry">
+                <span class="ticket-label">Email:</span>
+                <span class="ticket-val" id="sum_email">-</span>
+              </div>
+              <div class="ticket-entry">
+                <span class="ticket-label">City & State:</span>
+                <span class="ticket-val" id="sum_location">-</span>
+              </div>
+            </div>
+
+            <div class="cloud-sync-badge">
+              <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+              <div><strong>Live Sheet Connected:</strong> आपका डाटा सबमिट होते ही बिना रीडायरेक्ट के सीधे Google Sheet में सुरक्षित दर्ज हो जाएगा।</div>
+            </div>
+
+            <div class="action-bar">
+              <button type="button" class="btn btn-ghost" onclick="navigateToStep(3, 'back')">← Edit Details</button>
+              <button type="submit" id="submitBtn" class="btn btn-solid-submit">
+                ✓ Confirm & Submit Application
+              </button>
+            </div>
           </div>
 
-          <div class="action-bar">
-            <button type="button" class="btn btn-ghost" onclick="navigateToStep(3)">← Edit Details</button>
-            <button type="submit" id="submitBtn" class="btn btn-solid-submit">
-              ✓ Confirm & Submit Application
-            </button>
-          </div>
-        </div>
-
-      </form>
+        </form>
+      </div>
     </div>
   </div>
 
@@ -916,7 +973,7 @@
   <div class="modal-backdrop" id="modalBackdrop">
     <div class="modal-box">
       <div class="modal-check-icon">
-        <svg width="34" height="34" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path></svg>
+        <svg width="36" height="36" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path></svg>
       </div>
       <h3 class="modal-heading">Registration Successful!</h3>
       <p class="modal-message">आपका स्टार्टअप <strong>SKYBRIDGE STARTUP EBOOK – 2027</strong> में पंजीकृत हो गया है और सारा डेटा Google Sheet में सेव हो गया है।</p>
@@ -944,24 +1001,59 @@
 
     let submitInProgress = false;
 
-    function navigateToStep(step) {
+    // Web Audio Micro-Haptic Click Synthesizer (Instant 15ms tactile pop)
+    function playTactileFeedback() {
+      try {
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(540, audioCtx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(880, audioCtx.currentTime + 0.04);
+        gain.gain.setValueAtTime(0.08, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.04);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start();
+        osc.stop(audioCtx.currentTime + 0.05);
+
+        // Mobile device haptic feedback if available
+        if (navigator.vibrate) {
+          navigator.vibrate(18);
+        }
+      } catch (e) {}
+    }
+
+    function navigateToStep(step, direction = 'forward') {
       if (step < 1 || step > totalStepCount) return;
+      playTactileFeedback();
       activeStep = step;
 
-      // Update Step Section Visibility with Drop-down animation
+      // Update Step Section Visibility with Tactile Spring Transitions
       for (let i = 1; i <= totalStepCount; i++) {
         const sec = document.getElementById(`stepView${i}`);
         if (i === activeStep) {
-          sec.classList.add('active');
+          sec.classList.remove('active', 'slide-back');
+          void sec.offsetWidth; // Trigger reflow for animation restart
+          if (direction === 'back') {
+            sec.classList.add('active', 'slide-back');
+          } else {
+            sec.classList.add('active');
+          }
         } else {
-          sec.classList.remove('active');
+          sec.classList.remove('active', 'slide-back');
         }
       }
 
-      // Update Stepper Progress
+      // Update Stepper Progress with Pop Effect
       const percent = (activeStep / totalStepCount) * 100;
       document.getElementById('progressBarFill').style.width = `${percent}%`;
-      document.getElementById('stepperCount').innerText = `${activeStep} / ${totalStepCount}`;
+      
+      const countBadge = document.getElementById('stepperCount');
+      countBadge.innerText = `${activeStep} / ${totalStepCount}`;
+      countBadge.classList.add('pop');
+      setTimeout(() => countBadge.classList.remove('pop'), 300);
+
       document.getElementById('stepperStepTitle').innerText = stepTitles[activeStep - 1];
 
       if (activeStep === 4) {
@@ -971,7 +1063,7 @@
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
-    function validateStep(current, next) {
+    function validateStep(current, next, direction) {
       resetValidationErrors();
 
       if (current === 1) {
@@ -1031,7 +1123,7 @@
         if (hasError) return;
       }
 
-      navigateToStep(next);
+      navigateToStep(next, direction);
     }
 
     function triggerError(inputId, errorId) {
@@ -1046,6 +1138,7 @@
 
     function markFileAttached(input, chipId) {
       if (input.files && input.files[0]) {
+        playTactileFeedback();
         const chip = document.getElementById(chipId);
         chip.innerText = `✓ Selected: ${input.files[0].name} (${(input.files[0].size / 1024).toFixed(0)} KB)`;
         chip.style.display = 'inline-block';
@@ -1066,6 +1159,7 @@
     }
 
     function onFormSubmitInitiated(e) {
+      playTactileFeedback();
       submitInProgress = true;
       const btn = document.getElementById('submitBtn');
       btn.innerText = 'Submitting to Google Sheet...';
@@ -1088,19 +1182,19 @@
       btn.style.opacity = '1';
       btn.disabled = false;
 
-      // Confetti animation
+      // Confetti double celebration
       if (typeof confetti === 'function') {
-        confetti({
-          particleCount: 120,
-          spread: 80,
-          origin: { y: 0.6 }
-        });
+        confetti({ particleCount: 90, spread: 60, origin: { y: 0.65 } });
+        setTimeout(() => {
+          confetti({ particleCount: 110, spread: 100, origin: { y: 0.55 } });
+        }, 250);
       }
 
       document.getElementById('modalBackdrop').style.display = 'flex';
     }
 
     function openWhatsAppShare() {
+      playTactileFeedback();
       const startup = document.getElementById('f_startup_name').value.trim();
       const founder = document.getElementById('f_founder_name').value.trim();
       const sector = document.getElementById('f_sector').value;
@@ -1112,10 +1206,11 @@
     }
 
     function resetFormForNewEntry() {
+      playTactileFeedback();
       document.getElementById('startupRegistrationForm').reset();
       document.getElementById('modalBackdrop').style.display = 'none';
       document.getElementById('chip_founder_img').style.display = 'none';
-      navigateToStep(1);
+      navigateToStep(1, 'back');
     }
 
     // Enter key triggers smooth slide progression
@@ -1123,7 +1218,7 @@
       if (e.key === 'Enter' && e.target.tagName !== 'TEXTAREA') {
         e.preventDefault();
         if (activeStep < totalStepCount) {
-          validateStep(activeStep, activeStep + 1);
+          validateStep(activeStep, activeStep + 1, 'forward');
         } else if (activeStep === totalStepCount) {
           document.getElementById('startupRegistrationForm').requestSubmit();
         }

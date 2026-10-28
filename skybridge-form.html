@@ -3,14 +3,14 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>SKYBRIDGE STARTUP EBOOK – 2027 | Startup Registration & Directory</title>
+  <title>SKYBRIDGE — Startup Registration & Directory 2027</title>
 
   <!-- Google Fonts: Plus Jakarta Sans & Outfit -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 
-  <!-- Confetti library for celebration -->
+  <!-- Confetti for submission celebration -->
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 
   <style>
@@ -21,266 +21,433 @@
     }
 
     :root {
-      --bg-canvas: #F8FAFC;
-      --bg-card: #FFFFFF;
-      --border-subtle: #E2E8F0;
-      --border-focus: #4F46E5;
-      --primary: #4F46E5;
-      --primary-hover: #4338CA;
-      --primary-light: #EEF2FF;
-      --primary-gradient: linear-gradient(135deg, #4F46E5 0%, #6366F1 50%, #7C3AED 100%);
-      --emerald: #10B981;
-      --emerald-light: #ECFDF5;
-      --text-heading: #0F172A;
-      --text-body: #334155;
+      /* Green Waving Aurora Theme Palette */
+      --bg-dark-emerald: #022C22;
+      --emerald-accent: #10B981;
+      --emerald-bright: #34D399;
+      --emerald-soft: #ECFDF5;
+      --emerald-border: #A7F3D0;
+      
+      --card-white: #FFFFFF;
+      --border-light: #E2E8F0;
+      --border-focus: #059669;
+      --primary: #059669;
+      --primary-hover: #047857;
+      --primary-soft: #ECFDF5;
+      --text-main: #0F172A;
       --text-muted: #64748B;
-      --shadow-card: 0 10px 30px -10px rgba(15, 23, 42, 0.08), 0 4px 6px -2px rgba(15, 23, 42, 0.03);
-      --shimmer-glow: 0 0 20px rgba(99, 102, 241, 0.15);
+      --text-sub: #475569;
+      --danger: #EF4444;
+
+      --shadow-input: 0 2px 5px rgba(15, 23, 42, 0.04), inset 0 1px 2px rgba(15, 23, 42, 0.02);
     }
 
     html, body {
       max-width: 100%;
       overflow-x: clip;
-      background: var(--bg-canvas);
-      color: var(--text-body);
+      background: var(--bg-dark-emerald);
+      color: var(--text-main);
       font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
       min-height: 100vh;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: flex-start;
-      padding: clamp(1rem, 2.5vw, 2.5rem) clamp(0.75rem, 2vw, 1.5rem);
+      padding: clamp(0.85rem, 2.5vw, 2.5rem) clamp(0.75rem, 2vw, 1.25rem);
+      -webkit-font-smoothing: antialiased;
       position: relative;
     }
 
-    /* Ambient Soft Lighting */
-    .ambient-glow-top {
+    /* ==========================================================================
+       LAHARATI HUI CHAMAKTI GREEN LIGHT BACKGROUND (Waving Emerald Aurora)
+       ========================================================================== */
+    .aurora-bg-container {
       position: fixed;
-      top: -120px;
-      left: 15%;
-      width: 500px;
-      height: 500px;
-      background: radial-gradient(circle, rgba(99, 102, 241, 0.09) 0%, rgba(248, 250, 252, 0) 70%);
-      border-radius: 50%;
-      z-index: -1;
-      pointer-events: none;
-    }
-    .ambient-glow-bottom {
-      position: fixed;
-      bottom: -150px;
-      right: 15%;
-      width: 550px;
-      height: 550px;
-      background: radial-gradient(circle, rgba(16, 185, 129, 0.08) 0%, rgba(248, 250, 252, 0) 70%);
-      border-radius: 50%;
-      z-index: -1;
+      inset: 0;
+      overflow: hidden;
+      z-index: -2;
+      background: linear-gradient(135deg, #011C15 0%, #064E3B 35%, #047857 70%, #022C22 100%);
       pointer-events: none;
     }
 
-    /* Main Container */
-    .form-wrapper {
+    /* Waving Aurora Wave 1 */
+    .aurora-wave-1 {
+      position: absolute;
+      top: -25%;
+      left: -20%;
+      width: 140%;
+      height: 110%;
+      background: radial-gradient(ellipse at 40% 40%, rgba(52, 211, 153, 0.6) 0%, rgba(16, 185, 129, 0.35) 40%, rgba(6, 78, 59, 0) 75%);
+      filter: blur(75px);
+      opacity: 0.9;
+      animation: waveDrift1 10s ease-in-out infinite alternate;
+      will-change: transform;
+    }
+
+    /* Waving Aurora Wave 2 */
+    .aurora-wave-2 {
+      position: absolute;
+      bottom: -25%;
+      right: -20%;
+      width: 140%;
+      height: 110%;
+      background: radial-gradient(ellipse at 60% 60%, rgba(110, 231, 183, 0.5) 0%, rgba(5, 150, 105, 0.4) 45%, rgba(2, 44, 34, 0) 75%);
+      filter: blur(85px);
+      opacity: 0.95;
+      animation: waveDrift2 14s ease-in-out infinite alternate;
+      will-change: transform;
+    }
+
+    /* Shimmering Center Light Beam */
+    .aurora-shimmer-beam {
+      position: absolute;
+      top: 15%;
+      left: 10%;
+      width: 80%;
+      height: 70%;
+      background: radial-gradient(circle at 50% 50%, rgba(167, 243, 208, 0.35) 0%, rgba(52, 211, 153, 0.2) 35%, transparent 65%);
+      filter: blur(60px);
+      animation: shimmerPulse 5s ease-in-out infinite alternate;
+      will-change: opacity, transform;
+    }
+
+    @keyframes waveDrift1 {
+      0% { transform: translate3d(-6%, -5%, 0) rotate(-5deg) scale(1); }
+      50% { transform: translate3d(9%, 7%, 0) rotate(6deg) scale(1.15); }
+      100% { transform: translate3d(-4%, 11%, 0) rotate(-4deg) scale(1.08); }
+    }
+
+    @keyframes waveDrift2 {
+      0% { transform: translate3d(7%, 6%, 0) rotate(5deg) scale(1.06); }
+      50% { transform: translate3d(-9%, -7%, 0) rotate(-6deg) scale(1.2); }
+      100% { transform: translate3d(5%, -11%, 0) rotate(4deg) scale(1.02); }
+    }
+
+    @keyframes shimmerPulse {
+      0% { opacity: 0.5; transform: scale(0.92); }
+      50% { opacity: 0.95; transform: scale(1.1); }
+      100% { opacity: 0.6; transform: scale(0.97); }
+    }
+
+    /* Container */
+    .app-container {
       width: 100%;
-      max-width: min(100%, 640px);
+      max-width: min(100%, 580px);
       margin: 0 auto;
+      z-index: 1;
     }
 
-    /* Header */
+    /* Header Section */
     .form-header {
       text-align: center;
-      margin-bottom: clamp(1.25rem, 2vw, 1.75rem);
+      margin-bottom: clamp(1rem, 2.5vw, 1.4rem);
+      animation: dropInFromTop 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
     }
-    .brand-pill {
+    .badge-pill {
       display: inline-flex;
       align-items: center;
       gap: 0.5rem;
-      padding: 0.35rem 0.95rem;
-      background: #FFFFFF;
-      border: 1px solid var(--border-subtle);
+      padding: 0.4rem 1rem;
+      background: rgba(255, 255, 255, 0.94);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(167, 243, 208, 0.9);
       border-radius: 999px;
-      font-size: 0.8125rem;
+      font-size: 0.8rem;
       font-weight: 700;
-      color: var(--primary);
-      box-shadow: 0 2px 5px rgba(15, 23, 42, 0.04);
-      margin-bottom: 0.75rem;
+      color: #065F46;
+      box-shadow: 0 6px 18px rgba(2, 44, 34, 0.35);
+      margin-bottom: 0.65rem;
     }
-    .brand-pill .pulse {
-      width: 8px;
-      height: 8px;
-      background: var(--emerald);
+    .badge-pill .pulse-dot {
+      width: 9px;
+      height: 9px;
+      background: #10B981;
       border-radius: 50%;
-      box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.25);
+      box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.35);
+      animation: dotGlow 1.6s infinite;
     }
-    .form-title {
+    @keyframes dotGlow {
+      0%, 100% { transform: scale(1); opacity: 1; }
+      50% { transform: scale(1.35); opacity: 0.7; }
+    }
+
+    .main-title {
       font-family: 'Outfit', sans-serif;
-      font-size: clamp(1.5rem, 3.2vw, 2.15rem);
+      font-size: clamp(1.45rem, 4.2vw, 2.2rem);
       font-weight: 800;
-      color: var(--text-heading);
+      color: #FFFFFF;
       letter-spacing: -0.025em;
       line-height: 1.2;
       margin-bottom: 0.35rem;
+      text-shadow: 0 2px 12px rgba(2, 44, 34, 0.6);
     }
-    .form-desc {
-      font-size: clamp(0.85rem, 1.2vw, 0.95rem);
-      color: var(--text-muted);
-      line-height: 1.5;
+    .sub-title {
+      font-size: clamp(0.85rem, 1.5vw, 0.95rem);
+      color: #D1FAE5;
+      line-height: 1.45;
+      text-shadow: 0 1px 6px rgba(2, 44, 34, 0.5);
     }
 
-    /* Progress Tracker Card */
-    .progress-card {
-      background: #FFFFFF;
-      border: 1px solid var(--border-subtle);
-      border-radius: 16px;
-      padding: 0.9rem 1.25rem;
-      margin-bottom: 1.25rem;
-      box-shadow: 0 2px 6px rgba(15, 23, 42, 0.03);
+    /* Stepper Card */
+    .stepper-card {
+      background: rgba(255, 255, 255, 0.96);
+      backdrop-filter: blur(10px);
+      border-radius: 18px;
+      padding: 0.85rem 1.15rem;
+      margin-bottom: 1.15rem;
+      box-shadow: 0 15px 30px -10px rgba(2, 44, 34, 0.3), 0 0 0 1px rgba(255, 255, 255, 0.9);
+      border: 1px solid rgba(167, 243, 208, 0.85);
+      animation: dropInFromTop 0.55s cubic-bezier(0.16, 1, 0.3, 1) both;
+      animation-delay: 0.08s;
     }
-    .progress-meta {
+    .stepper-header {
       display: flex;
       justify-content: space-between;
       align-items: center;
       font-size: 0.8125rem;
-      font-weight: 600;
-      color: var(--text-muted);
+      font-weight: 700;
       margin-bottom: 0.55rem;
     }
-    .progress-meta .step-name {
-      color: var(--primary);
-      font-weight: 700;
+    .stepper-step-title {
+      color: #065F46;
+      font-weight: 800;
+    }
+    .stepper-count {
+      color: #047857;
+      background: #ECFDF5;
+      padding: 0.2rem 0.65rem;
+      border-radius: 8px;
+      font-size: 0.775rem;
+      font-weight: 800;
+      border: 1.5px solid #A7F3D0;
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .stepper-count.pop {
+      transform: scale(1.22);
+      background: #D1FAE5;
     }
     .progress-bar-bg {
       width: 100%;
-      height: 6px;
-      background: #F1F5F9;
+      height: 7px;
+      background: #E2E8F0;
       border-radius: 999px;
       overflow: hidden;
     }
     .progress-bar-fill {
       height: 100%;
       width: 25%;
-      background: var(--primary-gradient);
+      background: linear-gradient(90deg, #10B981 0%, #059669 100%);
       border-radius: 999px;
-      transition: width 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+      transition: width 0.45s cubic-bezier(0.16, 1, 0.3, 1);
+      box-shadow: 0 0 10px rgba(16, 185, 129, 0.5);
     }
 
-    /* Step Slider Viewport */
-    .slider-viewport {
+    /* ==========================================================================
+       BORDER PAR CHALTI HUI LIGHT (Border Beam Glow Rotating Effect)
+       ========================================================================== */
+    .beam-card-outer {
       position: relative;
+      border-radius: 26px;
       overflow: hidden;
-      width: 100%;
-      border-radius: 22px;
-      background: #FFFFFF;
-      border: 1.5px solid rgba(226, 232, 240, 0.9);
-      box-shadow: var(--shadow-card);
-      outline: 1px solid rgba(99, 102, 241, 0.12);
+      padding: 3px; /* Border thickness for the running beam */
+      box-shadow: 
+        0 30px 65px -15px rgba(2, 44, 34, 0.55),
+        0 15px 30px -10px rgba(6, 78, 59, 0.3),
+        0 0 35px rgba(52, 211, 153, 0.35);
+      animation: dropInFromTop 0.65s cubic-bezier(0.16, 1, 0.3, 1) both;
+      animation-delay: 0.15s;
     }
 
-    .slider-track {
-      display: flex;
-      width: 400%;
-      transition: transform 0.42s cubic-bezier(0.2, 0.8, 0.2, 1);
+    /* Continuous Rotating Conic Laser Light */
+    .running-border-beam {
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: conic-gradient(
+        from 0deg,
+        transparent 0deg,
+        transparent 210deg,
+        rgba(16, 185, 129, 0.4) 260deg,
+        #10B981 300deg,
+        #34D399 330deg,
+        #A7F3D0 348deg,
+        #FFFFFF 355deg,
+        transparent 360deg
+      );
+      animation: rotateBorderBeam 3.6s linear infinite;
+      will-change: transform;
+      z-index: 0;
     }
 
-    /* Slide Item */
-    .slide-step {
-      width: 25%;
-      flex-shrink: 0;
-      padding: clamp(1.25rem, 3.2vw, 2.25rem);
-      background: #FFFFFF;
+    @keyframes rotateBorderBeam {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
     }
 
-    .card-head {
+    /* Main Elevated Form Card (Ubhra Hua 3D Look Inside the Beam) */
+    .main-form-card {
+      position: relative;
+      background: var(--card-white);
+      border-radius: 23px;
+      padding: clamp(1.2rem, 3.5vw, 2rem);
+      z-index: 1;
+      overflow: hidden;
+    }
+
+    /* Card Top Header */
+    .card-top {
       margin-bottom: 1.35rem;
       padding-bottom: 0.85rem;
-      border-bottom: 1px solid #F1F5F9;
+      border-bottom: 1px solid var(--border-light);
     }
-    .card-badge {
+    .step-tag {
       font-size: 0.725rem;
-      font-weight: 700;
+      font-weight: 800;
       text-transform: uppercase;
-      letter-spacing: 0.05em;
-      color: var(--primary);
-      margin-bottom: 0.25rem;
+      letter-spacing: 0.06em;
+      color: #059669;
+      margin-bottom: 0.2rem;
     }
-    .card-title {
+    .card-heading {
       font-family: 'Outfit', sans-serif;
-      font-size: clamp(1.2rem, 2vw, 1.45rem);
+      font-size: clamp(1.2rem, 2.5vw, 1.45rem);
       font-weight: 700;
-      color: var(--text-heading);
+      color: var(--text-main);
     }
-    .card-subtitle {
+    .card-caption {
       font-size: 0.85rem;
       color: var(--text-muted);
-      margin-top: 0.25rem;
+      margin-top: 0.2rem;
     }
 
-    /* Form Fields */
-    .field-stack {
+    /* Form Fields Styling */
+    .form-group-stack {
       display: flex;
       flex-direction: column;
-      gap: 1.15rem;
+      gap: 1.1rem;
     }
-    .form-group {
+    .form-control {
       display: flex;
       flex-direction: column;
       gap: 0.35rem;
     }
-    .form-group label {
-      font-size: 0.875rem;
+    .form-control label {
+      font-size: 0.85rem;
       font-weight: 600;
-      color: var(--text-heading);
+      color: var(--text-main);
       display: flex;
       align-items: center;
-      gap: 0.35rem;
+      gap: 0.25rem;
     }
-    .form-group label span.req {
-      color: #EF4444;
-      font-weight: bold;
+    .form-control label .req-star {
+      color: var(--danger);
+      font-weight: 700;
     }
-    .input-field {
+
+    .form-input {
       width: 100%;
       padding: 0.85rem 1rem;
       background: #F8FAFC;
-      border: 1.5px solid var(--border-subtle);
-      border-radius: 12px;
+      border: 1.5px solid var(--border-light);
+      border-radius: 14px;
       font-family: inherit;
       font-size: 0.925rem;
-      color: var(--text-heading);
-      transition: all 0.2s ease;
+      color: var(--text-main);
+      box-shadow: var(--shadow-input);
+      transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
       outline: none;
     }
-    .input-field:focus {
-      background: #FFFFFF;
-      border-color: var(--border-focus);
-      box-shadow: 0 0 0 4px var(--primary-light);
+    .form-input:focus {
+      background: var(--card-white);
+      border-color: #10B981;
+      transform: translateY(-2px);
+      box-shadow: 
+        0 8px 18px -4px rgba(16, 185, 129, 0.18),
+        0 0 0 4px rgba(52, 211, 153, 0.22);
     }
-    .input-field.error {
-      border-color: #EF4444;
+    .form-input.is-invalid {
+      border-color: var(--danger);
       background: #FEF2F2;
+      animation: shakeInput 0.3s ease;
     }
-    textarea.input-field {
-      min-height: 85px;
+    @keyframes shakeInput {
+      0%, 100% { transform: translateX(0); }
+      25% { transform: translateX(-4px); }
+      75% { transform: translateX(4px); }
+    }
+    textarea.form-input {
+      min-height: 80px;
       resize: vertical;
     }
-    select.input-field {
+    select.form-input {
       cursor: pointer;
     }
 
-    .field-error-msg {
+    .error-hint {
       font-size: 0.75rem;
-      color: #EF4444;
+      color: var(--danger);
       font-weight: 500;
       display: none;
     }
 
-    /* Button Actions */
-    .action-row {
+    /* Visual Upload Zone */
+    .upload-tile {
+      background: #F8FAFC;
+      border: 2px dashed #A7F3D0;
+      border-radius: 16px;
+      padding: 1.15rem 1rem;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+      box-shadow: inset 0 1px 3px rgba(15, 23, 42, 0.02);
+    }
+    .upload-tile:hover {
+      background: #ECFDF5;
+      border-color: #059669;
+      transform: translateY(-2px);
+      box-shadow: 0 8px 18px -4px rgba(16, 185, 129, 0.15);
+    }
+    .upload-tile svg {
+      color: #059669;
+      margin-bottom: 0.35rem;
+      transition: transform 0.25s ease;
+    }
+    .upload-tile:hover svg {
+      transform: scale(1.12);
+    }
+    .upload-title {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--text-main);
+    }
+    .upload-caption {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      margin-top: 0.15rem;
+    }
+    .selected-file-chip {
+      display: none;
+      margin-top: 0.5rem;
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: #047857;
+      background: #ECFDF5;
+      padding: 0.3rem 0.75rem;
+      border-radius: 8px;
+      border: 1px solid #A7F3D0;
+    }
+
+    /* Action Buttons Bar */
+    .action-bar {
       display: flex;
       align-items: center;
       justify-content: space-between;
       gap: 0.75rem;
-      margin-top: 1.65rem;
-      padding-top: 1.25rem;
-      border-top: 1px solid #F1F5F9;
+      margin-top: 1.6rem;
+      padding-top: 1.2rem;
+      border-top: 1px solid var(--border-light);
     }
     .btn {
       display: inline-flex;
@@ -288,12 +455,12 @@
       justify-content: center;
       gap: 0.45rem;
       font-family: inherit;
-      font-size: 0.925rem;
-      font-weight: 600;
-      padding: 0.85rem 1.6rem;
-      border-radius: 12px;
+      font-size: 0.95rem;
+      font-weight: 700;
+      padding: 0.88rem 1.6rem;
+      border-radius: 14px;
       cursor: pointer;
-      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+      transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
       border: none;
       text-decoration: none;
     }
@@ -301,71 +468,75 @@
       transform: translateY(-2px);
     }
     .btn:active {
-      transform: scale(0.98);
+      transform: scale(0.95);
     }
-    .btn-secondary {
+
+    .btn-ghost {
       background: #F1F5F9;
-      color: var(--text-body);
+      color: var(--text-sub);
     }
-    .btn-secondary:hover {
+    .btn-ghost:hover {
       background: #E2E8F0;
     }
-    .btn-primary {
-      background: var(--primary-gradient);
-      color: #FFFFFF;
-      box-shadow: 0 4px 14px rgba(79, 70, 229, 0.35);
-      flex: 1;
-    }
-    .btn-primary:hover {
-      box-shadow: 0 6px 20px rgba(79, 70, 229, 0.45);
-    }
-    .btn-submit {
+
+    .btn-solid-primary {
       background: linear-gradient(135deg, #10B981 0%, #059669 100%);
       color: #FFFFFF;
-      box-shadow: 0 4px 14px rgba(16, 185, 129, 0.35);
+      box-shadow: 0 4px 14px rgba(16, 185, 129, 0.4);
+      flex: 1;
+    }
+    .btn-solid-primary:hover {
+      box-shadow: 0 8px 22px rgba(16, 185, 129, 0.55);
+    }
+
+    .btn-solid-submit {
+      background: linear-gradient(135deg, #059669 0%, #047857 100%);
+      color: #FFFFFF;
+      box-shadow: 0 4px 14px rgba(5, 150, 105, 0.45);
       flex: 1;
       font-size: 1rem;
     }
-    .btn-submit:hover {
-      box-shadow: 0 6px 20px rgba(16, 185, 129, 0.45);
+    .btn-solid-submit:hover {
+      box-shadow: 0 8px 22px rgba(5, 150, 105, 0.6);
     }
 
-    /* Review Ticket Box */
-    .review-ticket {
+    /* Review Ticket Card */
+    .summary-ticket {
       background: #F8FAFC;
-      border: 1px solid #E2E8F0;
+      border: 1px solid var(--border-light);
       border-radius: 16px;
       padding: 1.15rem;
       display: flex;
       flex-direction: column;
-      gap: 0.65rem;
+      gap: 0.6rem;
+      box-shadow: inset 0 1px 3px rgba(15, 23, 42, 0.02);
     }
-    .ticket-row {
+    .ticket-entry {
       display: flex;
       justify-content: space-between;
       font-size: 0.85rem;
       padding-bottom: 0.45rem;
       border-bottom: 1px solid #EDF2F7;
     }
-    .ticket-row:last-child {
+    .ticket-entry:last-child {
       border-bottom: none;
       padding-bottom: 0;
     }
-    .ticket-k {
+    .ticket-label {
       color: var(--text-muted);
       font-weight: 500;
     }
-    .ticket-v {
-      color: var(--text-heading);
-      font-weight: 600;
+    .ticket-val {
+      color: var(--text-main);
+      font-weight: 700;
       text-align: right;
       max-width: 65%;
       word-break: break-word;
     }
 
-    .sync-note {
+    .cloud-sync-badge {
       margin-top: 1rem;
-      background: var(--emerald-light);
+      background: var(--emerald-soft);
       border: 1px solid #A7F3D0;
       border-radius: 12px;
       padding: 0.75rem 1rem;
@@ -377,35 +548,95 @@
       gap: 0.5rem;
     }
 
+    /* ==========================================================================
+       TACTILE STEP TRANSITIONS (Animation Lagna Chahiye - Feel The Motion)
+       ========================================================================== */
+    .step-section {
+      display: none;
+    }
+    .step-section.active {
+      display: block;
+      animation: springSlideIn 0.45s cubic-bezier(0.16, 1, 0.3, 1) both;
+    }
+    .step-section.slide-back {
+      animation: springSlideBack 0.45s cubic-bezier(0.16, 1, 0.3, 1) both;
+    }
+
+    @keyframes springSlideIn {
+      0% {
+        opacity: 0;
+        transform: translate3d(40px, 0, 0) scale(0.97);
+        filter: blur(4px);
+      }
+      65% {
+        opacity: 0.95;
+        transform: translate3d(-4px, 0, 0) scale(1.005);
+        filter: blur(0);
+      }
+      100% {
+        opacity: 1;
+        transform: translate3d(0, 0, 0) scale(1);
+      }
+    }
+
+    @keyframes springSlideBack {
+      0% {
+        opacity: 0;
+        transform: translate3d(-40px, 0, 0) scale(0.97);
+        filter: blur(4px);
+      }
+      65% {
+        opacity: 0.95;
+        transform: translate3d(4px, 0, 0) scale(1.005);
+        filter: blur(0);
+      }
+      100% {
+        opacity: 1;
+        transform: translate3d(0, 0, 0) scale(1);
+      }
+    }
+
+    @keyframes dropInFromTop {
+      0% {
+        opacity: 0;
+        transform: translateY(-40px) scale(0.96);
+      }
+      60% {
+        opacity: 0.95;
+        transform: translateY(6px) scale(1.008);
+      }
+      100% {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+    }
+
     /* Success Overlay Modal */
-    .success-modal {
+    .modal-backdrop {
       position: fixed;
       inset: 0;
-      background: rgba(15, 23, 42, 0.6);
-      backdrop-filter: blur(8px);
+      background: rgba(2, 44, 34, 0.8);
+      backdrop-filter: blur(10px);
       display: none;
       align-items: center;
       justify-content: center;
       z-index: 9999;
       padding: 1rem;
     }
-    .success-card {
-      background: #FFFFFF;
+    .modal-box {
+      background: var(--card-white);
       border-radius: 24px;
       padding: clamp(1.5rem, 4vw, 2.5rem);
-      max-width: 480px;
+      max-width: 460px;
       width: 100%;
       text-align: center;
-      box-shadow: 0 25px 50px -12px rgba(15, 23, 42, 0.25);
-      animation: popIn 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+      box-shadow: 0 25px 50px -12px rgba(2, 44, 34, 0.45);
+      animation: dropInFromTop 0.4s cubic-bezier(0.16, 1, 0.3, 1) both;
+      border: 2px solid #A7F3D0;
     }
-    @keyframes popIn {
-      0% { opacity: 0; transform: scale(0.92); }
-      100% { opacity: 1; transform: scale(1); }
-    }
-    .success-icon {
-      width: 64px;
-      height: 64px;
+    .modal-check-icon {
+      width: 66px;
+      height: 66px;
       background: #ECFDF5;
       color: #10B981;
       border-radius: 50%;
@@ -413,99 +644,115 @@
       align-items: center;
       justify-content: center;
       margin-bottom: 1rem;
-      box-shadow: 0 0 0 8px rgba(16, 185, 129, 0.15);
+      box-shadow: 0 0 0 10px rgba(16, 185, 129, 0.2);
+      animation: popCheck 0.45s cubic-bezier(0.16, 1, 0.3, 1) both;
     }
-    .success-title {
+    @keyframes popCheck {
+      0% { transform: scale(0.5); opacity: 0; }
+      70% { transform: scale(1.2); }
+      100% { transform: scale(1); opacity: 1; }
+    }
+    .modal-heading {
       font-family: 'Outfit', sans-serif;
-      font-size: 1.5rem;
+      font-size: 1.55rem;
       font-weight: 700;
-      color: var(--text-heading);
-      margin-bottom: 0.5rem;
+      color: var(--text-main);
+      margin-bottom: 0.45rem;
     }
-    .success-msg {
+    .modal-message {
       font-size: 0.9rem;
       color: var(--text-muted);
       line-height: 1.5;
       margin-bottom: 1.5rem;
     }
 
+    /* Mobile First Comfort */
     @media (max-width: 480px) {
       body {
         padding: 0.75rem 0.5rem;
       }
-      .slide-step {
+      .main-form-card {
         padding: 1.25rem 1rem;
+        border-radius: 20px;
       }
-      .action-row {
+      .action-bar {
         flex-direction: column-reverse;
       }
       .btn {
         width: 100%;
+        min-height: 50px;
       }
     }
   </style>
 </head>
 <body>
 
-  <!-- Hidden iframe for zero-CORS background submission to Google Form & Sheet -->
-  <iframe name="google_sheet_sink" id="google_sheet_sink" style="display:none;" onload="onGoogleSheetSubmitComplete()"></iframe>
+  <!-- Hidden iframe for zero-CORS submission directly to Google Sheet/Form -->
+  <iframe name="sheet_sink" id="sheet_sink" style="display:none;" onload="handleSheetSubmitSuccess()"></iframe>
 
-  <div class="ambient-glow-top"></div>
-  <div class="ambient-glow-bottom"></div>
+  <!-- Laharati Hui Chamakti Green Aurora Background -->
+  <div class="aurora-bg-container">
+    <div class="aurora-wave-1"></div>
+    <div class="aurora-wave-2"></div>
+    <div class="aurora-shimmer-beam"></div>
+  </div>
 
-  <div class="form-wrapper">
-    <!-- Header -->
+  <div class="app-container">
+    <!-- Header: Upar Se Drop Hote Hue Animation -->
     <header class="form-header">
-      <div class="brand-pill">
-        <span class="pulse"></span>
+      <div class="badge-pill">
+        <span class="pulse-dot"></span>
         SKYBRIDGE STARTUP EBOOK – 2027
       </div>
-      <h1 class="form-title">Startup Registration & Showcase</h1>
-      <p class="form-desc">An Online Free Directory for Your Startup, Products & Videos</p>
+      <h1 class="main-title">Startup Registration & Directory</h1>
+      <p class="sub-title">An Online Free Showcase for Your Startup, Products & Videos</p>
     </header>
 
-    <!-- Progress Tracker -->
-    <div class="progress-card">
-      <div class="progress-meta">
-        <span id="stepLabel" class="step-name">Step 1: Startup & Founder Info</span>
-        <span id="stepCounter">1 of 4</span>
+    <!-- Stepper Card -->
+    <div class="stepper-card">
+      <div class="stepper-header">
+        <span id="stepperStepTitle" class="stepper-step-title">Step 1: Startup & Founder Info</span>
+        <span id="stepperCount" class="stepper-count">1 / 4</span>
       </div>
       <div class="progress-bar-bg">
-        <div id="progressBar" class="progress-bar-fill"></div>
+        <div id="progressBarFill" class="progress-bar-fill"></div>
       </div>
     </div>
 
-    <!-- Multi-Step Sliding Form -->
-    <form id="masterStartupForm" target="google_sheet_sink" action="https://docs.google.com/forms/d/e/1FAIpQLSdZ422oZNc5DhMR9ZtIUC4uEaCLBHB3GT6-UHJjHzwF8MmrAg/formResponse" method="POST" onsubmit="handleFormSubmission(event)">
-      
-      <div class="slider-viewport">
-        <div id="sliderTrack" class="slider-track">
+    <!-- Main Card Enclosed in Running Border Light Beam -->
+    <div class="beam-card-outer">
+      <!-- Border par chalti hui laser beam -->
+      <div class="running-border-beam"></div>
+
+      <!-- Main Content Card -->
+      <div class="main-form-card">
+        <form id="startupRegistrationForm" target="sheet_sink" action="https://docs.google.com/forms/d/e/1FAIpQLSdZ422oZNc5DhMR9ZtIUC4uEaCLBHB3GT6-UHJjHzwF8MmrAg/formResponse" method="POST" onsubmit="onFormSubmitInitiated(event)">
 
           <!-- ================= STEP 1: IDENTITY ================= -->
-          <div class="slide-step">
-            <div class="card-head">
-              <div class="card-badge">Step 01 / 04</div>
-              <h2 class="card-title">Startup & Founder Identity</h2>
-              <p class="card-subtitle">Please enter your startup's name and founder information</p>
+          <div class="step-section active" id="stepView1">
+            <div class="card-top">
+              <div class="step-tag">Step 01 / 04</div>
+              <h2 class="card-heading">Startup Profile & Founder</h2>
+              <p class="card-caption">Enter your business identity and registered founder details</p>
             </div>
 
-            <div class="field-stack">
-              <div class="form-group">
-                <label for="startup_name">Startup Name <span class="req">*</span></label>
-                <input type="text" id="startup_name" name="entry.2005620554" class="input-field" placeholder="Enter your startup/company name" required>
-                <span class="field-error-msg" id="err_startup_name">Startup name is required</span>
+            <div class="form-group-stack">
+              <div class="form-control">
+                <label for="f_startup_name">Startup / Company Name <span class="req-star">*</span></label>
+                <input type="text" id="f_startup_name" name="entry.2005620554" class="form-input" placeholder="e.g. Acme Tech Innovations Pvt Ltd" required>
+                <span class="error-hint" id="err_startup">Please enter your startup name</span>
               </div>
 
-              <div class="form-group">
-                <label for="founder_name">Startup Founder Name <span class="req">*</span></label>
-                <input type="text" id="founder_name" name="entry.1045781291" class="input-field" placeholder="Full name of founder" required>
-                <span class="field-error-msg" id="err_founder_name">Founder name is required</span>
+              <div class="form-control">
+                <label for="f_founder_name">Startup Founder Name <span class="req-star">*</span></label>
+                <input type="text" id="f_founder_name" name="entry.1045781291" class="form-input" placeholder="e.g. Rajesh Sharma" required>
+                <span class="error-hint" id="err_founder">Founder name is required</span>
               </div>
 
-              <div class="form-group">
-                <label for="startup_sector">Startup Sector <span class="req">*</span></label>
-                <select id="startup_sector" name="entry.1166974658" class="input-field" required>
-                  <option value="">-- Select Your Business Sector --</option>
+              <div class="form-control">
+                <label for="f_sector">Startup Sector <span class="req-star">*</span></label>
+                <select id="f_sector" name="entry.1166974658" class="form-input" required>
+                  <option value="">-- Select Your Startup Industry --</option>
                   <option value="AgriTech (Agriculture)">AgriTech (Agriculture)</option>
                   <option value="AI & DeepTech (Artificial Intelligence)">AI & DeepTech (Artificial Intelligence)</option>
                   <option value="AutoTech & Electric Vehicles (EV)">AutoTech & Electric Vehicles (EV)</option>
@@ -529,62 +776,64 @@
                   <option value="Travel & Hospitality Tech">Travel & Hospitality Tech</option>
                   <option value="Web3, Blockchain & Crypto">Web3, Blockchain & Crypto</option>
                 </select>
-                <span class="field-error-msg" id="err_startup_sector">Please select a sector</span>
+                <span class="error-hint" id="err_sec">Please select your startup sector</span>
               </div>
             </div>
 
-            <div class="action-row">
+            <div class="action-bar">
               <div></div>
-              <button type="button" class="btn btn-primary" onclick="validateAndGo(1, 2)">
-                Next: Contact Details →
+              <button type="button" class="btn btn-solid-primary" onclick="validateStep(1, 2, 'forward')">
+                Next: Location & Contact →
               </button>
             </div>
           </div>
 
-          <!-- ================= STEP 2: CONTACT & LOCATION ================= -->
-          <div class="slide-step">
-            <div class="card-head">
-              <div class="card-badge">Step 02 / 04</div>
-              <h2 class="card-title">Contact & Location</h2>
-              <p class="card-subtitle">Official communication and registered operational address</p>
+          <!-- ================= STEP 2: LOCATION & CONTACT ================= -->
+          <div class="step-section" id="stepView2">
+            <div class="card-top">
+              <div class="step-tag">Step 02 / 04</div>
+              <h2 class="card-heading">Contact & Location</h2>
+              <p class="card-caption">Where is your startup based and how can prospects reach you?</p>
             </div>
 
-            <div class="field-stack">
+            <div class="form-group-stack">
               <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem;">
-                <div class="form-group">
-                  <label for="contact_no">Contact No. <span class="req">*</span></label>
-                  <input type="tel" id="contact_no" name="entry.1274261628" class="input-field" placeholder="10-digit Mobile No." maxlength="10" required>
-                  <span class="field-error-msg" id="err_contact_no">Valid 10-digit mobile required</span>
+                <div class="form-control">
+                  <label for="f_phone">Contact No. <span class="req-star">*</span></label>
+                  <input type="tel" id="f_phone" name="entry.1274261628" class="form-input" placeholder="10-digit Mobile" maxlength="10" required>
+                  <span class="error-hint" id="err_phone">10-digit number required</span>
                 </div>
-                <div class="form-group">
-                  <label for="email_id">Email Address <span class="req">*</span></label>
-                  <input type="email" id="email_id" name="entry.313469564" class="input-field" placeholder="founder@example.com" required>
-                  <span class="field-error-msg" id="err_email_id">Valid email required</span>
+
+                <div class="form-control">
+                  <label for="f_email">Email Address <span class="req-star">*</span></label>
+                  <input type="email" id="f_email" name="entry.313469564" class="form-input" placeholder="founder@company.com" required>
+                  <span class="error-hint" id="err_email">Valid email required</span>
                 </div>
               </div>
 
-              <div class="form-group">
-                <label for="address">Startup Street Address <span class="req">*</span></label>
-                <textarea id="address" name="entry.1407004089" class="input-field" placeholder="Office / Factory / Coworking Address" required></textarea>
-                <span class="field-error-msg" id="err_address">Address is required</span>
+              <div class="form-control">
+                <label for="f_address">Startup Registered Address <span class="req-star">*</span></label>
+                <textarea id="f_address" name="entry.1407004089" class="form-input" placeholder="Office / Factory Address" required></textarea>
+                <span class="error-hint" id="err_addr">Address is required</span>
               </div>
 
               <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem;">
-                <div class="form-group">
-                  <label for="city">City <span class="req">*</span></label>
-                  <input type="text" id="city" name="entry.839337160" class="input-field" placeholder="e.g. Indore, Bhopal" required>
-                  <span class="field-error-msg" id="err_city">City is required</span>
+                <div class="form-control">
+                  <label for="f_city">City <span class="req-star">*</span></label>
+                  <input type="text" id="f_city" name="entry.839337160" class="form-input" placeholder="e.g. Indore, Mumbai" required>
+                  <span class="error-hint" id="err_city">City required</span>
                 </div>
-                <div class="form-group">
-                  <label for="pincode">Pincode <span class="req">*</span></label>
-                  <input type="text" id="pincode" name="entry.1611784293" class="input-field" placeholder="e.g. 452001" maxlength="6" required>
-                  <span class="field-error-msg" id="err_pincode">6-digit PIN required</span>
+
+                <div class="form-control">
+                  <label for="f_pincode">Pincode <span class="req-star">*</span></label>
+                  <input type="text" id="f_pincode" name="entry.1611784293" class="form-input" placeholder="e.g. 452001" maxlength="6" required>
+                  <span class="error-hint" id="err_pin">6-digit PIN required</span>
                 </div>
               </div>
 
-              <div class="form-group">
-                <label for="state">State <span class="req">*</span></label>
-                <select id="state" name="entry.757390368" class="input-field" required>
+              <div class="form-control">
+                <label for="f_state">State <span class="req-star">*</span></label>
+                <select id="f_state" name="entry.757390368" class="form-input" required>
                   <option value="">-- Select State --</option>
                   <option value="Madhya Pradesh">Madhya Pradesh</option>
                   <option value="Andhra Pradesh">Andhra Pradesh</option>
@@ -616,119 +865,124 @@
                   <option value="Uttarakhand">Uttarakhand</option>
                   <option value="West Bengal">West Bengal</option>
                 </select>
-                <span class="field-error-msg" id="err_state">State is required</span>
+                <span class="error-hint" id="err_state">State required</span>
               </div>
             </div>
 
-            <div class="action-row">
-              <button type="button" class="btn btn-secondary" onclick="slide(1)">← Back</button>
-              <button type="button" class="btn btn-primary" onclick="validateAndGo(2, 3)">
-                Next: Links & Media →
+            <div class="action-bar">
+              <button type="button" class="btn btn-ghost" onclick="navigateToStep(1, 'back')">← Back</button>
+              <button type="button" class="btn btn-solid-primary" onclick="validateStep(2, 3, 'forward')">
+                Next: Media & Links →
               </button>
             </div>
           </div>
 
           <!-- ================= STEP 3: MEDIA & LINKS ================= -->
-          <div class="slide-step">
-            <div class="card-head">
-              <div class="card-badge">Step 03 / 04</div>
-              <h2 class="card-title">Online Links & Media</h2>
-              <p class="card-subtitle">Connect your website, product showcase and video links</p>
+          <div class="step-section" id="stepView3">
+            <div class="card-top">
+              <div class="step-tag">Step 03 / 04</div>
+              <h2 class="card-heading">Online Media & Showcase</h2>
+              <p class="card-caption">Attach your founder photo, product drive link and video reel</p>
             </div>
 
-            <div class="field-stack">
-              <div class="form-group">
-                <label for="website_link">Website Link / Google Site / Social Page</label>
-                <input type="url" id="website_link" name="entry.343882862" class="input-field" placeholder="https://yourstartup.com or instagram.com/page">
+            <div class="form-group-stack">
+              <div class="form-control">
+                <label for="f_website">Website / Portfolio / Instagram Link</label>
+                <input type="url" id="f_website" name="entry.343882862" class="form-input" placeholder="https://yourstartup.com or instagram.com/page">
               </div>
 
-              <div class="form-group">
-                <label for="product_media_link">Product Images Drive Link / Portfolio</label>
-                <input type="text" id="product_media_link" class="input-field" placeholder="Google Drive folder link or Imgur URL for product photos">
+              <div class="form-control">
+                <label>Founder Headshot / Photo</label>
+                <div class="upload-tile" onclick="document.getElementById('input_founder_img').click()">
+                  <svg width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                  <div class="upload-title">Choose Founder Photo</div>
+                  <div class="upload-caption">JPG or PNG (Clear professional picture)</div>
+                  <div id="chip_founder_img" class="selected-file-chip">✓ File Attached</div>
+                </div>
+                <input type="file" id="input_founder_img" style="display:none;" accept="image/*" onchange="markFileAttached(this, 'chip_founder_img')">
               </div>
 
-              <div class="form-group">
-                <label for="video_reel_link">2-3 Minute Brand Showcase Video / Reel Link</label>
-                <input type="text" id="video_reel_link" class="input-field" placeholder="YouTube, Drive, or Reel link">
+              <div class="form-control">
+                <label for="f_video_reel">2–3 Minute Video Reel Link (YouTube, Drive or Instagram)</label>
+                <input type="text" id="f_video_reel" class="form-input" placeholder="Paste video link for product showcase">
               </div>
             </div>
 
-            <div class="action-row">
-              <button type="button" class="btn btn-secondary" onclick="slide(2)">← Back</button>
-              <button type="button" class="btn btn-primary" onclick="validateAndGo(3, 4)">
+            <div class="action-bar">
+              <button type="button" class="btn btn-ghost" onclick="navigateToStep(2, 'back')">← Back</button>
+              <button type="button" class="btn btn-solid-primary" onclick="validateStep(3, 4, 'forward')">
                 Next: Review & Submit →
               </button>
             </div>
           </div>
 
-          <!-- ================= STEP 4: REVIEW & DIRECT SUBMISSION ================= -->
-          <div class="slide-step">
-            <div class="card-head">
-              <div class="card-badge">Step 04 / 04</div>
-              <h2 class="card-title">Review & Submit</h2>
-              <p class="card-subtitle">Check your details. Data saves directly into the official Google Sheet!</p>
+          <!-- ================= STEP 4: REVIEW & CONFIRM ================= -->
+          <div class="step-section" id="stepView4">
+            <div class="card-top">
+              <div class="step-tag">Step 04 / 04</div>
+              <h2 class="card-heading">Review & Confirm</h2>
+              <p class="card-caption">All data directly saves into the official Google Sheet</p>
             </div>
 
-            <div class="review-ticket">
-              <div class="ticket-row">
-                <span class="ticket-k">Startup Name:</span>
-                <span class="ticket-v" id="rev_startup">-</span>
+            <div class="summary-ticket">
+              <div class="ticket-entry">
+                <span class="ticket-label">Startup Name:</span>
+                <span class="ticket-val" id="sum_startup">-</span>
               </div>
-              <div class="ticket-row">
-                <span class="ticket-k">Founder:</span>
-                <span class="ticket-v" id="rev_founder">-</span>
+              <div class="ticket-entry">
+                <span class="ticket-label">Founder:</span>
+                <span class="ticket-val" id="sum_founder">-</span>
               </div>
-              <div class="ticket-row">
-                <span class="ticket-k">Sector:</span>
-                <span class="ticket-v" id="rev_sec">-</span>
+              <div class="ticket-entry">
+                <span class="ticket-label">Sector:</span>
+                <span class="ticket-val" id="sum_sec">-</span>
               </div>
-              <div class="ticket-row">
-                <span class="ticket-k">Phone:</span>
-                <span class="ticket-v" id="rev_ph">-</span>
+              <div class="ticket-entry">
+                <span class="ticket-label">Contact:</span>
+                <span class="ticket-val" id="sum_contact">-</span>
               </div>
-              <div class="ticket-row">
-                <span class="ticket-k">Email:</span>
-                <span class="ticket-v" id="rev_em">-</span>
+              <div class="ticket-entry">
+                <span class="ticket-label">Email:</span>
+                <span class="ticket-val" id="sum_email">-</span>
               </div>
-              <div class="ticket-row">
-                <span class="ticket-k">Location:</span>
-                <span class="ticket-v" id="rev_loc">-</span>
+              <div class="ticket-entry">
+                <span class="ticket-label">City & State:</span>
+                <span class="ticket-val" id="sum_location">-</span>
               </div>
             </div>
 
-            <div class="sync-note">
+            <div class="cloud-sync-badge">
               <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-              <div><strong>Direct Cloud Sync:</strong> Submit दबाते ही सारा डेटा तुरंत ऑफिशियल Google Sheet में ऑटोमेटिक रिकॉर्ड हो जाएगा।</div>
+              <div><strong>Live Sheet Connected:</strong> आपका डाटा सबमिट होते ही बिना रीडायरेक्ट के सीधे Google Sheet में सुरक्षित दर्ज हो जाएगा।</div>
             </div>
 
-            <div class="action-row">
-              <button type="button" class="btn btn-secondary" onclick="slide(3)">← Edit</button>
-              <button type="submit" id="btnSubmit" class="btn btn-submit">
+            <div class="action-bar">
+              <button type="button" class="btn btn-ghost" onclick="navigateToStep(3, 'back')">← Edit Details</button>
+              <button type="submit" id="submitBtn" class="btn btn-solid-submit">
                 ✓ Confirm & Submit Application
               </button>
             </div>
           </div>
 
-        </div>
+        </form>
       </div>
-
-    </form>
+    </div>
   </div>
 
   <!-- Success Modal -->
-  <div class="success-modal" id="successModal">
-    <div class="success-card">
-      <div class="success-icon">
-        <svg width="32" height="32" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path></svg>
+  <div class="modal-backdrop" id="modalBackdrop">
+    <div class="modal-box">
+      <div class="modal-check-icon">
+        <svg width="36" height="36" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path></svg>
       </div>
-      <h3 class="success-title">Application Submitted!</h3>
-      <p class="success-msg">आपका स्टार्टअप <strong>SKYBRIDGE STARTUP EBOOK – 2027</strong> डायरेक्टरी में सफलतापूर्वक पंजीकृत हो चुका है। डेटा Google Sheet में सेव हो गया है।</p>
+      <h3 class="modal-heading">Registration Successful!</h3>
+      <p class="modal-message">आपका स्टार्टअप <strong>SKYBRIDGE STARTUP EBOOK – 2027</strong> में पंजीकृत हो गया है और सारा डेटा Google Sheet में सेव हो गया है।</p>
       
       <div style="display: flex; flex-direction: column; gap: 0.75rem;">
-        <button type="button" class="btn btn-primary" onclick="shareOnWhatsApp()">
-          📲 Send Copy on WhatsApp
+        <button type="button" class="btn btn-solid-primary" onclick="openWhatsAppShare()">
+          📲 Send Details on WhatsApp
         </button>
-        <button type="button" class="btn btn-secondary" onclick="resetFormForNextUser()">
+        <button type="button" class="btn btn-ghost" onclick="resetFormForNewEntry()">
           + Register Another Startup
         </button>
       </div>
@@ -736,183 +990,237 @@
   </div>
 
   <script>
-    let currentStep = 1;
-    const totalSteps = 4;
+    let activeStep = 1;
+    const totalStepCount = 4;
     const stepTitles = [
       "Step 1: Startup & Founder Info",
       "Step 2: Contact & Location",
-      "Step 3: Online Links & Media",
-      "Step 4: Review & Direct Submit"
+      "Step 3: Online Media & Links",
+      "Step 4: Review & Submit"
     ];
 
-    let isSubmitting = false;
+    let submitInProgress = false;
 
-    function slide(step) {
-      if (step < 1 || step > totalSteps) return;
-      currentStep = step;
+    // Web Audio Micro-Haptic Click Synthesizer (Instant 15ms tactile pop)
+    function playTactileFeedback() {
+      try {
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(540, audioCtx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(880, audioCtx.currentTime + 0.04);
+        gain.gain.setValueAtTime(0.08, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.04);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start();
+        osc.stop(audioCtx.currentTime + 0.05);
 
-      const track = document.getElementById('sliderTrack');
-      track.style.transform = `translateX(${(currentStep - 1) * -25}%)`;
+        // Mobile device haptic feedback if available
+        if (navigator.vibrate) {
+          navigator.vibrate(18);
+        }
+      } catch (e) {}
+    }
 
-      document.getElementById('progressBar').style.width = `${(currentStep / totalSteps) * 100}%`;
-      document.getElementById('stepCounter').innerText = `${currentStep} of ${totalSteps}`;
-      document.getElementById('stepLabel').innerText = stepTitles[currentStep - 1];
+    function navigateToStep(step, direction = 'forward') {
+      if (step < 1 || step > totalStepCount) return;
+      playTactileFeedback();
+      activeStep = step;
 
-      if (currentStep === 4) {
-        populateSummary();
+      // Update Step Section Visibility with Tactile Spring Transitions
+      for (let i = 1; i <= totalStepCount; i++) {
+        const sec = document.getElementById(`stepView${i}`);
+        if (i === activeStep) {
+          sec.classList.remove('active', 'slide-back');
+          void sec.offsetWidth; // Trigger reflow for animation restart
+          if (direction === 'back') {
+            sec.classList.add('active', 'slide-back');
+          } else {
+            sec.classList.add('active');
+          }
+        } else {
+          sec.classList.remove('active', 'slide-back');
+        }
+      }
+
+      // Update Stepper Progress with Pop Effect
+      const percent = (activeStep / totalStepCount) * 100;
+      document.getElementById('progressBarFill').style.width = `${percent}%`;
+      
+      const countBadge = document.getElementById('stepperCount');
+      countBadge.innerText = `${activeStep} / ${totalStepCount}`;
+      countBadge.classList.add('pop');
+      setTimeout(() => countBadge.classList.remove('pop'), 300);
+
+      document.getElementById('stepperStepTitle').innerText = stepTitles[activeStep - 1];
+
+      if (activeStep === 4) {
+        populateReviewTicket();
       }
 
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
-    function validateAndGo(fromStep, toStep) {
-      clearErrors();
+    function validateStep(current, next, direction) {
+      resetValidationErrors();
 
-      if (fromStep === 1) {
-        const name = document.getElementById('startup_name').value.trim();
-        const founder = document.getElementById('founder_name').value.trim();
-        const sector = document.getElementById('startup_sector').value;
+      if (current === 1) {
+        const name = document.getElementById('f_startup_name').value.trim();
+        const founder = document.getElementById('f_founder_name').value.trim();
+        const sec = document.getElementById('f_sector').value;
 
-        let hasErr = false;
+        let hasError = false;
         if (!name) {
-          showError('startup_name', 'err_startup_name');
-          hasErr = true;
+          triggerError('f_startup_name', 'err_startup');
+          hasError = true;
         }
         if (!founder) {
-          showError('founder_name', 'err_founder_name');
-          hasErr = true;
+          triggerError('f_founder_name', 'err_founder');
+          hasError = true;
         }
-        if (!sector) {
-          showError('startup_sector', 'err_startup_sector');
-          hasErr = true;
+        if (!sec) {
+          triggerError('f_sector', 'err_sec');
+          hasError = true;
         }
-        if (hasErr) return;
+        if (hasError) return;
       }
 
-      if (fromStep === 2) {
-        const ph = document.getElementById('contact_no').value.trim();
-        const em = document.getElementById('email_id').value.trim();
-        const addr = document.getElementById('address').value.trim();
-        const city = document.getElementById('city').value.trim();
-        const pin = document.getElementById('pincode').value.trim();
-        const st = document.getElementById('state').value;
+      if (current === 2) {
+        const phone = document.getElementById('f_phone').value.trim();
+        const email = document.getElementById('f_email').value.trim();
+        const addr = document.getElementById('f_address').value.trim();
+        const city = document.getElementById('f_city').value.trim();
+        const pin = document.getElementById('f_pincode').value.trim();
+        const st = document.getElementById('f_state').value;
 
-        let hasErr = false;
-        if (!ph || ph.length < 10) {
-          showError('contact_no', 'err_contact_no');
-          hasErr = true;
+        let hasError = false;
+        if (!phone || phone.length < 10) {
+          triggerError('f_phone', 'err_phone');
+          hasError = true;
         }
-        if (!em || !em.includes('@') || !em.includes('.')) {
-          showError('email_id', 'err_email_id');
-          hasErr = true;
+        if (!email || !email.includes('@') || !email.includes('.')) {
+          triggerError('f_email', 'err_email');
+          hasError = true;
         }
         if (!addr) {
-          showError('address', 'err_address');
-          hasErr = true;
+          triggerError('f_address', 'err_addr');
+          hasError = true;
         }
         if (!city) {
-          showError('city', 'err_city');
-          hasErr = true;
+          triggerError('f_city', 'err_city');
+          hasError = true;
         }
         if (!pin || pin.length < 6) {
-          showError('pincode', 'err_pincode');
-          hasErr = true;
+          triggerError('f_pincode', 'err_pin');
+          hasError = true;
         }
         if (!st) {
-          showError('state', 'err_state');
-          hasErr = true;
+          triggerError('f_state', 'err_state');
+          hasError = true;
         }
-        if (hasErr) return;
+        if (hasError) return;
       }
 
-      slide(toStep);
+      navigateToStep(next, direction);
     }
 
-    function showError(inputId, errId) {
-      document.getElementById(inputId).classList.add('error');
-      document.getElementById(errId).style.display = 'block';
+    function triggerError(inputId, errorId) {
+      document.getElementById(inputId).classList.add('is-invalid');
+      document.getElementById(errorId).style.display = 'block';
     }
 
-    function clearErrors() {
-      document.querySelectorAll('.input-field').forEach(el => el.classList.remove('error'));
-      document.querySelectorAll('.field-error-msg').forEach(el => el.style.display = 'none');
+    function resetValidationErrors() {
+      document.querySelectorAll('.form-input').forEach(el => el.classList.remove('is-invalid'));
+      document.querySelectorAll('.error-hint').forEach(el => el.style.display = 'none');
     }
 
-    function populateSummary() {
-      document.getElementById('rev_startup').innerText = document.getElementById('startup_name').value.trim() || '-';
-      document.getElementById('rev_founder').innerText = document.getElementById('founder_name').value.trim() || '-';
-      document.getElementById('rev_sec').innerText = document.getElementById('startup_sector').value || '-';
-      document.getElementById('rev_ph').innerText = document.getElementById('contact_no').value.trim() || '-';
-      document.getElementById('rev_em').innerText = document.getElementById('email_id').value.trim() || '-';
+    function markFileAttached(input, chipId) {
+      if (input.files && input.files[0]) {
+        playTactileFeedback();
+        const chip = document.getElementById(chipId);
+        chip.innerText = `✓ Selected: ${input.files[0].name} (${(input.files[0].size / 1024).toFixed(0)} KB)`;
+        chip.style.display = 'inline-block';
+      }
+    }
+
+    function populateReviewTicket() {
+      document.getElementById('sum_startup').innerText = document.getElementById('f_startup_name').value.trim() || '-';
+      document.getElementById('sum_founder').innerText = document.getElementById('f_founder_name').value.trim() || '-';
+      document.getElementById('sum_sec').innerText = document.getElementById('f_sector').value || '-';
+      document.getElementById('sum_contact').innerText = document.getElementById('f_phone').value.trim() || '-';
+      document.getElementById('sum_email').innerText = document.getElementById('f_email').value.trim() || '-';
       
-      const city = document.getElementById('city').value.trim();
-      const state = document.getElementById('state').value;
-      const pin = document.getElementById('pincode').value.trim();
-      document.getElementById('rev_loc').innerText = `${city}, ${state} - ${pin}`;
+      const city = document.getElementById('f_city').value.trim();
+      const state = document.getElementById('f_state').value;
+      const pin = document.getElementById('f_pincode').value.trim();
+      document.getElementById('sum_location').innerText = `${city}, ${state} - ${pin}`;
     }
 
-    function handleFormSubmission(e) {
-      isSubmitting = true;
-      const btn = document.getElementById('btnSubmit');
+    function onFormSubmitInitiated(e) {
+      playTactileFeedback();
+      submitInProgress = true;
+      const btn = document.getElementById('submitBtn');
       btn.innerText = 'Submitting to Google Sheet...';
       btn.style.opacity = '0.75';
       btn.disabled = true;
 
-      // Fallback timer if iframe onload doesn't trigger
       setTimeout(() => {
-        if (isSubmitting) {
-          onGoogleSheetSubmitComplete();
+        if (submitInProgress) {
+          handleSheetSubmitSuccess();
         }
       }, 1500);
     }
 
-    function onGoogleSheetSubmitComplete() {
-      if (!isSubmitting) return;
-      isSubmitting = false;
+    function handleSheetSubmitSuccess() {
+      if (!submitInProgress) return;
+      submitInProgress = false;
 
-      const btn = document.getElementById('btnSubmit');
+      const btn = document.getElementById('submitBtn');
       btn.innerText = '✓ Submitted';
       btn.style.opacity = '1';
       btn.disabled = false;
 
-      // Confetti celebration
+      // Confetti double celebration
       if (typeof confetti === 'function') {
-        confetti({
-          particleCount: 100,
-          spread: 70,
-          origin: { y: 0.6 }
-        });
+        confetti({ particleCount: 90, spread: 60, origin: { y: 0.65 } });
+        setTimeout(() => {
+          confetti({ particleCount: 110, spread: 100, origin: { y: 0.55 } });
+        }, 250);
       }
 
-      document.getElementById('successModal').style.display = 'flex';
+      document.getElementById('modalBackdrop').style.display = 'flex';
     }
 
-    function shareOnWhatsApp() {
-      const startup = document.getElementById('startup_name').value.trim();
-      const founder = document.getElementById('founder_name').value.trim();
-      const sector = document.getElementById('startup_sector').value;
-      const phone = document.getElementById('contact_no').value.trim();
-      const city = document.getElementById('city').value.trim();
+    function openWhatsAppShare() {
+      playTactileFeedback();
+      const startup = document.getElementById('f_startup_name').value.trim();
+      const founder = document.getElementById('f_founder_name').value.trim();
+      const sector = document.getElementById('f_sector').value;
+      const phone = document.getElementById('f_phone').value.trim();
+      const city = document.getElementById('f_city').value.trim();
 
-      const text = `*New Startup Registration:*\n\n*Startup:* ${startup}\n*Founder:* ${founder}\n*Sector:* ${sector}\n*Contact:* ${phone}\n*City:* ${city}\n\nRegistered via SKYBRIDGE Startup Directory 2027.`;
-      const url = `https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`;
-      window.open(url, '_blank');
+      const msg = `*Startup Registered for SKYBRIDGE 2027:*\n\n*Company:* ${startup}\n*Founder:* ${founder}\n*Sector:* ${sector}\n*Contact:* ${phone}\n*City:* ${city}\n\nSubmitted via Skybridge Web Directory.`;
+      window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(msg)}`, '_blank');
     }
 
-    function resetFormForNextUser() {
-      document.getElementById('masterStartupForm').reset();
-      document.getElementById('successModal').style.display = 'none';
-      slide(1);
+    function resetFormForNewEntry() {
+      playTactileFeedback();
+      document.getElementById('startupRegistrationForm').reset();
+      document.getElementById('modalBackdrop').style.display = 'none';
+      document.getElementById('chip_founder_img').style.display = 'none';
+      navigateToStep(1, 'back');
     }
 
-    // Allow Enter key to proceed to next slide
+    // Enter key triggers smooth slide progression
     document.addEventListener('keydown', (e) => {
       if (e.key === 'Enter' && e.target.tagName !== 'TEXTAREA') {
         e.preventDefault();
-        if (currentStep < 4) {
-          validateAndGo(currentStep, currentStep + 1);
-        } else if (currentStep === 4) {
-          document.getElementById('masterStartupForm').requestSubmit();
+        if (activeStep < totalStepCount) {
+          validateStep(activeStep, activeStep + 1, 'forward');
+        } else if (activeStep === totalStepCount) {
+          document.getElementById('startupRegistrationForm').requestSubmit();
         }
       }
     });

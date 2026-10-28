@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Vismart Digital | लाइव डेमो गैलरी व शोकेस</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Noto+Sans+Devanagari:wght@400;600;700&display=swap" rel="stylesheet">
+  
+  <style>
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    
+    body {
+      font-family: 'Plus Jakarta Sans', 'Noto Sans Devanagari', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: #090D16;
+      color: #F1F5F9;
+      min-height: 100vh;
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+      padding-bottom: 90px;
+    }
+
+    /* Ambient Glow */
+    .bg-glow {
+      position: fixed;
+      top: -100px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 380px;
+      height: 380px;
+      background: radial-gradient(circle, rgba(37, 211, 102, 0.18) 0%, rgba(59, 130, 246, 0.12) 40%, transparent 70%);
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 480px;
+      margin: 0 auto;
+      padding: 16px;
+      position: relative;
+      z-index: 1;
+    }
+
+    /* Header Profile */
+    .header-card {
+      background: linear-gradient(180deg, rgba(30, 41, 59, 0.7) 0%, rgba(15, 23, 42, 0.8) 100%);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 20px;
+      padding: 20px 16px;
+      text-align: center;
+      backdrop-filter: blur(12px);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+      margin-bottom: 18px;
+    }
+
+    .brand-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(37, 211, 102, 0.12);
+      border: 1px solid rgba(37, 211, 102, 0.3);
+      color: #25D366;
+      font-size: 12px;
+      font-weight: 700;
+      padding: 4px 12px;
+      border-radius: 50px;
+      margin-bottom: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .pulse-dot {
+      width: 7px;
+      height: 7px;
+      background: #25D366;
+      border-radius: 50%;
+      box-shadow: 0 0 8px #25D366;
+      animation: pulse 1.8s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.4; transform: scale(1.3); }
+    }
+
+    h1 {
+      font-size: 24px;
+      font-weight: 800;
+      line-height: 1.25;
+      background: linear-gradient(135deg, #FFFFFF 30%, #94A3B8 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 6px;
+    }
+
+    .subtitle {
+      font-size: 13px;
+      color: #94A3B8;
+      line-height: 1.5;
+    }
+
+    /* Channel CTA Banner */
+    .channel-banner {
+      background: linear-gradient(135deg, #075E54 0%, #128C7E 100%);
+      border-radius: 16px;
+      padding: 14px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 20px;
+      box-shadow: 0 8px 24px rgba(18, 140, 126, 0.3);
+      text-decoration: none;
+      color: white;
+      transition: transform 0.2s ease;
+    }
+
+    .channel-banner:active {
+      transform: scale(0.98);
+    }
+
+    .channel-info h4 {
+      font-size: 15px;
+      font-weight: 700;
+      margin-bottom: 2px;
+    }
+
+    .channel-info p {
+      font-size: 11px;
+      opacity: 0.85;
+    }
+
+    .channel-btn {
+      background: #25D366;
+      color: #0B141A;
+      font-size: 12px;
+      font-weight: 800;
+      padding: 8px 14px;
+      border-radius: 10px;
+      white-space: nowrap;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    /* Section Title */
+    .section-title {
+      font-size: 16px;
+      font-weight: 700;
+      color: #F8FAFC;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .section-title span {
+      font-size: 12px;
+      color: #64748B;
+      font-weight: 500;
+    }
+
+    /* Demos Grid */
+    .demo-list {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      margin-bottom: 24px;
+    }
+
+    .demo-card {
+      background: rgba(30, 41, 59, 0.6);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      border-radius: 18px;
+      overflow: hidden;
+      backdrop-filter: blur(8px);
+      transition: border-color 0.2s, transform 0.2s;
+    }
+
+    .demo-card:active {
+      transform: scale(0.99);
+      border-color: rgba(37, 211, 102, 0.4);
+    }
+
+    .demo-img-wrapper {
+      position: relative;
+      width: 100%;
+      height: 150px;
+      background: #0F172A;
+      overflow: hidden;
+    }
+
+    .demo-img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.4s ease;
+    }
+
+    .demo-badge {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      background: rgba(15, 23, 42, 0.85);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      color: #F1F5F9;
+      font-size: 11px;
+      font-weight: 600;
+      padding: 4px 10px;
+      border-radius: 50px;
+      backdrop-filter: blur(6px);
+    }
+
+    .demo-body {
+      padding: 14px;
+    }
+
+    .demo-title {
+      font-size: 16px;
+      font-weight: 700;
+      color: #FFFFFF;
+      margin-bottom: 6px;
+      line-height: 1.3;
+    }
+
+    .demo-desc {
+      font-size: 12px;
+      color: #94A3B8;
+      line-height: 1.45;
+      margin-bottom: 12px;
+    }
+
+    .demo-actions {
+      display: flex;
+      gap: 8px;
+    }
+
+    .btn-preview {
+      flex: 1;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      color: #F1F5F9;
+      font-size: 13px;
+      font-weight: 600;
+      padding: 9px;
+      border-radius: 10px;
+      text-align: center;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+
+    .btn-order {
+      flex: 1.1;
+      background: linear-gradient(135deg, #25D366 0%, #128C7E 100%);
+      color: #FFFFFF;
+      font-size: 13px;
+      font-weight: 700;
+      padding: 9px;
+      border-radius: 10px;
+      text-align: center;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      box-shadow: 0 4px 14px rgba(37, 211, 102, 0.25);
+    }
+
+    /* Fixed Bottom Sticky Bar */
+    .bottom-bar {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: rgba(15, 23, 42, 0.92);
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+      backdrop-filter: blur(16px);
+      padding: 12px 16px;
+      z-index: 100;
+    }
+
+    .bottom-inner {
+      max-width: 480px;
+      margin: 0 auto;
+      display: flex;
+      gap: 10px;
+    }
+
+    .direct-whatsapp-btn {
+      flex: 1;
+      background: #25D366;
+      color: #073B1B;
+      font-size: 15px;
+      font-weight: 800;
+      padding: 13px;
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      text-decoration: none;
+      box-shadow: 0 4px 20px rgba(37, 211, 102, 0.4);
+      transition: transform 0.15s ease;
+    }
+
+    .direct-whatsapp-btn:active {
+      transform: scale(0.97);
+    }
+
+    .channel-quick-btn {
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      color: white;
+      padding: 13px 16px;
+      border-radius: 14px;
+      text-decoration: none;
+      font-size: 13px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="bg-glow"></div>
+
+  <div class="container">
+    
+    <!-- Header Profile -->
+    <header class="header-card">
+      <div class="brand-badge">
+        <span class="pulse-dot"></span>
+        Verified WhatsApp Business Partner
+      </div>
+      <h1>Vismart Digital</h1>
+      <p class="subtitle">हर तरह के बिजनेस के लिए रेडीमेड व कस्टमाइज्ड ऑनलाइन शोरूम</p>
+    </header>
+
+    <!-- Official Channel Link Banner -->
+    <a href="https://whatsapp.com/channel/0029Vb8jOlzI7Be5Oxi1t33f" target="_blank" class="channel-banner">
+      <div class="channel-info">
+        <h4>📢 ऑफिशियल व्हाट्सएप चैनल</h4>
+        <p>रोज नए-नए बिजनेस डेमो और अपडेट्स देखें</p>
+      </div>
+      <div class="channel-btn">
+        चैनल देखें →
+      </div>
+    </a>
+
+    <!-- Section: Selected Live Demos -->
+    <div class="section-title">
+      लाइव डेमो कलेक्शन्स
+      <span>मोबाइल फ्रेंडली</span>
+    </div>
+
+    <div class="demo-list">
+
+      <!-- Demo 1: Retail & Clothing Showroom -->
+      <div class="demo-card">
+        <div class="demo-img-wrapper">
+          <img src="https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=700&auto=format&fit=crop&q=80" alt="कपड़ा व रिटेल दुकान" class="demo-img">
+          <div class="demo-badge">कपड़ा, साड़ी व रिटेल दुकान</div>
+        </div>
+        <div class="demo-body">
+          <h3 class="demo-title">दुकान का ऑनलाइन शोकेस</h3>
+          <p class="demo-desc">अपनी वैरायटी दिखाएं, ग्राहक सीधे आपके व्हाट्सएप पर फोटो देखकर ऑर्डर भेजेगा। कोई फोटो अपलोड करने का सिरदर्द नहीं।</p>
+          <div class="demo-actions">
+            <a href="https://vismartdigital.vercel.app" target="_blank" class="btn-preview">👁️ लाइव देखें</a>
+            <a href="https://wa.me/918989605297?text=नमस्ते%20मोहित%20जी,%20मुझे%20रिटेल%20दुकान%20वेबसाइट%20बनवानी%20है" class="btn-order">💬 बात करें</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Demo 2: Clinic & Doctor -->
+      <div class="demo-card">
+        <div class="demo-img-wrapper">
+          <img src="https://images.unsplash.com/photo-1629909613654-28e377c37b09?w=700&auto=format&fit=crop&q=80" alt="क्लिनिक व डॉक्टर" class="demo-img">
+          <div class="demo-badge">डॉक्टर, क्लिनिक व हॉस्पिटल</div>
+        </div>
+        <div class="demo-body">
+          <h3 class="demo-title">डॉक्टर अपॉइंटमेंट पोर्टल</h3>
+          <p class="demo-desc">मरीजों के लिए ऑनलाइन टाइमिंग, सर्विसेज और डायरेक्ट व्हाट्सएप अपॉइंटमेंट बुकिंग की सुविधा।</p>
+          <div class="demo-actions">
+            <a href="https://whatsapp.com/channel/0029Vb8jOlzI7Be5Oxi1t33f" target="_blank" class="btn-preview">👁️ चैनल पर देखें</a>
+            <a href="https://wa.me/918989605297?text=नमस्ते%20मोहित%20जी,%20मुझे%20क्लिनिक/डॉक्टर%20पोर्टल%20बनवाना%20है" class="btn-order">💬 बात करें</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Demo 3: Coaching & Education -->
+      <div class="demo-card">
+        <div class="demo-img-wrapper">
+          <img src="https://images.unsplash.com/photo-1524178232363-1fb2b075b655?w=700&auto=format&fit=crop&q=80" alt="कोचिंग व स्कूल" class="demo-img">
+          <div class="demo-badge">कोचिंग, स्कूल व टीचर्स</div>
+        </div>
+        <div class="demo-body">
+          <h3 class="demo-title">कोचिंग इंक्वायरी पोर्टल</h3>
+          <p class="demo-desc">कोर्स डिटेल्स, फैकल्टी प्रोफाइल और नए स्टूडेंट्स के एडमिशन फॉर्म सीधे आपके व्हाट्सएप पर।</p>
+          <div class="demo-actions">
+            <a href="https://whatsapp.com/channel/0029Vb8jOlzI7Be5Oxi1t33f" target="_blank" class="btn-preview">👁️ चैनल पर देखें</a>
+            <a href="https://wa.me/918989605297?text=नमस्ते%20मोहित%20जी,%20मुझे%20कोचिंग%20वेबसाइट%20बनवानी%20है" class="btn-order">💬 बात करें</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Demo 4: Restaurant & Cafe -->
+      <div class="demo-card">
+        <div class="demo-img-wrapper">
+          <img src="https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=700&auto=format&fit=crop&q=80" alt="रेस्टोरेंट व कैफे" class="demo-img">
+          <div class="demo-badge">रेस्टोरेंट, कैफे व होटल</div>
+        </div>
+        <div class="demo-body">
+          <h3 class="demo-title">डिजिटल QR मेनू व ऑर्डरिंग</h3>
+          <p class="demo-desc">टेबल पर लगा QR स्कैन करके ग्राहक अपने मोबाइल में पूरा मेनू रेट के साथ देख सकेंगे और पार्सल ऑर्डर कर सकेंगे।</p>
+          <div class="demo-actions">
+            <a href="https://whatsapp.com/channel/0029Vb8jOlzI7Be5Oxi1t33f" target="_blank" class="btn-preview">👁️ चैनल पर देखें</a>
+            <a href="https://wa.me/918989605297?text=नमस्ते%20मोहित%20जी,%20मुझे%20रेस्टोरेंट%20QR%20मेनू%20बनवाना%20है" class="btn-order">💬 बात करें</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Demo 5: Real Estate & Construction -->
+      <div class="demo-card">
+        <div class="demo-img-wrapper">
+          <img src="https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=700&auto=format&fit=crop&q=80" alt="रियल एस्टेट व प्रॉपर्टी" class="demo-img">
+          <div class="demo-badge">प्रॉपर्टी, बिल्डर्स व रियल एस्टेट</div>
+        </div>
+        <div class="demo-body">
+          <h3 class="demo-title">प्रॉपर्टी लीड मशीन</h3>
+          <p class="demo-desc">प्लॉट्स, फ्लैट्स और प्रोजेक्ट्स की हाई-क्वालिटी फोटो व ब्रोशर डाउनलोड, डायरेक्ट खरीदार से व्हाट्सएप पर बात।</p>
+          <div class="demo-actions">
+            <a href="https://whatsapp.com/channel/0029Vb8jOlzI7Be5Oxi1t33f" target="_blank" class="btn-preview">👁️ चैनल पर देखें</a>
+            <a href="https://wa.me/918989605297?text=नमस्ते%20मोहित%20जी,%20मुझे%20रियल%20एस्टेट%20पोर्टल%20बनवाना%20है" class="btn-order">💬 बात करें</a>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+
+  <!-- Bottom Sticky Call-To-Action -->
+  <div class="bottom-bar">
+    <div class="bottom-inner">
+      <a href="https://whatsapp.com/channel/0029Vb8jOlzI7Be5Oxi1t33f" target="_blank" class="channel-quick-btn">
+        📢 चैनल
+      </a>
+      <a href="https://wa.me/918989605297?text=नमस्ते%20मोहित%20जी,%20मुझे%20अपने%20काम%20के%20लिए%20वेबसाइट%20बनवानी%20है" class="direct-whatsapp-btn">
+        💬 सीधे WhatsApp पर बात करें
+      </a>
+    </div>
+  </div>
+
+</body>
+</html>

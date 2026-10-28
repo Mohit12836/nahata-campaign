@@ -1,0 +1,801 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>SKYBRIDGE — Startup Registration & Media Showcase</title>
+
+  <!-- Google Fonts: Plus Jakarta Sans & Outfit -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    :root {
+      --bg-canvas: #F8FAFC;
+      --bg-card: #FFFFFF;
+      --border-subtle: #E2E8F0;
+      --border-glow: #6366F1;
+      --border-focus: #4F46E5;
+      --primary: #4F46E5;
+      --primary-light: #EEF2FF;
+      --primary-gradient: linear-gradient(135deg, #4F46E5 0%, #7C3AED 100%);
+      --accent-emerald: #10B981;
+      --text-heading: #0F172A;
+      --text-body: #334155;
+      --text-muted: #64748B;
+      --card-shadow: 0 10px 30px -10px rgba(15, 23, 42, 0.08), 0 4px 6px -2px rgba(15, 23, 42, 0.03);
+      --card-shadow-hover: 0 20px 40px -15px rgba(79, 70, 229, 0.15), 0 0 0 1px rgba(99, 102, 241, 0.2);
+    }
+
+    html, body {
+      max-width: 100%;
+      overflow-x: clip;
+      background: var(--bg-canvas);
+      color: var(--text-body);
+      font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      padding: clamp(1rem, 2.5vw, 2.5rem) clamp(0.75rem, 2vw, 1.5rem);
+      position: relative;
+    }
+
+    /* Ambient Background Glow */
+    .ambient-glow-1 {
+      position: fixed;
+      top: -100px;
+      left: 10%;
+      width: 450px;
+      height: 450px;
+      background: radial-gradient(circle, rgba(99, 102, 241, 0.08) 0%, rgba(248, 250, 252, 0) 70%);
+      border-radius: 50%;
+      z-index: -1;
+      pointer-events: none;
+    }
+    .ambient-glow-2 {
+      position: fixed;
+      bottom: -100px;
+      right: 10%;
+      width: 500px;
+      height: 500px;
+      background: radial-gradient(circle, rgba(16, 185, 129, 0.06) 0%, rgba(248, 250, 252, 0) 70%);
+      border-radius: 50%;
+      z-index: -1;
+      pointer-events: none;
+    }
+
+    /* Container */
+    .form-wrapper {
+      width: 100%;
+      max-width: min(100%, 680px);
+      margin: 0 auto;
+    }
+
+    /* Header Bar */
+    .form-header {
+      text-align: center;
+      margin-bottom: clamp(1.25rem, 2.5vw, 2rem);
+    }
+    .brand-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.35rem 0.9rem;
+      background: #FFFFFF;
+      border: 1px solid var(--border-subtle);
+      border-radius: 999px;
+      font-size: 0.8125rem;
+      font-weight: 600;
+      color: var(--primary);
+      box-shadow: 0 2px 4px rgba(15, 23, 42, 0.04);
+      margin-bottom: 0.75rem;
+    }
+    .brand-badge span.pulse-dot {
+      width: 8px;
+      height: 8px;
+      background: #10B981;
+      border-radius: 50%;
+      box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.2);
+    }
+    .form-title {
+      font-family: 'Outfit', sans-serif;
+      font-size: clamp(1.5rem, 3.5vw, 2.25rem);
+      font-weight: 800;
+      color: var(--text-heading);
+      letter-spacing: -0.02em;
+      line-height: 1.2;
+      margin-bottom: 0.4rem;
+    }
+    .form-subtitle {
+      font-size: clamp(0.875rem, 1.2vw, 0.975rem);
+      color: var(--text-muted);
+      line-height: 1.5;
+    }
+
+    /* Progress Tracker */
+    .progress-card {
+      background: #FFFFFF;
+      border: 1px solid var(--border-subtle);
+      border-radius: 16px;
+      padding: 1rem 1.25rem;
+      margin-bottom: 1.25rem;
+      box-shadow: 0 2px 6px rgba(15, 23, 42, 0.03);
+    }
+    .progress-meta {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.8125rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      margin-bottom: 0.6rem;
+    }
+    .progress-meta .current-step-label {
+      color: var(--primary);
+      font-weight: 700;
+    }
+    .progress-bar-bg {
+      width: 100%;
+      height: 6px;
+      background: #F1F5F9;
+      border-radius: 999px;
+      overflow: hidden;
+      position: relative;
+    }
+    .progress-bar-fill {
+      height: 100%;
+      width: 25%;
+      background: var(--primary-gradient);
+      border-radius: 999px;
+      transition: width 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    /* Step Slider Viewport */
+    .slider-viewport {
+      position: relative;
+      overflow: hidden;
+      width: 100%;
+      border-radius: 24px;
+    }
+
+    .slider-track {
+      display: flex;
+      width: 400%;
+      transition: transform 0.45s cubic-bezier(0.2, 0.8, 0.2, 1);
+    }
+
+    /* Individual Card Slide */
+    .slide-card {
+      width: 25%;
+      flex-shrink: 0;
+      padding: clamp(1.25rem, 3vw, 2.25rem);
+      background: #FFFFFF;
+      border: 1px solid rgba(226, 232, 240, 0.9);
+      border-radius: 24px;
+      box-shadow: var(--card-shadow);
+      position: relative;
+      /* Shimmer Chamakti Border Effect */
+      background-clip: padding-box;
+    }
+
+    .slide-card::before {
+      content: '';
+      position: absolute;
+      inset: -1px;
+      border-radius: 25px;
+      background: linear-gradient(135deg, rgba(99, 102, 241, 0.25) 0%, rgba(226, 232, 240, 0.4) 50%, rgba(16, 185, 129, 0.2) 100%);
+      z-index: -1;
+      pointer-events: none;
+    }
+
+    .card-head {
+      margin-bottom: 1.5rem;
+      border-bottom: 1px solid #F1F5F9;
+      padding-bottom: 1rem;
+    }
+    .card-badge {
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--primary);
+      margin-bottom: 0.25rem;
+    }
+    .card-title {
+      font-family: 'Outfit', sans-serif;
+      font-size: clamp(1.2rem, 2vw, 1.45rem);
+      font-weight: 700;
+      color: var(--text-heading);
+    }
+    .card-desc {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      margin-top: 0.2rem;
+    }
+
+    /* Form Fields */
+    .field-group {
+      display: flex;
+      flex-direction: column;
+      gap: 1.15rem;
+    }
+    .input-item {
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+    }
+    .input-item label {
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: var(--text-heading);
+      display: flex;
+      align-items: center;
+      gap: 0.35rem;
+    }
+    .input-item label span.req {
+      color: #EF4444;
+    }
+    .input-item .hint {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+
+    .input-box {
+      width: 100%;
+      padding: 0.8rem 1rem;
+      background: #F8FAFC;
+      border: 1.5px solid var(--border-subtle);
+      border-radius: 12px;
+      font-family: inherit;
+      font-size: 0.925rem;
+      color: var(--text-heading);
+      transition: all 0.2s ease;
+      outline: none;
+    }
+    .input-box:focus {
+      background: #FFFFFF;
+      border-color: var(--border-focus);
+      box-shadow: 0 0 0 4px var(--primary-light);
+    }
+    textarea.input-box {
+      min-height: 85px;
+      resize: vertical;
+    }
+    select.input-box {
+      cursor: pointer;
+      appearance: auto;
+    }
+
+    /* File Upload Box (Luxury Light) */
+    .file-dropzone {
+      border: 2px dashed #CBD5E1;
+      border-radius: 14px;
+      padding: 1.25rem 1rem;
+      text-align: center;
+      background: #F8FAFC;
+      cursor: pointer;
+      transition: all 0.25s ease;
+      position: relative;
+    }
+    .file-dropzone:hover {
+      border-color: var(--primary);
+      background: #EEF2FF;
+    }
+    .file-dropzone svg {
+      margin-bottom: 0.5rem;
+      color: var(--primary);
+    }
+    .file-dropzone .drop-title {
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: var(--text-heading);
+    }
+    .file-dropzone .drop-sub {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      margin-top: 0.2rem;
+    }
+    .file-chosen-badge {
+      display: none;
+      margin-top: 0.5rem;
+      font-size: 0.8125rem;
+      font-weight: 600;
+      color: #059669;
+      background: #ECFDF5;
+      padding: 0.35rem 0.75rem;
+      border-radius: 8px;
+      border: 1px solid #A7F3D0;
+    }
+
+    /* Button Actions */
+    .btn-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      margin-top: 1.75rem;
+      padding-top: 1.25rem;
+      border-top: 1px solid #F1F5F9;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      font-family: inherit;
+      font-size: 0.925rem;
+      font-weight: 600;
+      padding: 0.8rem 1.6rem;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+      border: none;
+      text-decoration: none;
+    }
+    .btn:hover {
+      transform: translateY(-2px);
+    }
+    .btn:active {
+      transform: scale(0.98);
+    }
+
+    .btn-secondary {
+      background: #F1F5F9;
+      color: var(--text-body);
+    }
+    .btn-secondary:hover {
+      background: #E2E8F0;
+    }
+
+    .btn-primary {
+      background: var(--primary-gradient);
+      color: #FFFFFF;
+      box-shadow: 0 4px 14px rgba(79, 70, 229, 0.35);
+      flex: 1;
+    }
+    .btn-primary:hover {
+      box-shadow: 0 6px 20px rgba(79, 70, 229, 0.45);
+    }
+
+    .btn-success {
+      background: linear-gradient(135deg, #10B981 0%, #059669 100%);
+      color: #FFFFFF;
+      box-shadow: 0 4px 14px rgba(16, 185, 129, 0.35);
+      flex: 1;
+    }
+
+    /* Step 4 Review Ticket */
+    .review-ticket {
+      background: #F8FAFC;
+      border: 1px solid #E2E8F0;
+      border-radius: 16px;
+      padding: 1.25rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+    .ticket-row {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.85rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 1px solid #EDF2F7;
+    }
+    .ticket-row:last-child {
+      border-bottom: none;
+      padding-bottom: 0;
+    }
+    .ticket-k {
+      color: var(--text-muted);
+      font-weight: 500;
+    }
+    .ticket-v {
+      color: var(--text-heading);
+      font-weight: 600;
+      text-align: right;
+      max-width: 60%;
+      word-break: break-word;
+    }
+
+    .notice-box {
+      margin-top: 1rem;
+      background: #EEF2FF;
+      border: 1px solid #C7D2FE;
+      border-radius: 12px;
+      padding: 0.85rem 1rem;
+      font-size: 0.8125rem;
+      color: #3730A3;
+      line-height: 1.45;
+      display: flex;
+      align-items: flex-start;
+      gap: 0.5rem;
+    }
+
+    /* Responsive */
+    @media (max-width: 480px) {
+      body {
+        padding: 0.75rem 0.5rem;
+      }
+      .slide-card {
+        padding: 1.25rem 1rem;
+      }
+      .btn-row {
+        flex-direction: column-reverse;
+      }
+      .btn {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="ambient-glow-1"></div>
+  <div class="ambient-glow-2"></div>
+
+  <div class="form-wrapper">
+    <!-- Header -->
+    <header class="form-header">
+      <div class="brand-badge">
+        <span class="pulse-dot"></span>
+        SKYBRIDGE STARTUP EBOOK – 2027
+      </div>
+      <h1 class="form-title">Startup Registration & Media Showcase</h1>
+      <p class="form-subtitle">An Online Free Directory for Your Startup, Products and Videos</p>
+    </header>
+
+    <!-- Progress Tracker -->
+    <div class="progress-card">
+      <div class="progress-meta">
+        <span id="stepLabel" class="current-step-label">Step 1: Startup Basics</span>
+        <span id="stepCounter">1 of 4</span>
+      </div>
+      <div class="progress-bar-bg">
+        <div id="progressBar" class="progress-bar-fill"></div>
+      </div>
+    </div>
+
+    <!-- Multi-Step Sliding Container -->
+    <div class="slider-viewport">
+      <div id="sliderTrack" class="slider-track">
+
+        <!-- ================= STEP 1: IDENTITY ================= -->
+        <div class="slide-card">
+          <div class="card-head">
+            <div class="card-badge">Step 01 / 04</div>
+            <h2 class="card-title">Startup & Founder Info</h2>
+            <p class="card-desc">Enter your registered business identity and founder details</p>
+          </div>
+
+          <div class="field-group">
+            <div class="input-item">
+              <label>Startup Name <span class="req">*</span></label>
+              <input type="text" id="inp_startup_name" class="input-box" placeholder="e.g. SKYBRIDGE SMALL HYDRO TURBINES PVT LTD" required>
+            </div>
+
+            <div class="input-item">
+              <label>Startup Founder Name <span class="req">*</span></label>
+              <input type="text" id="inp_founder_name" class="input-box" placeholder="e.g. HARISH CHANDRA AZAD" required>
+            </div>
+
+            <div class="input-item">
+              <label>Startup Sector <span class="req">*</span></label>
+              <select id="inp_sector" class="input-box" required>
+                <option value="">-- Choose Your Startup Sector --</option>
+                <option value="AgriTech (Agriculture)">AgriTech (Agriculture)</option>
+                <option value="AI & DeepTech (Artificial Intelligence)">AI & DeepTech (Artificial Intelligence)</option>
+                <option value="AutoTech & Electric Vehicles (EV)">AutoTech & Electric Vehicles (EV)</option>
+                <option value="BioTech & Life Sciences">BioTech & Life Sciences)</option>
+                <option value="CleanTech & Renewable Energy" selected>CleanTech & Renewable Energy</option>
+                <option value="Construction & Real Estate Tech (PropTech)">Construction & Real Estate Tech (PropTech)</option>
+                <option value="Cybersecurity & Data Privacy">Cybersecurity & Data Privacy</option>
+                <option value="D2C & E-Commerce (Direct-to-Consumer)">D2C & E-Commerce (Direct-to-Consumer)</option>
+                <option value="Drone Technology">Drone Technology</option>
+                <option value="EdTech (Education Technology)">EdTech (Education Technology)</option>
+                <option value="Enterprise Software & SaaS">Enterprise Software & SaaS</option>
+                <option value="FinTech (Financial Technology)">FinTech (Financial Technology)</option>
+                <option value="FoodTech & Cloud Kitchens">FoodTech & Cloud Kitchens</option>
+                <option value="Gaming & Esports">Gaming & Esports</option>
+                <option value="HealthTech & MedTech">HealthTech & MedTech</option>
+                <option value="HRTech (Human Resources)">HRTech (Human Resources)</option>
+                <option value="Logistics & Supply Chain Tech">Logistics & Supply Chain Tech</option>
+                <option value="Media & Entertainment (Creator Economy)">Media & Entertainment (Creator Economy)</option>
+                <option value="Retail Tech">Retail Tech</option>
+                <option value="SpaceTech">SpaceTech</option>
+                <option value="Travel & Hospitality Tech">Travel & Hospitality Tech</option>
+                <option value="Web3, Blockchain & Crypto">Web3, Blockchain & Crypto</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="btn-row">
+            <div></div>
+            <button type="button" class="btn btn-primary" onclick="goToStep(2)">
+              Next: Contact & Location →
+            </button>
+          </div>
+        </div>
+
+        <!-- ================= STEP 2: CONTACT & LOCATION ================= -->
+        <div class="slide-card">
+          <div class="card-head">
+            <div class="card-badge">Step 02 / 04</div>
+            <h2 class="card-title">Contact & Location Details</h2>
+            <p class="card-desc">Where is your venture based and how can prospects reach you?</p>
+          </div>
+
+          <div class="field-group">
+            <div class="input-item">
+              <label>Startup Contact No. <span class="req">*</span></label>
+              <input type="tel" id="inp_phone" class="input-box" placeholder="e.g. 9827753143" required>
+            </div>
+
+            <div class="input-item">
+              <label>Startup Email Address <span class="req">*</span></label>
+              <input type="email" id="inp_email" class="input-box" placeholder="e.g. amanazad99999@gmail.com" required>
+            </div>
+
+            <div class="input-item">
+              <label>Startup Address <span class="req">*</span></label>
+              <textarea id="inp_address" class="input-box" placeholder="e.g. 21/7, Ajay Bagh Colony Musakhedi" required></textarea>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem;">
+              <div class="input-item">
+                <label>City <span class="req">*</span></label>
+                <input type="text" id="inp_city" class="input-box" placeholder="INDORE" required>
+              </div>
+              <div class="input-item">
+                <label>Pincode <span class="req">*</span></label>
+                <input type="text" id="inp_pincode" class="input-box" placeholder="450331" required>
+              </div>
+            </div>
+
+            <div class="input-item">
+              <label>State <span class="req">*</span></label>
+              <select id="inp_state" class="input-box" required>
+                <option value="Madhya Pradesh" selected>Madhya Pradesh</option>
+                <option value="Andhra Pradesh">Andhra Pradesh</option>
+                <option value="Bihar">Bihar</option>
+                <option value="Chhattisgarh">Chhattisgarh</option>
+                <option value="Delhi">Delhi</option>
+                <option value="Gujarat">Gujarat</option>
+                <option value="Haryana">Haryana</option>
+                <option value="Karnataka">Karnataka</option>
+                <option value="Maharashtra">Maharashtra</option>
+                <option value="Punjab">Punjab</option>
+                <option value="Rajasthan">Rajasthan</option>
+                <option value="Tamil Nadu">Tamil Nadu</option>
+                <option value="Uttar Pradesh">Uttar Pradesh</option>
+                <option value="Uttarakhand">Uttarakhand</option>
+                <option value="West Bengal">West Bengal</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="btn-row">
+            <button type="button" class="btn btn-secondary" onclick="goToStep(1)">← Back</button>
+            <button type="button" class="btn btn-primary" onclick="goToStep(3)">
+              Next: Documents & Media →
+            </button>
+          </div>
+        </div>
+
+        <!-- ================= STEP 3: DOCUMENTS & SHOWCASE ================= -->
+        <div class="slide-card">
+          <div class="card-head">
+            <div class="card-badge">Step 03 / 04</div>
+            <h2 class="card-title">Documents & Media Showcase</h2>
+            <p class="card-desc">Showcase your venture, verification certificate, and media assets</p>
+          </div>
+
+          <div class="field-group">
+            <div class="input-item">
+              <label>Founder ID / Udyam Registration (PDF/Doc/Image)</label>
+              <div class="file-dropzone" onclick="document.getElementById('file_id_proof').click()">
+                <svg width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path></svg>
+                <div class="drop-title">Upload Founder ID / Udyam Certificate</div>
+                <div class="drop-sub">PDF, JPG, PNG accepted (Max 10 MB)</div>
+                <div id="badge_id_proof" class="file-chosen-badge">✓ Selected</div>
+              </div>
+              <input type="file" id="file_id_proof" style="display:none;" onchange="handleFilePick(this, 'badge_id_proof')">
+            </div>
+
+            <div class="input-item">
+              <label>Founder Image (Photo)</label>
+              <div class="file-dropzone" onclick="document.getElementById('file_founder_img').click()">
+                <svg width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                <div class="drop-title">Upload Founder Headshot / Photo</div>
+                <div class="drop-sub">High resolution JPG or PNG</div>
+                <div id="badge_founder_img" class="file-chosen-badge">✓ Selected</div>
+              </div>
+              <input type="file" id="file_founder_img" style="display:none;" accept="image/*" onchange="handleFilePick(this, 'badge_founder_img')">
+            </div>
+
+            <div class="input-item">
+              <label>Startup Website Link / Google Site</label>
+              <input type="url" id="inp_website" class="input-box" placeholder="https://yourstartup.com">
+            </div>
+          </div>
+
+          <div class="btn-row">
+            <button type="button" class="btn btn-secondary" onclick="goToStep(2)">← Back</button>
+            <button type="button" class="btn btn-primary" onclick="goToStep(4)">
+              Next: Review & Sync →
+            </button>
+          </div>
+        </div>
+
+        <!-- ================= STEP 4: REVIEW & ONE-CLICK SYNC ================= -->
+        <div class="slide-card">
+          <div class="card-head">
+            <div class="card-badge">Step 04 / 04</div>
+            <h2 class="card-title">Review & 1-Click Sync</h2>
+            <p class="card-desc">Verify your details and auto-sync directly with Google Form</p>
+          </div>
+
+          <div class="review-ticket">
+            <div class="ticket-row">
+              <span class="ticket-k">Startup:</span>
+              <span class="ticket-v" id="rev_startup_name">-</span>
+            </div>
+            <div class="ticket-row">
+              <span class="ticket-k">Founder:</span>
+              <span class="ticket-v" id="rev_founder_name">-</span>
+            </div>
+            <div class="ticket-row">
+              <span class="ticket-k">Sector:</span>
+              <span class="ticket-v" id="rev_sector">-</span>
+            </div>
+            <div class="ticket-row">
+              <span class="ticket-k">Contact:</span>
+              <span class="ticket-v" id="rev_contact">-</span>
+            </div>
+            <div class="ticket-row">
+              <span class="ticket-k">Email:</span>
+              <span class="ticket-v" id="rev_email">-</span>
+            </div>
+            <div class="ticket-row">
+              <span class="ticket-k">Location:</span>
+              <span class="ticket-v" id="rev_location">-</span>
+            </div>
+          </div>
+
+          <div class="notice-box">
+            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+            <div>
+              <strong>Instant Google Form Link:</strong> नीचे दिए बटन पर क्लिक करते ही आपका पूरा डेटा ऑटोमेटिक रूप से Google Form के सभी फ़ील्ड्स में भर जाएगा!
+            </div>
+          </div>
+
+          <div class="btn-row">
+            <button type="button" class="btn btn-secondary" onclick="goToStep(3)">← Edit</button>
+            <button type="button" class="btn btn-success" onclick="openGoogleFormPrefilled()">
+              🚀 1-Click Sync to Google Form
+            </button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let currentStep = 1;
+    const totalSteps = 4;
+    const stepTitles = [
+      "Step 1: Startup Basics",
+      "Step 2: Contact & Location",
+      "Step 3: Documents & Showcase",
+      "Step 4: Review & Google Form Sync"
+    ];
+
+    // Google Form Base & Exact Field Entry IDs (Discovered via Playwright)
+    const GOOGLE_FORM_PREFILL_URL = "https://docs.google.com/forms/d/e/1FAIpQLSdZ422oZNc5DhMR9ZtIUC4uEaCLBHB3GT6-UHJjHzwF8MmrAg/viewform?usp=pp_url";
+    const FIELD_MAP = {
+      startup_name: "entry.2005620554",
+      founder_name: "entry.1045781291",
+      sector: "entry.1166974658",
+      address: "entry.1407004089",
+      phone: "entry.1274261628",
+      city: "entry.839337160",
+      pincode: "entry.1611784293",
+      state: "entry.757390368",
+      website: "entry.343882862",
+      email: "entry.313469564"
+    };
+
+    function goToStep(stepNumber) {
+      if (stepNumber < 1 || stepNumber > totalSteps) return;
+
+      currentStep = stepNumber;
+
+      // Update Slider Track Position
+      const track = document.getElementById('sliderTrack');
+      const offsetPercent = (currentStep - 1) * -25;
+      track.style.transform = `translateX(${offsetPercent}%)`;
+
+      // Update Progress Bar & Labels
+      const progressPercent = (currentStep / totalSteps) * 100;
+      document.getElementById('progressBar').style.width = `${progressPercent}%`;
+      document.getElementById('stepCounter').innerText = `${currentStep} of ${totalSteps}`;
+      document.getElementById('stepLabel').innerText = stepTitles[currentStep - 1];
+
+      // If reaching Review Step, populate review ticket
+      if (currentStep === 4) {
+        populateReview();
+      }
+
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function handleFilePick(input, badgeId) {
+      if (input.files && input.files[0]) {
+        const badge = document.getElementById(badgeId);
+        badge.innerText = `✓ Selected: ${input.files[0].name} (${(input.files[0].size / 1024).toFixed(0)} KB)`;
+        badge.style.display = 'inline-block';
+      }
+    }
+
+    function populateReview() {
+      document.getElementById('rev_startup_name').innerText = document.getElementById('inp_startup_name').value || 'N/A';
+      document.getElementById('rev_founder_name').innerText = document.getElementById('inp_founder_name').value || 'N/A';
+      document.getElementById('rev_sector').innerText = document.getElementById('inp_sector').value || 'N/A';
+      document.getElementById('rev_contact').innerText = document.getElementById('inp_phone').value || 'N/A';
+      document.getElementById('rev_email').innerText = document.getElementById('inp_email').value || 'N/A';
+      
+      const city = document.getElementById('inp_city').value || '';
+      const state = document.getElementById('inp_state').value || '';
+      const pin = document.getElementById('inp_pincode').value || '';
+      document.getElementById('rev_location').innerText = `${city}, ${state} - ${pin}`;
+    }
+
+    function generatePrefilledUrl() {
+      const params = new URLSearchParams();
+      params.append(FIELD_MAP.startup_name, document.getElementById('inp_startup_name').value.trim());
+      params.append(FIELD_MAP.founder_name, document.getElementById('inp_founder_name').value.trim());
+      params.append(FIELD_MAP.sector, document.getElementById('inp_sector').value.trim());
+      params.append(FIELD_MAP.phone, document.getElementById('inp_phone').value.trim());
+      params.append(FIELD_MAP.email, document.getElementById('inp_email').value.trim());
+      params.append(FIELD_MAP.address, document.getElementById('inp_address').value.trim());
+      params.append(FIELD_MAP.city, document.getElementById('inp_city').value.trim());
+      params.append(FIELD_MAP.pincode, document.getElementById('inp_pincode').value.trim());
+      params.append(FIELD_MAP.state, document.getElementById('inp_state').value.trim());
+      
+      const web = document.getElementById('inp_website').value.trim();
+      if (web) {
+        params.append(FIELD_MAP.website, web);
+      }
+
+      return `${GOOGLE_FORM_PREFILL_URL}&${params.toString()}`;
+    }
+
+    function openGoogleFormPrefilled() {
+      const url = generatePrefilledUrl();
+      window.open(url, '_blank');
+    }
+
+    // Auto-fill existing startup sample data on load for instant preview
+    window.addEventListener('DOMContentLoaded', () => {
+      document.getElementById('inp_startup_name').value = "SKYBRIDGE SMALL HYDRO TURBINES R & D AND MANUFACTURING PVT LTD";
+      document.getElementById('inp_founder_name').value = "HARISH CHANDRA AZAD";
+      document.getElementById('inp_phone').value = "9827753143";
+      document.getElementById('inp_email').value = "amanazad99999@gmail.com";
+      document.getElementById('inp_address').value = "21/7, Ajay Bagh Colony Musakhedi";
+      document.getElementById('inp_city').value = "INDORE";
+      document.getElementById('inp_pincode').value = "450331";
+      document.getElementById('inp_state').value = "Madhya Pradesh";
+    });
+  </script>
+</body>
+</html>
